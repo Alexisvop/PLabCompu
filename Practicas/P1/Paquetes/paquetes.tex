@@ -1,0 +1,37 @@
+\usepackage{graphicx}
+\usepackage{geometry}
+\geometry{
+    a4paper,
+    top = 2cm,
+    left = 2cm,
+    right = 2cm,
+    bottom = 3cm
+}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel} % Renombra en automático los elementos a español
+\usepackage{float}  % Etiqueta 'H' (mayus) en figuras (imágenes)
+\usepackage{array}  % Padding en tablas
+\usepackage{url}    % Etiqueta url en .bib
+\usepackage{booktabs}   % Manejo de caudros (tablas)
+\usepackage[T1]{fontenc}    % Codificación de fuentes
+\usepackage{csquotes}       % Paquete para comillas tipográficas
+\usepackage{comment}    % Comentar bloques de líneas mediante begin-end
+\usepackage{multicol}   % Para poner contenido a doble columna
+\usepackage{enumitem}   % Para utilizar [noitemsep, topsep=0pt] en itemize
+\usepackage{amsmath}
+\usepackage[hidelinks]{hyperref}    % Habilitar hipervínculos sin cambiar colores
+\usepackage{mathabx} % Para testar en math mode
+\usepackage{makecell}
+\usepackage{fancyhdr}
+
+\addto\captionsspanish{\renewcommand{\tablename}{Tabla}}
+\addto\captionsspanish{\def\tablenamepunct{. }}
+\addto\captionsspanish{\def\@captionhead#1#2{#1 #2.}}
+
+%--------------- Configuraciones para tablas ---------------
+\usepackage{adjustbox}
+\usepackage[table,xcdraw]{xcolor}
+\definecolor{cellColor}{rgb}{0.788, 0.855, 0.972}    % RGB: 201, 218, 248 (Azul ocuro, Texto 2, Claro 80%)
+\cellcolor{cellColor}
+\usepackage{multirow}
+% ----------------------------------------------------------
