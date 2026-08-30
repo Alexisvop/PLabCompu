@@ -23,17 +23,18 @@
 \usepackage{mathabx} % Para testar en math mode
 \usepackage{makecell}
 \usepackage{fancyhdr}
-\usepackage[style=apa]{biblatex}
+\usepackage[backend=biber, style=apa]{biblatex}
 \addbibresource{Referencias/Ref.bib}
 
+% ... código anterior ...
 \addto\captionsspanish{\renewcommand{\tablename}{Tabla}}
 \addto\captionsspanish{\def\tablenamepunct{. }}
-\addto\captionsspanish{\def\@captionhead#1#2{#1 #2.}}
+% \addto\captionsspanish{\def\@captionhead#1#2{#1 #2.}} % Línea comentada
 
 %--------------- Configuraciones para tablas ---------------
 \usepackage{adjustbox}
 \usepackage[table,xcdraw]{xcolor}
 \definecolor{cellColor}{rgb}{0.788, 0.855, 0.972}    % RGB: 201, 218, 248 (Azul ocuro, Texto 2, Claro 80%)
-\cellcolor{cellColor}
+% \cellcolor{cellColor} -> ELIMINADA
 \usepackage{multirow}
 % ----------------------------------------------------------
