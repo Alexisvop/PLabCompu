@@ -1,2 +1,14 @@
 \section{Conclusiones}
     \subsection{Perez Olvera Alexis Abraham}
+
+    \subsection{Basilio Illescas Andrés}
+
+    El desarrollo de las actividades asignadas dejó ver que la construcción de una geometría en OpenGL se apoya en dos decisiones independientes entre sí: cuáles son los vértices que la definen y de qué manera se conectan. En el caso del pentágono, los cinco vértices calculados sobre una circunferencia bastaron para obtener tanto la figura rellena como su contorno; lo único que cambió entre un resultado y otro fue la presencia del arreglo de índices, que determina si la malla se despliega con \texttt{glDrawElements} en modo \texttt{GL\_TRIANGLES} o con \texttt{glDrawArrays} en modo \texttt{GL\_LINE\_STRIP}. Igualmente resultó ilustrativo que el degradado del interior de la figura no requiera código adicional: al declarar el color como un atributo por vértice, la interpolación queda a cargo de la etapa de rasterización.\\
+
+    La actividad de la función tangente mostró que trasladar una expresión matemática a la pantalla obliga a resolver dos problemas ajenos a la expresión misma. El primero es el mapeo del dominio y del codominio al espacio de coordenadas normalizadas de dispositivo, que limita la región visible al intervalo $[-1, 1]$. El segundo es el tratamiento de los valores que no pueden representarse: el pipeline gráfico no tiene noción de discontinuidad y une en una sola polilínea todos los vértices que recibe, de modo que las asíntotas de $\tan(2\theta)$ tuvieron que atenderse de forma explícita al construir la geometría, filtrando las muestras que quedan fuera del área de dibujo.\\
+
+    Finalmente, la conversión de los colores hexadecimales al formato normalizado reforzó la idea de que OpenGL opera sobre valores flotantes acotados y no sobre las representaciones enteras habituales en otros contextos, criterio que se repite tanto en la definición del color de los vértices como en la del color de fondo de la ventana.\\
+
+    \subsection{Cruz Macedo Samuel Santiago}
+
+    [PENDIENTE: integrar conclusión proporcionada por el integrante]
