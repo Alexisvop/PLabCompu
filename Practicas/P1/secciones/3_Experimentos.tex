@@ -54,3 +54,51 @@ En la Figura \ref{fig:fondo5} se observa el cambio al color \#FF5D8F (tecla 'O')
     \label{fig:fondo5}
 \end{figure}
 
+\subsection{Actividad 2: Rectángulo unido por dos triángulos}
+Para esta actividad, se modificó la clase encargada de construir la geometría para generar un rectángulo centrado en la ventana. Se definieron cuatro vértices cuyas coordenadas en $X$ y en $Y$ se calcularon de forma simétrica a partir del origen $(0.0, 0.0)$, asegurando que la figura mantuviera una posición uniforme en el espacio normalizado. Para completar la superficie rectangular, se definieron dos triángulos en el arreglo de índices (\texttt{EBO}): el primero uniendo los vértices $0-1-2$ y el segundo conectando los vértices $0-2-3$.
+
+A cada uno de los cuatro vértices se le asignó un color diferente de la paleta solicitada, realizando la conversión de sus valores hexadecimales al formato de punto flotante normalizado en el rango $[0.0, 1.0]$:
+\begin{itemize}
+    \item Vértice 0 (Superior izquierdo): \texttt{\#FF5A5F} $\rightarrow (1.000, 0.353, 0.373)$
+    \item Vértice 1 (Inferior izquierdo): \texttt{\#FFB400} $\rightarrow (1.000, 0.706, 0.000)$
+    \item Vértice 2 (Inferior derecho): \texttt{\#3DDC84} $\rightarrow (0.239, 0.863, 0.518)$
+    \item Vértice 3 (Superior derecho): \texttt{\#00A6ED} $\rightarrow (0.000, 0.651, 0.929)$
+\end{itemize}
+
+Al momento de ejecutar el programa, el \textit{Fragment Shader} generó una interpolación bilineal por toda la superficie del rectángulo, mostrando la transición entre los cuatro colores. A continuación, se muestra el resultado.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{Practicas/P1/Imagenes/E1/rectangulo1.png}
+    \caption{Ventana OpenGL con el rectángulo.}
+    \label{fig:rectangulo1}
+\end{figure}
+
+Ahora se muestra el mismo rectángulo pero con el fondo de color azul:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{Practicas/P1/Imagenes/E1/rectangulo1.2.png}
+    \caption{Ventana OpenGL con el rectángulo y fondo azul.}
+    \label{fig:rectangulo1.2}
+\end{figure}
+
+\subsection{Actividad 2.1: Rectángulo unido por dos triángulos (Variación)}
+
+Como variación, se adaptaron las dimensiones del rectángulo para que se proyectara con una orientación vertical en lugar de horizontal, conservando su posición centrada en $(0.0, 0.0)$. Asimismo, se cambió el color del vértice superior derecho por el tono morado (\texttt{\#8B5CF6} $\rightarrow (0.545, 0.361, 0.965)$), integrando así el quinto color de la paleta. Adicionalmente, se modificó el orden de conexión de los índices a $0-1-3$ y $1-2-3$ para cambiar la dirección de la diagonal compartida por ambos triángulos.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Practicas/P1/Imagenes/E1/Rectangulo2.png}
+    \caption{Ventana OpenGL con el rectángulo vertical.}
+    \label{fig:rectangulo2}
+\end{figure}
+
+Ahora se muestra el mismo rectángulo pero con el fondo de color azul:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Practicas/P1/Imagenes/E1/Rectangulo1.2.png}
+    \caption{Ventana OpenGL con el rectángulo vertical y fondo azul.}
+    \label{fig:rectangulo1.2}
+\end{figure}

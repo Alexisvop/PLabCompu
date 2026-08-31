@@ -1,2 +1,14 @@
-\section{Introduccion}
-lolo
+\section{Introducción}
+
+OpenGL actúa como un puente entre el software y la tarjeta gráfica que es el hardware. Su objetivo principal es tomar información como puntos (vértices) o imágenes (píxeles) y convertirla en la figura final que se observa en pantalla. Para entender su funcionamiento, hay que saber que se apoya en conceptos básicos como el uso de figuras (puntos, líneas y polígonos), reglas sobre qué tareas gráficas puede y no puede controlar, un modelo de comunicación cliente-servidor, un proceso paso a paso para generar la imagen y una forma ordenada y estricta de nombrar sus funciones.
+
+En lugar de crear modelos 3D elaborados, OpenGL trabaja de la siguiente forma: se le indica exactamente cada paso para manipular la posición, el color y la iluminación de los objetos. Funciona con un modelo de cliente y servidor, donde el código del usuario envía órdenes y OpenGL las ejecuta. Las tareas externas, como abrir la ventana del programa o capturar las teclas y clics del ratón, quedan a cargo del sistema operativo.
+
+El proceso para generar una imagen en pantalla sigue tres etapas clave:
+\begin{itemize}
+    \item \textbf{Vértices:} Procesa y ubica los puntos de las figuras geométricas básicas.
+    \item \textbf{Rasterización:} Transforma esas figuras o imágenes en fragmentos de pantalla.
+    \item \textbf{Fragmentos:} Ajusta qué elementos van al frente o atrás y define el color final de cada píxel.
+\end{itemize}
+
+Finalmente, los comandos de OpenGL comparten una estructura estándar y cambian su terminación según el tipo y número de datos que reciben (por ejemplo, \texttt{glVertex2f}). Además, muchas de sus funciones visuales se activan o desactivan de manera manual utilizando instrucciones como \texttt{glEnable} y \texttt{glDisable}.
