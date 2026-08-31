@@ -1,3 +1,11 @@
 \section{Metodologia de la practica}
 
-Como se menciona en la teoría de circuitos \parencite{ejemplo2026}, el voltaje...
+Para realizar esta práctica, el trabajo se dividió en cinco actividades; primero, se preparó el entorno de trabajo. Se abrió la ventana donde se iba a mostrar todo usando herramientas como GLFW y GLAD, y se ajustó el tamaño del área de dibujo con \texttt{glViewport}. También se dejaron listas las funciones para que el programa pudiera responder cuando el usuario presionara una tecla o moviera el ratón.
+
+En el segundo paso, se trabajó con el color de fondo de la ventana. Como los colores venían en código hexadecimal, primero se convirtieron a números decimales del $0$ al $1$. Con estos valores listos, se usó la función \texttt{glClearColor} para probar y cambiar el fondo con cada uno de los colores solicitados en la paleta.
+
+Después, se configuró la parte interna de los gráficos creando los \textit{shaders} (el de vértices y el de fragmentos), que son pequeños códigos que se encargan de la posición y el color de las figuras. Se compilaron y se prepararon las estructuras de memoria (los VAO y VBO) para enviar las coordenadas y los colores desde la computadora hacia la tarjeta gráfica.
+
+El cuarto paso consistió en dibujar las figuras en dos dimensiones. Se comenzó trazando un rectángulo centrado en la pantalla con cuatro colores distintos en sus esquinas para ver cómo se mezclaban. Luego, se calculó una serie de puntos en semicírculo para rellenar un medio círculo. También se ubicaron cinco puntos bien distribuidos para formar un pentágono con colores llamativos en cada esquina, y finalmente se calcularon y unieron puntos con líneas para graficar la función matemática $\tan(2\theta)$.
+
+Por último, se hicieron pruebas y pequeñas variaciones a cada una de las figuras y ejercicios anteriores, cambiando tamaños, colores o la forma de dibujarlos, para comprobar cómo respondía el programa y registrar todos los resultados obtenidos.
