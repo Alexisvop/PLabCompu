@@ -54,6 +54,122 @@ En la Figura \ref{fig:fondo5} se observa el cambio al color \#FF5D8F (tecla 'O')
     \label{fig:fondo5}
 \end{figure}
 
+\subsection{Actividad 2: Rectángulo centrado con colores distintos en cada vértice}
+
+[PENDIENTE: integrar resultados de la actividad 2 proporcionados por el integrante responsable]
+
+\subsection{Actividad 3: Medio círculo relleno}
+
+[PENDIENTE: integrar desarrollo y evidencias de la actividad 3 proporcionados por el integrante responsable]
+
+\subsection{Actividad 4: Pentágono con colores distintos en cada vértice}
+
+Para esta actividad se creó la clase \texttt{Pentagon}, alojada en el archivo \texttt{include/Pentagon.h}, siguiendo la misma organización que emplean las geometrías del código base: un constructor que recibe el tamaño de la figura, los contenedores públicos \texttt{vertices} e \texttt{indices}, y los métodos privados \texttt{buildVertices} y \texttt{buildIndices}.\\
+
+El primer paso fue convertir la paleta solicitada al formato normalizado que utiliza OpenGL. Cada canal del valor hexadecimal se interpreta como un entero de 8 bits, por lo que la conversión consiste en dividir dicho entero entre 255. La Tabla \ref{tab:paletaPentagono} concentra los cinco colores empleados.\\
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lccc}
+        \toprule
+        \textbf{Hexadecimal} & \textbf{R} & \textbf{G} & \textbf{B} \\
+        \midrule
+        \#08F7FE & 0.0314 & 0.9686 & 0.9961 \\
+        \#09FBD3 & 0.0353 & 0.9843 & 0.8275 \\
+        \#FE53BB & 0.9961 & 0.3255 & 0.7333 \\
+        \#F5D300 & 0.9608 & 0.8275 & 0.0000 \\
+        \#7122FA & 0.4431 & 0.1333 & 0.9804 \\
+        \bottomrule
+    \end{tabular}
+    \caption{Conversión de la paleta de la actividad 4 al formato normalizado de OpenGL.}
+    \label{tab:paletaPentagono}
+\end{table}
+
+Los cinco vértices se calculan sobre una circunferencia de radio \texttt{size}. Al tratarse de un polígono regular de cinco lados, la separación angular entre vértices consecutivos es de $360^\circ/5 = 72^\circ$, y se tomó $90^\circ$ como ángulo inicial para que el primer vértice quede en la parte superior de la ventana. La posición de cada vértice se obtiene entonces con $x = size \cdot \cos\theta$ y $y = size \cdot \sin\theta$.\\
+
+Para obtener la figura rellena se generó el arreglo de índices mediante una triangulación en abanico a partir del primer vértice, es decir, los triángulos $(0,1,2)$, $(0,2,3)$ y $(0,3,4)$. Esto permite cubrir el interior del pentágono reutilizando únicamente los cinco vértices de la frontera, de modo que cada uno conserva exactamente el color asignado y el interpolador del \textit{fragment shader} se encarga del degradado. Como la clase entrega un vector de índices no vacío, la clase \texttt{Mesh} despliega la geometría con \texttt{glDrawElements} en modo \texttt{GL\_TRIANGLES}.\\
+
+\begin{lstlisting}[language=C++, caption={Construcción de los vértices e índices del pentágono.}]
+int count = filled ? 5 : 6;
+
+for (int i = 0; i < count; i++) {
+    Vertex v;
+    double rdeg = glm::radians(90.0 + 72.0 * (i % 5));
+    v.Position.x = size * (float)cos(rdeg);
+    v.Position.y = size * (float)sin(rdeg);
+    v.Position.z = 0.0f;
+    v.Color.r = palette[i % 5].r;
+    v.Color.g = palette[i % 5].g;
+    v.Color.b = palette[i % 5].b;
+    v.Color.a = 1.0f;
+    vertices.push_back(v);
+}
+\end{lstlisting}
+
+En la Figura \ref{fig:pentagono} se muestra el pentágono relleno, donde se aprecia la interpolación de los cinco colores de la paleta a lo largo de la superficie.\\
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Imagenes/E4/Pentagono.png}
+    \caption{Pentágono regular relleno con un color distinto en cada vértice.}
+    \label{fig:pentagono}
+\end{figure}
+
+\subsubsection{Variación de la actividad 4}
+
+Como variación se agregó al constructor el parámetro \texttt{filled}. Al construir la figura con \texttt{Pentagon pentagon(0.5f, false)} se omite la generación de índices y se repite el primer vértice al final del arreglo. Ante un vector de índices vacío, la clase \texttt{Mesh} recurre a \texttt{glDrawArrays} con el modo \texttt{GL\_LINE\_STRIP}, por lo que la misma geometría se despliega como contorno cerrado en lugar de una superficie rellena. El resultado se observa en la Figura \ref{fig:pentagonoContorno}.\\
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Imagenes/E4/PentagonoContorno.png}
+    \caption{Variación de la actividad 4: el mismo pentágono desplegado como contorno.}
+    \label{fig:pentagonoContorno}
+\end{figure}
+
+\subsection{Actividad 5: Función \texorpdfstring{$\tan(2\theta)$}{tan(2 theta)}}
+
+La última actividad consistió en graficar $\tan(2\theta)$ para $\theta = [-2\pi : 2\pi]$. El desarrollo se realizó sobre la clase \texttt{MathFunction}, que en el código base genera una función seno sobre un solo periodo, por lo que fue necesario replantear tanto el dominio como el tratamiento de la discontinuidad.\\
+
+El primer aspecto por resolver fue el mapeo del dominio al espacio de coordenadas normalizadas de dispositivo, en el que la región visible está acotada al intervalo $[-1, 1]$ en ambos ejes. Dado que se requiere recorrer $\theta$ desde $-2\pi$ hasta $2\pi$, equivalente a $[-360^\circ, 360^\circ]$, la abscisa de cada vértice se obtiene como $x = \theta/2\pi$, lo que ocupa exactamente el ancho disponible de la ventana. La ordenada corresponde a la evaluación de la función escalada por el parámetro \texttt{size}.\\
+
+El segundo aspecto es que la tangente no está definida cuando su argumento es un múltiplo impar de $\pi/2$. Para $\tan(2\theta)$ esto ocurre en $\theta = \pi/4 + k\pi/2$, de modo que dentro del dominio solicitado existen ocho asíntotas verticales que dividen la gráfica en nueve ramas continuas. Cerca de ellas la función crece sin cota y las muestras quedan fuera del área visible, por lo que se descartan aquellas cuya evaluación excede el intervalo $[-1, 1]$. Adicionalmente, se asignó un color por rama para distinguirlas con claridad, calculando su índice a partir del número de asíntotas que anteceden a cada muestra.\\
+
+\begin{lstlisting}[language=C++, caption={Evaluación y filtrado de las muestras de la función tangente.}]
+for (int i = -steps; i <= steps; i++) {
+
+    double deg  = (double)i / samplesPerDegree;
+    float  eval = size * (float)tan(2.0 * glm::radians(deg));
+
+    if (eval > 1.0f || eval < -1.0f)
+        continue;
+
+    Vertex v;
+    v.Position.x = (float)(deg / 360.0);
+    v.Position.y = eval;
+    v.Position.z = 0.0f;
+
+    vertices.push_back(v);
+}
+\end{lstlisting}
+
+El dominio se discretizó en cuartos de grado, lo que proporciona una resolución suficiente para que el trazo se perciba continuo pese a estar formado por segmentos de recta. Al no generarse índices, la clase \texttt{Mesh} despliega la geometría con \texttt{glDrawArrays} en modo \texttt{GL\_LINE\_STRIP}. Conviene señalar que este modo une todos los vértices en una sola polilínea, por lo que el último vértice de una rama queda enlazado con el primero de la siguiente; los segmentos casi verticales que se observan en la Figura \ref{fig:tangente} corresponden a esas uniones y coinciden en posición con las asíntotas de la función.\\
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Imagenes/E5/Tangente.png}
+    \caption{Función tan(2$\theta$) trazada para $\theta = [-2\pi : 2\pi]$.}
+    \label{fig:tangente}
+\end{figure}
+
+\subsubsection{Variación de la actividad 5}
+
+La variación consistió en modificar el factor de escala vertical con el que se construye la geometría, pasando de \texttt{MathFunction tanfunc(0.1f)} a \texttt{MathFunction tanfunc(0.5f)}. Al incrementar la amplitud, la condición de recorte se satisface para valores de $\theta$ mucho más alejados de las asíntotas, de manera que la porción visible de cada rama se reduce a su tramo central y la curvatura característica de la tangente se pierde: las ramas aparecen como segmentos prácticamente rectos, tal como se muestra en la Figura \ref{fig:tangenteAmplitud}. El experimento evidencia que, en una función no acotada, el factor de escala determina qué parte de la curva alcanza a representarse dentro del área visible.\\
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Imagenes/E5/TangenteAmplitud.png}
+    \caption{Variación de la actividad 5: efecto de aumentar el factor de escala vertical.}
+    \label{fig:tangenteAmplitud}
 \subsection{Actividad 2: Rectángulo unido por dos triángulos}
 Para esta actividad, se modificó la clase encargada de construir la geometría para generar un rectángulo centrado en la ventana. Se definieron cuatro vértices cuyas coordenadas en $X$ y en $Y$ se calcularon de forma simétrica a partir del origen $(0.0, 0.0)$, asegurando que la figura mantuviera una posición uniforme en el espacio normalizado. Para completar la superficie rectangular, se definieron dos triángulos en el arreglo de índices (\texttt{EBO}): el primero uniendo los vértices $0-1-2$ y el segundo conectando los vértices $0-2-3$.
 
