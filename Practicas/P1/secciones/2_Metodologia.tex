@@ -1,3 +1,65 @@
 \section{Metodologia de la practica}
 
-Como se menciona en la teoría de circuitos \parencite{ejemplo2026}, el voltaje...
+\subsection{Actividad 1: Cambio de color de fondo}
+
+Para resolver el primer ejercicio, se requirio la conversión del formato de color. A diferencia de las herramientas de diseño convencionales, OpenGL no interpreta los colores en hexadecimal ni en la escala RGB de 0 a 255, sino que requiere valores de punto flotante normalizados en un rango de 0.0f a 1.0f.
+
+El algoritmo de conversión matemática que aplicamos para la práctica consistió en dos pasos elementales:
+\begin{itemize}
+    \item Separar el código hexadecimal de la paleta en sus componentes independientes (rojo, verde y azul) y transformarlos a base decimal.
+    \item Dividir cada uno de estos valores decimales entre 255.0 para obtener su equivalente normalizado como un número flotante.
+\end{itemize}
+
+Tomando como ejemplo el primer color solicitado, \textbf{\#00C2CB}, el canal rojo (00) se mantiene en 0.0f. El canal verde (C2) equivale a 194 en decimal, que dividido entre 255 nos da 0.7607f. Finalmente, el canal azul (CB) es 203, arrojando un valor de 0.7960f. Iteramos esta misma rutina matemática para extraer los valores de los cinco tonos de la paleta exigida.
+
+A nivel de arquitectura de software, trabajamos sobre el archivo principal \texttt{01\_IntroOpenGL.cpp}. Para que el color reaccionara en tiempo de ejecución, nos enganchamos a la función \texttt{keyboardCallback} del código base, la cual gestiona las interrupciones de hardware.
+
+Tal como lo indica la rúbrica de evaluación[cite: 1], a continuación se presenta el segmento de código relevante con la implementación. Mapeamos las teclas R, G, B, Y, y M para sobreescribir dinámicamente las variables globales \texttt{bgR}, \texttt{bgG}, \texttt{bgB} y \texttt{bgA}. En cada ciclo de fotograma, la función \texttt{Update()} lee estas variables y se las pasa al comando nativo \texttt{glClearColor}, logrando así el barrido y pintado de la pantalla con el color seleccionado:\\
+
+Código de los cambios realizados para el cambio de color de fondo:\\
+
+\begin{lstlisting}[language=C, caption=Código del ejercicio 1]
+        // Actividad 1.1
+    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+        bgR = 0.0f;
+        bgG = 0.7607f;
+        bgB = 0.7960f;
+        bgA = 1.0;
+    }
+    if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) {
+        bgR = 0.4980f;
+        bgG = 0.8784f;
+        bgB = 0.8313f;
+        bgA = 1.0;
+    }
+    if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS) {
+        bgR = 1.0f;
+        bgG = 0.8901f;
+        bgB = 0.5411f;
+        bgA = 1.0;
+    }
+    if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS) {
+        bgR = 1.0f;
+        bgG = 0.6039f;
+        bgB = 0.4627f;
+        bgA = 1.0;
+    }
+    if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS) {
+        bgR = 1.0f;
+        bgG = 0.3647f;
+        bgB = 0.5607f;
+        bgA = 1.0;
+    }
+\end{lstlisting}
+
+\subsection{Actividad 2: Rectángulo unido por dos triángulos}
+
+Para realizar esta práctica, el trabajo se dividió en cinco actividades; primero, se preparó el entorno de trabajo. Se abrió la ventana donde se iba a mostrar todo usando herramientas como GLFW y GLAD, y se ajustó el tamaño del área de dibujo con \texttt{glViewport}. También se dejaron listas las funciones para que el programa pudiera responder cuando el usuario presionara una tecla o moviera el ratón.
+
+En el segundo paso, se trabajó con el color de fondo de la ventana. Como los colores venían en código hexadecimal, primero se convirtieron a números decimales del $0$ al $1$. Con estos valores listos, se usó la función \texttt{glClearColor} para probar y cambiar el fondo con cada uno de los colores solicitados en la paleta.
+
+Después, se configuró la parte interna de los gráficos creando los \textit{shaders} (el de vértices y el de fragmentos), que son pequeños códigos que se encargan de la posición y el color de las figuras. Se compilaron y se prepararon las estructuras de memoria (los VAO y VBO) para enviar las coordenadas y los colores desde la computadora hacia la tarjeta gráfica.
+
+El cuarto paso consistió en dibujar las figuras en dos dimensiones. Se comenzó trazando un rectángulo centrado en la pantalla con cuatro colores distintos en sus esquinas para ver cómo se mezclaban. Luego, se calculó una serie de puntos en semicírculo para rellenar un medio círculo. También se ubicaron cinco puntos bien distribuidos para formar un pentágono con colores llamativos en cada esquina, y finalmente se calcularon y unieron puntos con líneas para graficar la función matemática $\tan(2\theta)$.
+
+Por último, se hicieron pruebas y pequeñas variaciones a cada una de las figuras y ejercicios anteriores, cambiando tamaños, colores o la forma de dibujarlos, para comprobar cómo respondía el programa y registrar todos los resultados obtenidos.
