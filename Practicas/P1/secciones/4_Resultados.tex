@@ -2,7 +2,14 @@
 
 \subsection{Actividad 1}
 
-[PENDIENTE: integrar evidencia de la actividad 1 proporcionada por el integrante responsable]
+Tras la compilación y ejecución del programa, el resultado final fue una ventana gráfica capaz de alterar su color de fondo en tiempo real al presionar las teclas asignadas. Las pruebas en pantalla demostraron que la transición de colores ocurre de manera inmediata, logrando que el repintado del búfer coincida exactamente con los tonos de la paleta solicitada en las instrucciones de la práctica. Cabe destacar que las capturas de pantalla con los resultados finales en funcionamiento ya fueron presentadas y referenciadas en la sección de Experimentos.
+
+Al evaluar este ejercicio, y cumpliendo con el análisis de la metodología requerida, se observaron los siguientes puntos sobre nuestro enfoque:
+
+\begin{itemize}
+    \item \textbf{Ventajas del método:} La principal ventaja de realizar la conversión matemática a lápiz y alimentar a \texttt{glClearColor} directamente con valores flotantes normalizados es la optimización del rendimiento. El hardware de la tarjeta gráfica está diseñado para procesar números de punto flotante de manera nativa. Al entregarle los datos ya digeridos entre 0.0f y 1.0f, evitamos que el procesador desperdicie ciclos de reloj traduciendo cadenas de texto hexadecimales o enteros de 8 bits en cada iteración del bucle principal de renderizado.
+    \item \textbf{Desventajas del método:} El punto débil de esta metodología es su rigidez a nivel de ingeniería de software. Al dejar los valores flotantes "quemados" (hardcoded) dentro de los condicionales de la función \texttt{keyboardCallback}, el código pierde escalabilidad. Si en el futuro se requiriera implementar una interfaz para que el usuario escoja un color personalizado, nuestro enfoque actual nos obligaría a recalcular a mano, alterar el código fuente y recompilar todo el proyecto. Una solución más elegante habría sido desarrollar una función auxiliar en C++ que parsee automáticamente un string hexadecimal (ej. "\#00C2CB") y retorne un vector normalizado en tiempo de ejecución.
+\end{itemize}
 
 \subsection{Actividad 2}
 
