@@ -13,7 +13,34 @@ Al evaluar este ejercicio, y cumpliendo con el análisis de la metodología requ
 
 \subsection{Actividad 2}
 
+<<<<<<< HEAD
+Al compilar y ejecutar el programa, se logró observar en la pantalla un rectángulo horizontal que quedó centrado en el origen $(0,0)$ sin deformarse. La figura se construyó uniendo dos triángulos mediante cuatro puntos para evitar repetir coordenadas. Cada esquina tomó de forma correcta el color asignado de la paleta al pasar los valores hexadecimales al formato decimal entre $0.0$ y $1.0$: coral (\texttt{\#FF5A5F}) arriba a la izquierda, amarillo (\texttt{\#FFB400}) abajo a la izquierda, verde (\texttt{\#3DDC84}) abajo a la derecha y azul (\texttt{\#00A6ED}) arriba a la derecha. En el centro de la figura no se presentaron cortes ni líneas, ya que la tarjeta gráfica se encargó de mezclar los tonos de forma suave.
+
+\subsection*{Variación Actividad 2}
+
+Al modificar los valores de las posiciones en $X$ y en $Y$, el rectángulo cambió a una orientación vertical manteniéndose centrado en la ventana. Asimismo, se integró el color morado (\texttt{\#8B5CF6}) en la esquina superior derecha, combinándose de manera limpia con los demás tonos. Finalmente, al cambiar el orden de conexión de los índices para trazar una diagonal diferente entre los dos triángulos, el degradado interior se adaptó a la nueva división, comprobando de forma práctica cómo influye la unión de los puntos en la distribución final del color.
+
+\subsection*{Observaciones: Ventajas y Desventajas}
+
+Trabajar de esta forma con OpenGL tiene varios puntos a favor y en contra que pude notar al hacer la actividad:
+
+\begin{itemize}
+    \item \textbf{Ventajas:} 
+    \begin{itemize}
+        \item \textbf{Ahorro de memoria y datos:} Usar una lista de índices nos evita tener que escribir y guardar seis vértices con sus colores repetidos; con solo definir cuatro puntos se arman los dos triángulos sin problema.
+        \item \textbf{Interpolación automática:} No hace falta calcular a mano cómo se mezclan los colores punto por punto, ya que la tarjeta gráfica (GPU) se encarga de hacer el degradado suave y en tiempo real.
+        \item \textbf{Fácil modificación:} Cambiar el tamaño, la posición o los colores de la figura es muy directo porque solo se modifican los valores de los vértices sin tener que alterar la lógica del programa.
+    \end{itemize}
+    
+    \item \textbf{Desventajas:}
+    \begin{itemize}
+        \item \textbf{Dependencia del orden de los índices:} El degradado interior no siempre queda simétrico, ya que depende totalmente de por dónde pase la diagonal que divide a los triángulos.
+        \item \textbf{Complejidad inicial:} Para dibujar una figura básica como un rectángulo se requiere configurar bastantes cosas previas (coordenadas normalizadas, arreglos de memoria, shaders y conversiones de color), lo cual puede ser confuso al inicio.
+    \end{itemize}
+\end{itemize}
+=======
 [PENDIENTE: integrar resultados de la actividad 2 proporcionados por el integrante responsable]
+>>>>>>> upstream/main
 
 \subsection{Actividad 3}
 
