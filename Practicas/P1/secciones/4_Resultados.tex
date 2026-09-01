@@ -1,2 +1,55 @@
 \section{Resultados}
 
+\subsection{Actividad 1}
+
+Tras la compilación y ejecución del programa, el resultado final fue una ventana gráfica capaz de alterar su color de fondo en tiempo real al presionar las teclas asignadas. Las pruebas en pantalla demostraron que la transición de colores ocurre de manera inmediata, logrando que el repintado del búfer coincida exactamente con los tonos de la paleta solicitada en las instrucciones de la práctica. Cabe destacar que las capturas de pantalla con los resultados finales en funcionamiento ya fueron presentadas y referenciadas en la sección de Experimentos.
+
+Al evaluar este ejercicio, y cumpliendo con el análisis de la metodología requerida, se observaron los siguientes puntos sobre nuestro enfoque:
+
+\begin{itemize}
+    \item \textbf{Ventajas del método:} La principal ventaja de realizar la conversión matemática a lápiz y alimentar a \texttt{glClearColor} directamente con valores flotantes normalizados es la optimización del rendimiento. El hardware de la tarjeta gráfica está diseñado para procesar números de punto flotante de manera nativa. Al entregarle los datos ya digeridos entre 0.0f y 1.0f, evitamos que el procesador desperdicie ciclos de reloj traduciendo cadenas de texto hexadecimales o enteros de 8 bits en cada iteración del bucle principal de renderizado.
+    \item \textbf{Desventajas del método:} El punto débil de esta metodología es su rigidez a nivel de ingeniería de software. Al dejar los valores flotantes "quemados" (hardcoded) dentro de los condicionales de la función \texttt{keyboardCallback}, el código pierde escalabilidad. Si en el futuro se requiriera implementar una interfaz para que el usuario escoja un color personalizado, nuestro enfoque actual nos obligaría a recalcular a mano, alterar el código fuente y recompilar todo el proyecto. Una solución más elegante habría sido desarrollar una función auxiliar en C++ que parsee automáticamente un string hexadecimal (ej. "\#00C2CB") y retorne un vector normalizado en tiempo de ejecución.
+\end{itemize}
+
+\subsection{Actividad 2}
+
+Al compilar y ejecutar el programa, se logró observar en la pantalla un rectángulo horizontal que quedó centrado en el origen $(0,0)$ sin deformarse. La figura se construyó uniendo dos triángulos mediante cuatro puntos para evitar repetir coordenadas. Cada esquina tomó de forma correcta el color asignado de la paleta al pasar los valores hexadecimales al formato decimal entre $0.0$ y $1.0$: coral (\texttt{\#FF5A5F}) arriba a la izquierda, amarillo (\texttt{\#FFB400}) abajo a la izquierda, verde (\texttt{\#3DDC84}) abajo a la derecha y azul (\texttt{\#00A6ED}) arriba a la derecha. En el centro de la figura no se presentaron cortes ni líneas, ya que la tarjeta gráfica se encargó de mezclar los tonos de forma suave.
+
+\subsection*{Variación Actividad 2}
+
+Al modificar los valores de las posiciones en $X$ y en $Y$, el rectángulo cambió a una orientación vertical manteniéndose centrado en la ventana. Asimismo, se integró el color morado (\texttt{\#8B5CF6}) en la esquina superior derecha, combinándose de manera limpia con los demás tonos. Finalmente, al cambiar el orden de conexión de los índices para trazar una diagonal diferente entre los dos triángulos, el degradado interior se adaptó a la nueva división, comprobando de forma práctica cómo influye la unión de los puntos en la distribución final del color.
+
+\subsection*{Observaciones: Ventajas y Desventajas}
+
+Trabajar de esta forma con OpenGL tiene varios puntos a favor y en contra que pude notar al hacer la actividad:
+
+\begin{itemize}
+    \item \textbf{Ventajas:} 
+    \begin{itemize}
+        \item \textbf{Ahorro de memoria y datos:} Usar una lista de índices nos evita tener que escribir y guardar seis vértices con sus colores repetidos; con solo definir cuatro puntos se arman los dos triángulos sin problema.
+        \item \textbf{Interpolación automática:} No hace falta calcular a mano cómo se mezclan los colores punto por punto, ya que la tarjeta gráfica (GPU) se encarga de hacer el degradado suave y en tiempo real.
+        \item \textbf{Fácil modificación:} Cambiar el tamaño, la posición o los colores de la figura es muy directo porque solo se modifican los valores de los vértices sin tener que alterar la lógica del programa.
+    \end{itemize}
+    
+    \item \textbf{Desventajas:}
+    \begin{itemize}
+        \item \textbf{Dependencia del orden de los índices:} El degradado interior no siempre queda simétrico, ya que depende totalmente de por dónde pase la diagonal que divide a los triángulos.
+        \item \textbf{Complejidad inicial:} Para dibujar una figura básica como un rectángulo se requiere configurar bastantes cosas previas (coordenadas normalizadas, arreglos de memoria, shaders y conversiones de color), lo cual puede ser confuso al inicio.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Actividad 3}
+
+[PENDIENTE: integrar desarrollo y evidencias de la actividad 3 proporcionados por el integrante responsable]
+
+\subsection{Actividad 4}
+
+Se obtuvo un pentágono regular relleno, centrado en el origen y con los cinco colores de la paleta solicitada asignados uno por vértice. La conversión de los valores hexadecimales al formato normalizado se verificó de manera visual comparando el tono de cada vértice contra la paleta del manual. El degradado observado en el interior de la figura confirma que la interpolación de los atributos de color ocurre en la etapa de rasterización, entre el \textit{vertex shader} y el \textit{fragment shader}, sin necesidad de declarar color alguno por fragmento.\\
+
+La variación mostró que la representación de una misma geometría depende del arreglo de índices: al suprimirlo, los cinco vértices se despliegan como una polilínea cerrada en lugar de tres triángulos, sin modificar una sola coordenada.\\
+
+\subsection{Actividad 5}
+
+La gráfica de $\tan(2\theta)$ se desplegó completa sobre el dominio $[-2\pi : 2\pi]$, con sus nueve ramas continuas separadas por las ocho asíntotas verticales previstas analíticamente en $\theta = \pi/4 + k\pi/2$. El coloreado por rama permitió comprobar que la segmentación obtenida coincide con la esperada.\\
+
+El recorte de las muestras que exceden el intervalo visible resultó indispensable, ya que sin él los vértices cercanos a las asíntotas se proyectan a valores arbitrariamente grandes. La variación del factor de escala evidenció que dicho parámetro no altera la función, sino la porción de cada rama que alcanza a mostrarse antes de salir del área de dibujo.\\

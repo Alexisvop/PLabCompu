@@ -1,7 +1,29 @@
 \section{Conclusiones}
-    \subsection{Perez Olvera Alexis Abraham}
+        
+    \subsection{Basilio Illescas Andrés}
 
-     \subsection{Segura Cedeño Luisa María}
+    El desarrollo de las actividades asignadas dejó ver que la construcción de una geometría en OpenGL se apoya en dos decisiones independientes entre sí: cuáles son los vértices que la definen y de qué manera se conectan. En el caso del pentágono, los cinco vértices calculados sobre una circunferencia bastaron para obtener tanto la figura rellena como su contorno; lo único que cambió entre un resultado y otro fue la presencia del arreglo de índices, que determina si la malla se despliega con \texttt{glDrawElements} en modo \texttt{GL\_TRIANGLES} o con \texttt{glDrawArrays} en modo \texttt{GL\_LINE\_STRIP}. Igualmente resultó ilustrativo que el degradado del interior de la figura no requiera código adicional: al declarar el color como un atributo por vértice, la interpolación queda a cargo de la etapa de rasterización.\\
+
+    La actividad de la función tangente mostró que trasladar una expresión matemática a la pantalla obliga a resolver dos problemas ajenos a la expresión misma. El primero es el mapeo del dominio y del codominio al espacio de coordenadas normalizadas de dispositivo, que limita la región visible al intervalo $[-1, 1]$. El segundo es el tratamiento de los valores que no pueden representarse: el pipeline gráfico no tiene noción de discontinuidad y une en una sola polilínea todos los vértices que recibe, de modo que las asíntotas de $\tan(2\theta)$ tuvieron que atenderse de forma explícita al construir la geometría, filtrando las muestras que quedan fuera del área de dibujo.\\
+
+    Finalmente, la conversión de los colores hexadecimales al formato normalizado reforzó la idea de que OpenGL opera sobre valores flotantes acotados y no sobre las representaciones enteras habituales en otros contextos, criterio que se repite tanto en la definición del color de los vértices como en la del color de fondo de la ventana.\\
+
+    En lo que corresponde a las actividades desarrolladas, el objetivo de generar un programa gráfico capaz de desplegar figuras en dos dimensiones se cumplió: ambas geometrías se construyeron a partir de las instrucciones básicas de la API, especificando su información en arreglos de vértices e índices que se cargan en los \textit{buffers} correspondientes y delegando el despliegue al par de \textit{shaders} del proyecto base. Conviene precisar que estas dos actividades no requirieron atender eventos de entrada, por lo que el objetivo relativo al manejo de \textit{callbacks} se abordó en las actividades restantes de la práctica.\\
+
+    \subsection{Cruz Macedo Samuel Santiago}
+
+    Esta primera práctica sirvió para dimensionar la cantidad de elementos que deben coordinarse antes de que aparezca la figura más sencilla en pantalla. Antes de dibujar un solo vértice fue necesario inicializar la biblioteca de ventanas, solicitar un contexto de OpenGL de la versión adecuada, cargar los apuntadores a las funciones de la API y compilar el par de programas que se ejecutan en la tarjeta gráfica. Comprender que ese andamiaje es un requisito y no un accesorio ayudó a interpretar la estructura del proyecto base, en la que las funciones \texttt{Start} y \texttt{Update} separan con claridad lo que se configura una sola vez de lo que se repite en cada cuadro.\\
+
+    El punto que resultó más provechoso fue entender el papel de los \textit{Vertex Array Objects} y los \textit{Vertex Buffer Objects} como el mecanismo mediante el cual la información de una geometría viaja de la memoria del programa a la de la tarjeta gráfica, y cómo la descripción de los atributos determina la forma en que el \textit{vertex shader} interpreta esos datos. A partir de ello se vuelve evidente que las figuras desplegadas durante la práctica no se dibujan con instrucciones de trazo, sino declarando la información de sus vértices y el modo en que deben conectarse.\\
+
+    En conjunto, se considera alcanzado el objetivo de la práctica, ya que se logró generar un programa gráfico funcional que despliega figuras en dos dimensiones empleando las instrucciones básicas de la API, y quedaron identificados los elementos que intervienen en el proceso.\\
+
+    \subsection{Perez Olvera Alexis Abraham}
+    Esta primera inmersión práctica en OpenGL representó un puente crucial entre la lógica de programación pura y la interacción directa con el hardware gráfico. En su mayoria nos solemos enfocarnos en el procesamiento en la CPU, pero configurar manualmente la memoria a través de los VAO (Vertex Array Objects) y VBO (Vertex Buffer Objects) me permitió entender cómo se estructuran y envían los datos a la tarjeta de video.\\
+
+    En particular, el desarrollo del primer ejercicio me ayudó a visualizar la importancia del ciclo continuo de renderizado. Procesar las interrupciones físicas del teclado mediante callbacks y transformar esos eventos en operaciones matemáticas —como la normalización de colores hexadecimales a valores flotantes para la función glClearColor— demostró cómo convergen el software y los periféricos de entrada/salida en tiempo real. En definitiva, la práctica sentó bases muy sólidas para dejar de ver los gráficos como simples trazos en pantalla y empezar a comprenderlos como vértices, búferes y matrices operando a bajo nivel.\\
+
+    \subsection{Segura Cedeño Luisa María}
      Esta práctica me ayudó a entender cómo funciona OpenGL desde cero y cómo se crean figuras básicas. Al principio la configuración de todo el entorno y las herramientas fue bastante pesada y complicada, sobre todo porque mi computadora se puso muy lenta durante las instalaciones y me tomó mucho tiempo dejar todo listo para poder empezar.
     
     Una vez que quedó configurado, me enfoqué en trabajar con la \textbf{Actividad 2}, donde logré dibujar el rectángulo centrado usando dos triángulos unidos. Lo más interesante fue ver cómo al asignarle a cada esquina un color diferente (pasando los valores hexadecimales a números entre $0$ y $1$), la propia tarjeta gráfica se encargó de mezclar los tonos en el centro para que se viera un degradado continuo. 
