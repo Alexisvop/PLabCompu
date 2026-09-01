@@ -1,3 +1,93 @@
 \section{Metodologia de la practica}
 
-Como se menciona en la teoría de circuitos \parencite{ejemplo2026}, el voltaje...
+\subsection{Actividad 1: Cambio de color de fondo}
+
+Para resolver el primer ejercicio, se requirio la conversión del formato de color. A diferencia de las herramientas de diseño convencionales, OpenGL no interpreta los colores en hexadecimal ni en la escala RGB de 0 a 255, sino que requiere valores de punto flotante normalizados en un rango de 0.0f a 1.0f.
+
+El algoritmo de conversión matemática que aplicamos para la práctica consistió en dos pasos elementales:
+\begin{itemize}
+    \item Separar el código hexadecimal de la paleta en sus componentes independientes (rojo, verde y azul) y transformarlos a base decimal.
+    \item Dividir cada uno de estos valores decimales entre 255.0 para obtener su equivalente normalizado como un número flotante.
+\end{itemize}
+
+Tomando como ejemplo el primer color solicitado, \textbf{\#00C2CB}, el canal rojo (00) se mantiene en 0.0f. El canal verde (C2) equivale a 194 en decimal, que dividido entre 255 nos da 0.7607f. Finalmente, el canal azul (CB) es 203, arrojando un valor de 0.7960f. Iteramos esta misma rutina matemática para extraer los valores de los cinco tonos de la paleta exigida.
+
+A nivel de arquitectura de software, trabajamos sobre el archivo principal \texttt{01\_IntroOpenGL.cpp}. Para que el color reaccionara en tiempo de ejecución, nos enganchamos a la función \texttt{keyboardCallback} del código base, la cual gestiona las interrupciones de hardware.
+
+Tal como lo indica la rúbrica de evaluación[cite: 1], a continuación se presenta el segmento de código relevante con la implementación. Mapeamos las teclas R, G, B, Y, y M para sobreescribir dinámicamente las variables globales \texttt{bgR}, \texttt{bgG}, \texttt{bgB} y \texttt{bgA}. En cada ciclo de fotograma, la función \texttt{Update()} lee estas variables y se las pasa al comando nativo \texttt{glClearColor}, logrando así el barrido y pintado de la pantalla con el color seleccionado:\\
+
+Código de los cambios realizados para el cambio de color de fondo:\\
+
+\begin{lstlisting}[language=C, caption=Código del ejercicio 1]
+        // Actividad 1.1
+    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+        bgR = 0.0f;
+        bgG = 0.7607f;
+        bgB = 0.7960f;
+        bgA = 1.0;
+    }
+    if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) {
+        bgR = 0.4980f;
+        bgG = 0.8784f;
+        bgB = 0.8313f;
+        bgA = 1.0;
+    }
+    if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS) {
+        bgR = 1.0f;
+        bgG = 0.8901f;
+        bgB = 0.5411f;
+        bgA = 1.0;
+    }
+    if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS) {
+        bgR = 1.0f;
+        bgG = 0.6039f;
+        bgB = 0.4627f;
+        bgA = 1.0;
+    }
+    if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS) {
+        bgR = 1.0f;
+        bgG = 0.3647f;
+        bgB = 0.5607f;
+        bgA = 1.0;
+    }
+\end{lstlisting}
+
+\subsection{Actividad 2: Rectángulo unido por dos triángulos}
+
+Para realizar esta práctica, el trabajo se dividió en cinco actividades; primero, se preparó el entorno de trabajo. Se abrió la ventana donde se iba a mostrar todo usando herramientas como GLFW y GLAD, y se ajustó el tamaño del área de dibujo con \texttt{glViewport}. También se dejaron listas las funciones para que el programa pudiera responder cuando el usuario presionara una tecla o moviera el ratón.
+
+En el segundo paso, se trabajó con el color de fondo de la ventana. Como los colores venían en código hexadecimal, primero se convirtieron a números decimales del $0$ al $1$. Con estos valores listos, se usó la función \texttt{glClearColor} para probar y cambiar el fondo con cada uno de los colores solicitados en la paleta.
+
+Después, se configuró la parte interna de los gráficos creando los \textit{shaders} (el de vértices y el de fragmentos), que son pequeños códigos que se encargan de la posición y el color de las figuras. Se compilaron y se prepararon las estructuras de memoria (los VAO y VBO) para enviar las coordenadas y los colores desde la computadora hacia la tarjeta gráfica.
+
+El cuarto paso consistió en dibujar las figuras en dos dimensiones. Se comenzó trazando un rectángulo centrado en la pantalla con cuatro colores distintos en sus esquinas para ver cómo se mezclaban. Luego, se calculó una serie de puntos en semicírculo para rellenar un medio círculo. También se ubicaron cinco puntos bien distribuidos para formar un pentágono con colores llamativos en cada esquina, y finalmente se calcularon y unieron puntos con líneas para graficar la función matemática $\tan(2\theta)$.
+
+Por último, se hicieron pruebas y pequeñas variaciones a cada una de las figuras y ejercicios anteriores, cambiando tamaños, colores o la forma de dibujarlos, para comprobar cómo respondía el programa y registrar todos los resultados obtenidos.
+
+\subsection{Actividad 4: Pentágono con colores distintos en cada vértice}
+
+Antes de escribir una sola línea de código, revisamos cómo estaba organizado el proyecto base y notamos que cada figura vivía en su propia clase dentro de la carpeta \texttt{include}. Para no romper esa organización decidimos seguir exactamente el mismo camino y creamos el archivo \texttt{Pentagon.h}, con un constructor que recibe el tamaño de la figura y dos listas públicas: una con los vértices y otra con los índices. De esta forma el pentágono se usa igual que cualquier otra figura del código base y no fue necesario tocar la lógica de dibujo.
+
+El primer paso fue el mismo que en la actividad uno: traducir los colores. La paleta venía en hexadecimal y OpenGL trabaja con valores entre 0.0 y 1.0, así que convertimos cada canal a decimal y lo dividimos entre 255. Esa conversión la dejamos escrita dentro de la propia clase, junto al color hexadecimal original en un comentario, para que después fuera fácil verificar que ningún tono se hubiera colado por error.
+
+El siguiente punto era decidir dónde colocar los cinco vértices. La idea que seguimos fue pensar el pentágono como cinco puntos repartidos de manera pareja sobre una circunferencia: si la vuelta completa son 360 grados y necesitamos cinco esquinas, entonces basta con avanzar de 72 en 72 grados. Elegimos arrancar en los 90 grados simplemente porque así la punta del pentágono queda mirando hacia arriba, que es como uno espera verlo. Con el ángulo de cada esquina ya definido, obtener sus coordenadas fue cuestión de aplicar el coseno para la posición horizontal y el seno para la vertical, multiplicando ambos por el tamaño que pide el constructor.
+
+Con los vértices ubicados faltaba rellenar la figura. Aquí conviene recordar que la tarjeta gráfica no sabe dibujar pentágonos: lo único que sabe pintar son triángulos. Por eso partimos la figura en tres triángulos que salen todos del mismo vértice, como si abriéramos un abanico desde una esquina hacia las demás. Lo interesante de resolverlo así es que no hubo que inventar puntos nuevos ni repetirlos: los mismos cinco vértices de la orilla sirven para armar los tres triángulos, y cada uno conserva el color que le tocaba. El degradado que se ve en el interior no lo programamos nosotros, lo genera la tarjeta gráfica al mezclar los colores de las esquinas mientras rellena cada triángulo.
+
+Como variación quisimos ver la misma figura dibujada solo con su contorno. En lugar de escribir otra clase, agregamos al constructor una bandera que, cuando está apagada, simplemente no genera la lista de triángulos y en su lugar repite el primer vértice al final para cerrar el recorrido. El programa detecta que no hay triángulos que dibujar y traza la figura uniendo los puntos con líneas. Nos pareció una forma limpia de comprobar que la misma geometría puede verse de dos maneras distintas sin mover una sola coordenada.
+
+La comprobación fue directa: compilar, ejecutar y comparar en pantalla cada esquina contra la paleta del manual, además de alternar entre la versión rellena y la de contorno para confirmar que ambas coincidían en forma y posición.
+
+\subsection{Actividad 5: Gráfica de la función \texorpdfstring{$\tan(2\theta)$}{tan(2 theta)}}
+
+Para la última actividad partimos de la clase \texttt{MathFunction} que ya venía en el código base, la cual dibujaba una función seno a lo largo de un solo periodo. Nuestro trabajo consistió en adaptarla, y al hacerlo aparecieron dos problemas que valía la pena resolver con calma.
+
+El primero fue el del espacio disponible. La ventana de OpenGL no entiende de radianes ni de grados: para ella todo lo que se ve en pantalla ocurre entre $-1$ y $1$, tanto a lo ancho como a lo alto. Como el ejercicio pedía recorrer $\theta$ desde $-2\pi$ hasta $2\pi$, que es lo mismo que ir de $-360^\circ$ a $360^\circ$, tuvimos que traducir ese recorrido al ancho de la ventana. La equivalencia resultó sencilla: dividir cada ángulo entre $2\pi$ deja el dominio completo ocupando justo el ancho visible, sin que sobre ni falte espacio. La altura de cada punto es el valor de la función, multiplicado por un factor de escala que decidimos dejar como parámetro del constructor para poder experimentar con él más adelante.
+
+El segundo problema fue más interesante, porque no es de programación sino de la función misma: la tangente no existe en ciertos ángulos, y al acercarse a ellos se dispara hacia valores enormes. En el caso de $\tan(2\theta)$ esto pasa ocho veces dentro del dominio pedido, lo que parte la gráfica en nueve tramos separados. Si le hubiéramos entregado esos valores gigantescos a OpenGL tal cual, el resultado habría sido un enredo de líneas atravesando la pantalla. La solución que tomamos fue la más natural: antes de guardar un punto, revisamos si su altura cae dentro de lo que realmente se alcanza a ver y, si se sale, simplemente lo descartamos. Así la gráfica se dibuja únicamente con los puntos que tienen sentido mostrar.
+
+Para que la curva se viera suave decidimos evaluar la función cada cuarto de grado. No hay una fórmula detrás de ese número, fue una cuestión de prueba: con muestras más separadas la curva se notaba quebrada, y con muchas más el resultado se veía igual pero se generaban puntos de sobra. Con ese muestreo, los segmentos rectos que unen los puntos son tan cortos que el ojo los percibe como una línea continua.
+
+Un detalle que nos ayudó bastante fue asignar un color distinto a cada tramo de la función. Como los puntos se van uniendo uno tras otro, el último punto de un tramo termina enlazado con el primero del siguiente, y eso produce esas líneas casi verticales que aparecen en la gráfica. Distinguir los tramos por color nos permitió confirmar de un vistazo que esas líneas caen exactamente donde la teoría dice que están las asíntotas, y que no se trataba de un error en el cálculo.
+
+Finalmente, aprovechamos que el factor de escala era un parámetro para hacer la variación del ejercicio: bastó con aumentarlo al construir la figura para observar cómo cambiaba lo que alcanza a mostrarse de cada tramo antes de salirse de la ventana.

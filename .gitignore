@@ -332,3 +332,20 @@ TSWLatexianTemp*
 
 #Configuraciones locales del editor
 .vscode/
+
+## Archivos generados por Visual Studio y por la compilacion en C++:
+.vs/
+x64/
+Debug/
+Release/
+*.obj
+*.exe
+*.ilk
+*.pdb
+*.idb
+*.tlog
+*.iobj
+*.ipdb
+*.ipch
+*.suo
+*.user
