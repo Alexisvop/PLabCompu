@@ -178,4 +178,132 @@ for (int theta = 0; theta <= 180; theta += 15) {    // <-- MODIFICADO
 \end{lstlisting}
 
 Al conservar el paso de $15^\circ$, el semicírculo queda conformado por doce triángulos a partir de trece vértices de contorno más el vértice central. El resultado se muestra en la Figura \ref{fig:mediocirculo}.\\
-=======
+
+\subsection{Actividad 4: Pentágono con colores distintos en cada vértice}
+
+Para esta actividad se creó la clase \texttt{Pentagon}, alojada en el archivo \texttt{include/Pentagon.h}, conservando la organización que emplean las demás geometrías del proyecto base: un constructor que recibe el tamaño de la figura, los contenedores públicos \texttt{vertices} e \texttt{indices} y los métodos privados \texttt{buildVertices} y \texttt{buildIndices}. Al respetar dicha interfaz, la figura se instancia igual que cualquier otra del código base y no fue necesario modificar la lógica de dibujo de la clase \texttt{Mesh}.\\
+
+Al igual que en la actividad 1, el primer paso consistió en convertir la paleta solicitada al formato normalizado que utiliza OpenGL. Cada canal del valor hexadecimal se interpreta como un entero de 8 bits, por lo que la conversión se reduce a dividir dicho entero entre 255. La operación se dejó escrita dentro de la propia clase, acompañada del valor hexadecimal original en un comentario, de modo que la correspondencia entre ambos formatos pueda verificarse directamente sobre el código.\\
+
+Los cinco vértices se distribuyeron de manera uniforme sobre una circunferencia de radio \texttt{size}: dado que una vuelta completa abarca $360^\circ$ y la figura requiere cinco esquinas, la separación angular entre vértices consecutivos es de $72^\circ$. El recorrido se inició en $90^\circ$ para que uno de los vértices quedara orientado hacia la parte superior de la ventana. Las coordenadas de cada esquina se obtienen entonces evaluando $x = size \cdot \cos\theta$ y $y = size \cdot \sin\theta$.\\
+
+\begin{lstlisting}[language=C++, caption={Conversión de la paleta y construcción de los vértices en Pentagon.h.}]
+// Requested palette converted to the normalized OpenGL format
+const vec3 palette[5] = {
+    vec3(  8.0f, 247.0f, 254.0f) / 255.0f, // #08F7FE
+    vec3(  9.0f, 251.0f, 211.0f) / 255.0f, // #09FBD3
+    vec3(254.0f,  83.0f, 187.0f) / 255.0f, // #FE53BB
+    vec3(245.0f, 211.0f,   0.0f) / 255.0f, // #F5D300
+    vec3(113.0f,  34.0f, 250.0f) / 255.0f  // #7122FA
+};
+
+int count = filled ? 5 : 6;
+
+for (int i = 0; i < count; i++) {
+    Vertex v;
+    double rdeg = glm::radians(90.0 + 72.0 * (i % 5));
+    v.Position.x = size * (float)cos(rdeg);
+    v.Position.y = size * (float)sin(rdeg);
+    v.Position.z = 0.0f;
+    v.Color.r = palette[i % 5].r;
+    v.Color.g = palette[i % 5].g;
+    v.Color.b = palette[i % 5].b;
+    v.Color.a = 1.0f;
+    vertices.push_back(v);
+}
+\end{lstlisting}
+
+Puesto que la etapa de rasterización únicamente procesa triángulos, la superficie del pentágono se descompuso en tres triángulos que comparten el primer vértice, siguiendo el mismo criterio de abanico empleado en la actividad 3. Esta triangulación no requiere generar vértices adicionales: los cinco puntos del contorno bastan para formar los tres triángulos mediante el arreglo de índices, y cada uno conserva el color que le corresponde. El degradado que se observa en el interior de la figura no se programa de forma explícita, sino que lo produce la interpolación de los atributos de color durante la rasterización.\\
+
+\begin{lstlisting}[language=C++, caption={Triangulación en abanico del pentágono en Pentagon.h.}]
+void buildIndices() {
+
+    // Fan triangulation from the first vertex: (0,1,2), (0,2,3), (0,3,4)
+    for (unsigned int i = 1; i + 1 < vertices.size(); i++) {
+        indices.push_back(0);
+        indices.push_back(i);
+        indices.push_back(i + 1);
+    }
+}
+\end{lstlisting}
+
+Para la variación se agregó al constructor el parámetro \texttt{filled}. Cuando este toma el valor \texttt{false} se omite la generación de índices y se repite el primer vértice al final del arreglo con el fin de cerrar el recorrido. Ante un vector de índices vacío, el método \texttt{Draw()} de la clase \texttt{Mesh} recurre a \texttt{glDrawArrays} con el modo \texttt{GL\_LINE\_STRIP}, por lo que la misma geometría se despliega como contorno cerrado en lugar de una superficie rellena, sin modificar una sola coordenada.\\
+
+\begin{lstlisting}[language=C++, caption={Parámetro filled del constructor de la clase Pentagon.}]
+// filled = true builds the indices for a solid figure, filled = false
+// leaves them empty so that the mesh is drawn as an outline
+Pentagon(float size, bool filled = true) {
+    buildVertices(size, filled);
+    if (filled)
+        buildIndices();
+}
+\end{lstlisting}
+
+Finalmente, en la función \texttt{Start()} se declaró la instancia de la clase \texttt{Pentagon} y se ajustaron en consecuencia los argumentos con los que se construye el objeto \texttt{Mesh}.\\
+
+\begin{lstlisting}[language=C++, caption={Inicialización del pentágono en la función Start().}]
+// Report activity 4: pentagon with a different color per vertex
+Pentagon pentagon(0.5f);                                // <-- AGREGADO
+
+// Report activity 5: tan(2*theta) for theta = [-2pi : 2pi]
+// MathFunction tanfunc(0.1f);
+
+mesh = new Mesh(pentagon.vertices, pentagon.indices);   // <-- MODIFICADO
+\end{lstlisting}
+
+La comprobación consistió en compilar y ejecutar el programa, contrastando en pantalla el tono de cada vértice contra la paleta del manual y alternando entre la versión rellena y la de contorno para confirmar que ambas coinciden en forma y posición.\\
+
+\subsection{Actividad 5: Función \texorpdfstring{$\tan(2\theta)$}{tan(2 theta)}}
+
+Para esta actividad se partió de la clase \texttt{MathFunction} incluida en el proyecto base, la cual traza una función seno a lo largo de un solo periodo, y se adaptó para representar $\tan(2\theta)$ sobre el dominio $\theta = [-2\pi : 2\pi]$. El desarrollo obligó a resolver dos cuestiones ajenas a la expresión matemática en sí: el mapeo del dominio al espacio de coordenadas normalizadas de dispositivo y el tratamiento de las discontinuidades de la función.\\
+
+Respecto de lo primero, el área visible de la ventana queda limitada al intervalo $[-1, 1]$ tanto en $X$ como en $Y$. Dado que el dominio solicitado abarca de $-360^\circ$ a $360^\circ$, la posición horizontal de cada muestra se obtiene dividiendo el ángulo entre $360^\circ$ —lo que equivale a dividir entre $2\pi$ cuando se trabaja en radianes—, con lo cual el recorrido completo ocupa exactamente el ancho disponible sin que sobre ni falte espacio. La posición vertical corresponde al valor de la función multiplicado por un factor de escala que se dejó como parámetro del constructor.\\
+
+En cuanto a lo segundo, $\tan(2\theta)$ no está definida en $\theta = \pi/4 + k\pi/2$, condición que se satisface ocho veces dentro del dominio solicitado y divide la gráfica en nueve ramas continuas. Al aproximarse a dichos ángulos la función crece sin cota, de modo que las muestras correspondientes se proyectarían muy por fuera del área de dibujo. Por ello, antes de agregar un vértice se verifica que su altura pertenezca al intervalo visible y, en caso contrario, la muestra se descarta.\\
+
+\begin{lstlisting}[language=C++, caption={Evaluación, mapeo y filtrado de las muestras en MathFunction.h.}]
+double deg  = (double)i / samplesPerDegree;
+float  eval = size * (float)tan(2.0 * glm::radians(deg));
+
+// tan(2*theta) diverges at theta = pi/4 + k*pi/2, so the samples
+// that fall outside the normalized device coordinates are skipped
+if (eval > 1.0f || eval < -1.0f)
+    continue;
+
+Vertex v;
+v.Position.x = (float)(deg / 360.0);
+v.Position.y = eval;
+v.Position.z = 0.0f;
+\end{lstlisting}
+
+El dominio se discretizó en cuartos de grado. Dicho valor se determinó de manera experimental: con incrementos mayores el trazo se percibía quebrado, mientras que con incrementos menores el resultado en pantalla no presentaba diferencia apreciable y únicamente se incrementaba la cantidad de vértices generados. Con ese muestreo, los segmentos rectos que unen los puntos resultan lo bastante cortos para percibirse como una línea continua.\\
+
+Puesto que el método \texttt{buildIndices()} no genera índices, la geometría se despliega con \texttt{glDrawArrays} en modo \texttt{GL\_LINE\_STRIP}, primitiva que une todos los vértices en una sola polilínea. En consecuencia, el último vértice de una rama queda enlazado con el primero de la siguiente. Para distinguir dichas uniones se asignó un color distinto a cada rama, determinando su índice a partir del ángulo evaluado; de esta manera pudo verificarse que los segmentos casi verticales que aparecen en la gráfica coinciden en posición con las asíntotas previstas analíticamente y no corresponden a un error de cálculo.\\
+
+\begin{lstlisting}[language=C++, caption={Asignación de un color por rama de la función en MathFunction.h.}]
+// One color for each continuous branch of the function
+const vec3 branchColor[3] = {
+    vec3(1.0f, 0.0f, 0.0f),
+    vec3(0.0f, 1.0f, 0.0f),
+    vec3(0.0f, 0.0f, 1.0f)
+};
+
+int branch = (int)floor((2.0 * deg + 90.0) / 180.0);
+int c = ((branch % 3) + 3) % 3;
+v.Color.r = branchColor[c].r;
+v.Color.g = branchColor[c].g;
+v.Color.b = branchColor[c].b;
+v.Color.a = 1.0f;
+\end{lstlisting}
+
+Para desplegar esta actividad se comentó la instancia de la clase \texttt{Pentagon} y se habilitó en su lugar la de \texttt{MathFunction}, ya que el proyecto base construye un único objeto \texttt{Mesh} por ejecución. La variación de la actividad se obtuvo aprovechando que el factor de escala es un parámetro del constructor: basta con incrementarlo al instanciar la figura para modificar la porción de cada rama que alcanza a representarse dentro del área visible.\\
+
+\begin{lstlisting}[language=C++, caption={Inicialización de la función tangente en la función Start().}]
+// Report activity 4: pentagon with a different color per vertex
+// Pentagon pentagon(0.5f);                             // <-- se comento
+
+// Report activity 5: tan(2*theta) for theta = [-2pi : 2pi]
+MathFunction tanfunc(0.1f);                             // <-- se descomento
+
+mesh = new Mesh(tanfunc.vertices, tanfunc.indices);     // <-- MODIFICADO
+\end{lstlisting}
