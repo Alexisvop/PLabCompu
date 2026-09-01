@@ -14,7 +14,7 @@ Tomando como ejemplo el primer color solicitado, \textbf{\#00C2CB}, el canal roj
 
 A nivel de arquitectura de software, trabajamos sobre el archivo principal \texttt{01\_IntroOpenGL.cpp}. Para que el color reaccionara en tiempo de ejecución, nos enganchamos a la función \texttt{keyboardCallback} del código base, la cual gestiona las interrupciones de hardware.
 
-Tal como lo indica la rúbrica de evaluación[cite: 1], a continuación se presenta el segmento de código relevante con la implementación. Mapeamos las teclas R, G, B, Y, y M para sobreescribir dinámicamente las variables globales \texttt{bgR}, \texttt{bgG}, \texttt{bgB} y \texttt{bgA}. En cada ciclo de fotograma, la función \texttt{Update()} lee estas variables y se las pasa al comando nativo \texttt{glClearColor}, logrando así el barrido y pintado de la pantalla con el color seleccionado:\\
+Tal como lo indica la rúbrica de evaluación, a continuación se presenta el segmento de código relevante con la implementación. Mapeamos las teclas R, G, B, Y, y M para sobreescribir dinámicamente las variables globales \texttt{bgR}, \texttt{bgG}, \texttt{bgB} y \texttt{bgA}. En cada ciclo de fotograma, la función \texttt{Update()} lee estas variables y se las pasa al comando nativo \texttt{glClearColor}, logrando así el barrido y pintado de la pantalla con el color seleccionado:\\
 
 Código de los cambios realizados para el cambio de color de fondo:\\
 
