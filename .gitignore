@@ -19,7 +19,7 @@
 # these rules might exclude image files for figures etc.
 # *.ps
 # *.eps
-# *.pdf 
+*.pdf 
 ## Aqui modifique esto # *.pdf
 ## Generated if empty string is given at "Please type another file name for output:"
 .pdf
@@ -332,20 +332,3 @@ TSWLatexianTemp*
 
 #Configuraciones locales del editor
 .vscode/
-
-## Archivos generados por Visual Studio y por la compilacion en C++:
-.vs/
-x64/
-Debug/
-Release/
-*.obj
-*.exe
-*.ilk
-*.pdb
-*.idb
-*.tlog
-*.iobj
-*.ipdb
-*.ipch
-*.suo
-*.user
