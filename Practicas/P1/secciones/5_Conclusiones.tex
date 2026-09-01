@@ -18,6 +18,15 @@
 
     En conjunto, se considera alcanzado el objetivo de la práctica, ya que se logró generar un programa gráfico funcional que despliega figuras en dos dimensiones empleando las instrucciones básicas de la API, y quedaron identificados los elementos que intervienen en el proceso.\\
 
+    \subsection{Medel Piña Ángel de Jesús}
+
+    Trabajar en la construcción del semicírculo me hizo notar que en OpenGL no basta con tener los vértices correctos: hace falta indicarle a la API bajo qué criterio debe unirlos. La primera ejecución del programa devolvió una figura fragmentada aun cuando las coordenadas ya estaban bien calculadas, y el problema se resolvió únicamente cambiando la primitiva de dibujo de \texttt{GL\_TRIANGLES} a \texttt{GL\_TRIANGLE\_FAN}. Ese detalle me pareció el aprendizaje más claro de mi actividad, porque muestra que la geometría y la forma de recorrerla son dos cosas distintas, y que un error en la segunda puede aparentar ser un error en la primera.\\
+
+    También resultó útil entender por qué esa primitiva era la adecuada. Como la clase \texttt{Circle} coloca el centro como primer vértice y después genera el contorno de manera consecutiva, \texttt{GL\_TRIANGLE\_FAN} aprovecha exactamente ese orden: toma el primer vértice como pivote y arma un abanico de triángulos hacia cada par de puntos contiguos. Reconocer la relación entre cómo se generan los vértices y qué modo de dibujo los interpreta correctamente me pareció más valioso que el resultado visual en sí.\\
+
+    Por último, limitar el recorrido angular de $360^\circ$ a $180^\circ$ evidenció que el nivel de detalle de una figura curva depende por completo de su discretización. El arco no es realmente una curva, sino una sucesión de segmentos rectos determinada por el incremento del ángulo, de modo que existe un compromiso directo entre la suavidad del contorno y la cantidad de vértices que se envían a la tarjeta gráfica.\\
+
+
     \subsection{Perez Olvera Alexis Abraham}
     Esta primera inmersión práctica en OpenGL representó un puente crucial entre la lógica de programación pura y la interacción directa con el hardware gráfico. En su mayoria nos solemos enfocarnos en el procesamiento en la CPU, pero configurar manualmente la memoria a través de los VAO (Vertex Array Objects) y VBO (Vertex Buffer Objects) me permitió entender cómo se estructuran y envían los datos a la tarjeta de video.\\
 
