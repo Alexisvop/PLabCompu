@@ -105,43 +105,13 @@ Ahora se muestra el mismo rectángulo pero con el fondo de color azul:
 
 \subsection{Actividad 3: Medio círculo relleno}
 
-Para esta actividad se comentó la construcción del triángulo dentro de la función \texttt{Start()} y se habilitó en su lugar la instancia de la clase \texttt{Circle}, ajustando en consecuencia los argumentos con los que se construye el objeto \texttt{Mesh}.\\
+La tercera actividad consistió en desplegar en pantalla medio círculo relleno, empleando la clase \texttt{Circle} incluida en el proyecto base y sin recurrir a instrucciones de trazo directo. El reto principal era doble: por un lado, la clase genera la circunferencia completa, por lo que había que acotar la geometría a la mitad solicitada; por otro, los vértices resultantes no se conectan correctamente con la primitiva de dibujo que emplea el código base, lo que impedía obtener una superficie continua.\\
 
-\begin{lstlisting}[language=C++, caption={Inicialización de la geometría en la función Start().}]
-// Init geometries
-// Activity 1.2
-// Triangle tri(0.5f);          // <-- se comento
+La solución se obtuvo mediante tres modificaciones al proyecto base. La primera se realizó en la función \texttt{Start()} del archivo principal, donde se comentó la construcción del triángulo y se habilitó en su lugar la instancia de la clase \texttt{Circle}, ajustando en consecuencia los argumentos con los que se construye el objeto \texttt{Mesh} para que recibiera los vértices e índices de la nueva geometría.\\
 
-// Activity 1.3-1.5
-Circle circle(0.5f);            // <-- se descomento
+La segunda modificación se efectuó en el método \texttt{Draw()} de la clase \texttt{Mesh}, sustituyendo la primitiva \texttt{GL\_TRIANGLES} por \texttt{GL\_TRIANGLE\_FAN}. El cambio responde a la manera en que la clase \texttt{Circle} genera su geometría: el primer vértice corresponde al centro de la figura y los restantes describen el contorno de forma consecutiva. Bajo ese orden, \texttt{GL\_TRIANGLES} agrupa los vértices de tres en tres sin considerar el papel del centro, lo que producía una figura fragmentada; \texttt{GL\_TRIANGLE\_FAN}, en cambio, toma el primer vértice como pivote y forma un triángulo entre él y cada par de puntos contiguos del contorno, generando un abanico que rellena la superficie completa.\\
 
-mesh = new Mesh(circle.vertices, circle.indices);   // <-- MODIFICADO
-if (mesh == nullptr) {
-    cout << "Error creating mesh object." << endl;
-    return false;
-}
-\end{lstlisting}
-
-La clase \texttt{Circle} construye su geometría tomando como primer vértice el centro de la figura y recorriendo después el ángulo \texttt{theta} en incrementos fijos, de modo que cada punto del contorno se obtiene evaluando $x = size \cdot \cos\theta$ y $y = size \cdot \sin\theta$. Los vértices quedan así ordenados de forma consecutiva alrededor del centro, lo cual determina la primitiva de dibujo que debe emplearse.\\
-
-Al ejecutar el programa con la configuración original, la figura aparecía fragmentada. Esto se debe a que \texttt{GL\_TRIANGLES} agrupa los vértices de tres en tres de manera independiente, criterio que no corresponde con el orden en que la clase los genera. Por ello, en el método \texttt{Draw()} de la clase \texttt{Mesh} se sustituyó dicha primitiva por \texttt{GL\_TRIANGLE\_FAN}, que interpreta el primer vértice como pivote y forma un triángulo entre él y cada par de vértices contiguos del contorno, generando un abanico que rellena la superficie completa.\\
-
-\begin{lstlisting}[language=C++, caption={Cambio de primitiva de dibujo en el metodo Draw() de la clase Mesh.}]
-if (indices.size() > 0)
-    glDrawElements(GL_TRIANGLE_FAN, (GLsizei)indices.size(),
-                   GL_UNSIGNED_INT, 0);             // <-- MODIFICADO
-else if (vertices.size() > 0)
-    glDrawArrays(GL_LINE_STRIP, 0, (GLsizei)vertices.size());
-\end{lstlisting}
-
-Finalmente, dado que la actividad solicita únicamente medio círculo, en el archivo \texttt{Circle.h} se modificó el límite del recorrido angular de $360^\circ$ a $180^\circ$, con lo que el trazo se detiene a la mitad de la circunferencia.\\
-
-\begin{lstlisting}[language=C++, caption={Modificación del recorrido angular en Circle.h.}]
-for (int theta = 0; theta <= 180; theta += 15) {    // <-- MODIFICADO
-\end{lstlisting}
-
-Al conservar el paso de $15^\circ$, el semicírculo queda conformado por doce triángulos a partir de trece vértices de contorno más el vértice central. El resultado se muestra en la Figura \ref{fig:mediocirculo}.\\
-
+La tercera modificación se hizo en el archivo \texttt{Circle.h}, donde se redujo el límite del recorrido angular de $360^\circ$ a $180^\circ$. Al conservar el incremento de $15^\circ$ entre muestras, el trazo se detiene a la mitad de la circunferencia y el semicírculo queda conformado por doce triángulos a partir de trece vértices de contorno más el vértice central.\\
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{Imagenes/E3/MedioCirculo.png}
