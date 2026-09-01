@@ -1,9 +1,5 @@
 \section{Conclusiones}
-    \subsection{Perez Olvera Alexis Abraham}
-    Esta primera inmersión práctica en OpenGL representó un puente crucial entre la lógica de programación pura y la interacción directa con el hardware gráfico. En su mayoria nos solemos enfocarnos en el procesamiento en la CPU, pero configurar manualmente la memoria a través de los VAO (Vertex Array Objects) y VBO (Vertex Buffer Objects) me permitió entender cómo se estructuran y envían los datos a la tarjeta de video.\\
-
-    En particular, el desarrollo del primer ejercicio me ayudó a visualizar la importancia del ciclo continuo de renderizado. Procesar las interrupciones físicas del teclado mediante callbacks y transformar esos eventos en operaciones matemáticas —como la normalización de colores hexadecimales a valores flotantes para la función glClearColor— demostró cómo convergen el software y los periféricos de entrada/salida en tiempo real. En definitiva, la práctica sentó bases muy sólidas para dejar de ver los gráficos como simples trazos en pantalla y empezar a comprenderlos como vértices, búferes y matrices operando a bajo nivel.\\
-    
+        
     \subsection{Basilio Illescas Andrés}
 
     El desarrollo de las actividades asignadas dejó ver que la construcción de una geometría en OpenGL se apoya en dos decisiones independientes entre sí: cuáles son los vértices que la definen y de qué manera se conectan. En el caso del pentágono, los cinco vértices calculados sobre una circunferencia bastaron para obtener tanto la figura rellena como su contorno; lo único que cambió entre un resultado y otro fue la presencia del arreglo de índices, que determina si la malla se despliega con \texttt{glDrawElements} en modo \texttt{GL\_TRIANGLES} o con \texttt{glDrawArrays} en modo \texttt{GL\_LINE\_STRIP}. Igualmente resultó ilustrativo que el degradado del interior de la figura no requiera código adicional: al declarar el color como un atributo por vértice, la interpolación queda a cargo de la etapa de rasterización.\\
@@ -21,7 +17,13 @@
     El punto que resultó más provechoso fue entender el papel de los \textit{Vertex Array Objects} y los \textit{Vertex Buffer Objects} como el mecanismo mediante el cual la información de una geometría viaja de la memoria del programa a la de la tarjeta gráfica, y cómo la descripción de los atributos determina la forma en que el \textit{vertex shader} interpreta esos datos. A partir de ello se vuelve evidente que las figuras desplegadas durante la práctica no se dibujan con instrucciones de trazo, sino declarando la información de sus vértices y el modo en que deben conectarse.\\
 
     En conjunto, se considera alcanzado el objetivo de la práctica, ya que se logró generar un programa gráfico funcional que despliega figuras en dos dimensiones empleando las instrucciones básicas de la API, y quedaron identificados los elementos que intervienen en el proceso.\\
-     \subsection{Segura Cedeño Luisa María}
+
+    \subsection{Perez Olvera Alexis Abraham}
+    Esta primera inmersión práctica en OpenGL representó un puente crucial entre la lógica de programación pura y la interacción directa con el hardware gráfico. En su mayoria nos solemos enfocarnos en el procesamiento en la CPU, pero configurar manualmente la memoria a través de los VAO (Vertex Array Objects) y VBO (Vertex Buffer Objects) me permitió entender cómo se estructuran y envían los datos a la tarjeta de video.\\
+
+    En particular, el desarrollo del primer ejercicio me ayudó a visualizar la importancia del ciclo continuo de renderizado. Procesar las interrupciones físicas del teclado mediante callbacks y transformar esos eventos en operaciones matemáticas —como la normalización de colores hexadecimales a valores flotantes para la función glClearColor— demostró cómo convergen el software y los periféricos de entrada/salida en tiempo real. En definitiva, la práctica sentó bases muy sólidas para dejar de ver los gráficos como simples trazos en pantalla y empezar a comprenderlos como vértices, búferes y matrices operando a bajo nivel.\\
+
+    \subsection{Segura Cedeño Luisa María}
      Esta práctica me ayudó a entender cómo funciona OpenGL desde cero y cómo se crean figuras básicas. Al principio la configuración de todo el entorno y las herramientas fue bastante pesada y complicada, sobre todo porque mi computadora se puso muy lenta durante las instalaciones y me tomó mucho tiempo dejar todo listo para poder empezar.
     
     Una vez que quedó configurado, me enfoqué en trabajar con la \textbf{Actividad 2}, donde logré dibujar el rectángulo centrado usando dos triángulos unidos. Lo más interesante fue ver cómo al asignarle a cada esquina un color diferente (pasando los valores hexadecimales a números entre $0$ y $1$), la propia tarjeta gráfica se encargó de mezclar los tonos en el centro para que se viera un degradado continuo. 
