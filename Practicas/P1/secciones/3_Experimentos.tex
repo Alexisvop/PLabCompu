@@ -9,7 +9,7 @@ La lógica detrás de esta modificación es que, al presionar una tecla, el call
 
 A continuación, se documentan las pruebas de ejecución para cada uno de los colores configurados:\\
 
-En la Figura \ref{fig:fondo1} se muestra el resultado al presionar la tecla 'R', donde el fondo adopta el color hexadecimal \#00C2CB.\\
+En la siguiente figura se muestra el resultado al presionar la tecla 'R', donde el fondo adopta el color hexadecimal \#00C2CB.\\
 
 \begin{figure}[H]
     \centering
@@ -18,7 +18,7 @@ En la Figura \ref{fig:fondo1} se muestra el resultado al presionar la tecla 'R',
     \label{fig:fondo1}
 \end{figure}
 
-En la Figura \ref{fig:fondo2} se observa el cambio al color \#7FE0D4 (tecla 'G').\\
+En esta figura se observa el cambio al color \#7FE0D4 (tecla 'G').\\
 
 \begin{figure}[H]
     \centering
@@ -27,7 +27,7 @@ En la Figura \ref{fig:fondo2} se observa el cambio al color \#7FE0D4 (tecla 'G')
     \label{fig:fondo2}
 \end{figure}
 
-En la Figura \ref{fig:fondo3} se observa el cambio al color \#FFE38A (tecla 'B').\\
+En esta figura se observa el cambio al color \#FFE38A (tecla 'B').\\
 
 \begin{figure}[H]
     \centering
@@ -36,7 +36,7 @@ En la Figura \ref{fig:fondo3} se observa el cambio al color \#FFE38A (tecla 'B')
     \label{fig:fondo3}
 \end{figure}
 
-En la Figura \ref{fig:fondo4} se observa el cambio al color \#FF9A76 (tecla 'N').\\
+En esta figura se observa el cambio al color \#FF9A76 (tecla 'N').\\
 
 \begin{figure}[H]
     \centering
@@ -45,7 +45,7 @@ En la Figura \ref{fig:fondo4} se observa el cambio al color \#FF9A76 (tecla 'N')
     \label{fig:fondo4}
 \end{figure}
 
-En la Figura \ref{fig:fondo5} se observa el cambio al color \#FF5D8F (tecla 'O').\\
+Y por último, en la siguiente figura se observa el cambio al color \#FF5D8F (tecla 'O').\\
 
 \begin{figure}[H]
     \centering
@@ -54,13 +54,70 @@ En la Figura \ref{fig:fondo5} se observa el cambio al color \#FF5D8F (tecla 'O')
     \label{fig:fondo5}
 \end{figure}
 
-\subsection{Actividad 2: Rectángulo centrado con colores distintos en cada vértice}
+\subsection{Actividad 2: Rectángulo unido por dos triángulos}
+Para esta actividad, se modificó la clase encargada de construir la geometría para generar un rectángulo centrado en la ventana. Se definieron cuatro vértices cuyas coordenadas en $X$ y en $Y$ se calcularon de forma simétrica a partir del origen $(0.0, 0.0)$, asegurando que la figura mantuviera una posición uniforme en el espacio normalizado. Para completar la superficie rectangular, se definieron dos triángulos en el arreglo de índices (\texttt{EBO}): el primero uniendo los vértices $0-1-2$ y el segundo conectando los vértices $0-2-3$.
 
-[PENDIENTE: integrar resultados de la actividad 2 proporcionados por el integrante responsable]
+A cada uno de los cuatro vértices se le asignó un color diferente de la paleta solicitada, realizando la conversión de sus valores hexadecimales al formato de punto flotante normalizado en el rango $[0.0, 1.0]$:
+\begin{itemize}
+    \item Vértice 0 (Superior izquierdo): \texttt{\#FF5A5F} $\rightarrow (1.000, 0.353, 0.373)$
+    \item Vértice 1 (Inferior izquierdo): \texttt{\#FFB400} $\rightarrow (1.000, 0.706, 0.000)$
+    \item Vértice 2 (Inferior derecho): \texttt{\#3DDC84} $\rightarrow (0.239, 0.863, 0.518)$
+    \item Vértice 3 (Superior derecho): \texttt{\#00A6ED} $\rightarrow (0.000, 0.651, 0.929)$
+\end{itemize}
+
+Al momento de ejecutar el programa, el \textit{Fragment Shader} generó una interpolación bilineal por toda la superficie del rectángulo, mostrando la transición entre los cuatro colores. A continuación, se muestra el resultado.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{Imagenes/E1/rectangulo1.png}
+    \caption{Ventana OpenGL con el rectángulo.}
+    \label{fig:rectangulo1}
+\end{figure}
+
+Ahora se muestra el mismo rectángulo pero con el fondo de color azul:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{Imagenes/E1/Rectangulo1.2.png}
+    \caption{Ventana OpenGL con el rectángulo y fondo azul.}
+    \label{fig:rectangulo1.2}
+\end{figure}
+
+\subsection{Actividad 2.1: Rectángulo unido por dos triángulos (Variación)}
+
+Como variación, se adaptaron las dimensiones del rectángulo para que se proyectara con una orientación vertical en lugar de horizontal, conservando su posición centrada en $(0.0, 0.0)$. Asimismo, se cambió el color del vértice superior derecho por el tono morado (\texttt{\#8B5CF6} $\rightarrow (0.545, 0.361, 0.965)$), integrando así el quinto color de la paleta. Adicionalmente, se modificó el orden de conexión de los índices a $0-1-3$ y $1-2-3$ para cambiar la dirección de la diagonal compartida por ambos triángulos.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Imagenes/E1/Rectangulo2.png}
+    \caption{Ventana OpenGL con el rectángulo vertical.}
+    \label{fig:rectangulo2}
+\end{figure}
+
+Ahora se muestra el mismo rectángulo pero con el fondo de color azul:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Imagenes/E1/Rectangulo2.1.png}
+    \caption{Ventana OpenGL con el rectángulo vertical y fondo azul.}
+    \label{fig:rectangulo2.1}
+\end{figure}
 
 \subsection{Actividad 3: Medio círculo relleno}
 
-[PENDIENTE: integrar desarrollo y evidencias de la actividad 3 proporcionados por el integrante responsable]
+La tercera actividad consistió en desplegar en pantalla medio círculo relleno, empleando la clase \texttt{Circle} incluida en el proyecto base y sin recurrir a instrucciones de trazo directo. El reto principal era doble: por un lado, la clase genera la circunferencia completa, por lo que había que acotar la geometría a la mitad solicitada; por otro, los vértices resultantes no se conectan correctamente con la primitiva de dibujo que emplea el código base, lo que impedía obtener una superficie continua.\\
+
+La solución se obtuvo mediante tres modificaciones al proyecto base. La primera se realizó en la función \texttt{Start()} del archivo principal, donde se comentó la construcción del triángulo y se habilitó en su lugar la instancia de la clase \texttt{Circle}, ajustando en consecuencia los argumentos con los que se construye el objeto \texttt{Mesh} para que recibiera los vértices e índices de la nueva geometría.\\
+
+La segunda modificación se efectuó en el método \texttt{Draw()} de la clase \texttt{Mesh}, sustituyendo la primitiva \texttt{GL\_TRIANGLES} por \texttt{GL\_TRIANGLE\_FAN}. El cambio responde a la manera en que la clase \texttt{Circle} genera su geometría: el primer vértice corresponde al centro de la figura y los restantes describen el contorno de forma consecutiva. Bajo ese orden, \texttt{GL\_TRIANGLES} agrupa los vértices de tres en tres sin considerar el papel del centro, lo que producía una figura fragmentada; \texttt{GL\_TRIANGLE\_FAN}, en cambio, toma el primer vértice como pivote y forma un triángulo entre él y cada par de puntos contiguos del contorno, generando un abanico que rellena la superficie completa.\\
+
+La tercera modificación se hizo en el archivo \texttt{Circle.h}, donde se redujo el límite del recorrido angular de $360^\circ$ a $180^\circ$. Al conservar el incremento de $15^\circ$ entre muestras, el trazo se detiene a la mitad de la circunferencia y el semicírculo queda conformado por doce triángulos a partir de trece vértices de contorno más el vértice central.\\
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Imagenes/E3/MedioCiruclo.png}
+    \caption{Medio círculo relleno generado con \texttt{GL\_TRIANGLE\_FAN}.}
+    \label{fig:mediocirculo}
+\end{figure}
 
 \subsection{Actividad 4: Pentágono con colores distintos en cada vértice}
 
@@ -170,51 +227,4 @@ La variación consistió en modificar el factor de escala vertical con el que se
     \includegraphics[width=0.6\textwidth]{Imagenes/E5/TangenteAmplitud.png}
     \caption{Variación de la actividad 5: efecto de aumentar el factor de escala vertical.}
     \label{fig:tangenteAmplitud}
-\subsection{Actividad 2: Rectángulo unido por dos triángulos}
-Para esta actividad, se modificó la clase encargada de construir la geometría para generar un rectángulo centrado en la ventana. Se definieron cuatro vértices cuyas coordenadas en $X$ y en $Y$ se calcularon de forma simétrica a partir del origen $(0.0, 0.0)$, asegurando que la figura mantuviera una posición uniforme en el espacio normalizado. Para completar la superficie rectangular, se definieron dos triángulos en el arreglo de índices (\texttt{EBO}): el primero uniendo los vértices $0-1-2$ y el segundo conectando los vértices $0-2-3$.
-
-A cada uno de los cuatro vértices se le asignó un color diferente de la paleta solicitada, realizando la conversión de sus valores hexadecimales al formato de punto flotante normalizado en el rango $[0.0, 1.0]$:
-\begin{itemize}
-    \item Vértice 0 (Superior izquierdo): \texttt{\#FF5A5F} $\rightarrow (1.000, 0.353, 0.373)$
-    \item Vértice 1 (Inferior izquierdo): \texttt{\#FFB400} $\rightarrow (1.000, 0.706, 0.000)$
-    \item Vértice 2 (Inferior derecho): \texttt{\#3DDC84} $\rightarrow (0.239, 0.863, 0.518)$
-    \item Vértice 3 (Superior derecho): \texttt{\#00A6ED} $\rightarrow (0.000, 0.651, 0.929)$
-\end{itemize}
-
-Al momento de ejecutar el programa, el \textit{Fragment Shader} generó una interpolación bilineal por toda la superficie del rectángulo, mostrando la transición entre los cuatro colores. A continuación, se muestra el resultado.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.5\textwidth]{Practicas/P1/Imagenes/E1/rectangulo1.png}
-    \caption{Ventana OpenGL con el rectángulo.}
-    \label{fig:rectangulo1}
-\end{figure}
-
-Ahora se muestra el mismo rectángulo pero con el fondo de color azul:
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.5\textwidth]{Practicas/P1/Imagenes/E1/rectangulo1.2.png}
-    \caption{Ventana OpenGL con el rectángulo y fondo azul.}
-    \label{fig:rectangulo1.2}
-\end{figure}
-
-\subsection{Actividad 2.1: Rectángulo unido por dos triángulos (Variación)}
-
-Como variación, se adaptaron las dimensiones del rectángulo para que se proyectara con una orientación vertical en lugar de horizontal, conservando su posición centrada en $(0.0, 0.0)$. Asimismo, se cambió el color del vértice superior derecho por el tono morado (\texttt{\#8B5CF6} $\rightarrow (0.545, 0.361, 0.965)$), integrando así el quinto color de la paleta. Adicionalmente, se modificó el orden de conexión de los índices a $0-1-3$ y $1-2-3$ para cambiar la dirección de la diagonal compartida por ambos triángulos.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.45\textwidth]{Practicas/P1/Imagenes/E1/Rectangulo2.png}
-    \caption{Ventana OpenGL con el rectángulo vertical.}
-    \label{fig:rectangulo2}
-\end{figure}
-
-Ahora se muestra el mismo rectángulo pero con el fondo de color azul:
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.45\textwidth]{Practicas/P1/Imagenes/E1/Rectangulo1.2.png}
-    \caption{Ventana OpenGL con el rectángulo vertical y fondo azul.}
-    \label{fig:rectangulo1.2}
 \end{figure}

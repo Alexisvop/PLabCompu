@@ -14,7 +14,7 @@ Tomando como ejemplo el primer color solicitado, \textbf{\#00C2CB}, el canal roj
 
 A nivel de arquitectura de software, trabajamos sobre el archivo principal \texttt{01\_IntroOpenGL.cpp}. Para que el color reaccionara en tiempo de ejecución, nos enganchamos a la función \texttt{keyboardCallback} del código base, la cual gestiona las interrupciones de hardware.
 
-Tal como lo indica la rúbrica de evaluación[cite: 1], a continuación se presenta el segmento de código relevante con la implementación. Mapeamos las teclas R, G, B, Y, y M para sobreescribir dinámicamente las variables globales \texttt{bgR}, \texttt{bgG}, \texttt{bgB} y \texttt{bgA}. En cada ciclo de fotograma, la función \texttt{Update()} lee estas variables y se las pasa al comando nativo \texttt{glClearColor}, logrando así el barrido y pintado de la pantalla con el color seleccionado:\\
+Tal como lo indica la rúbrica de evaluación, a continuación se presenta el segmento de código relevante con la implementación. Mapeamos las teclas R, G, B, Y, y M para sobreescribir dinámicamente las variables globales \texttt{bgR}, \texttt{bgG}, \texttt{bgB} y \texttt{bgA}. En cada ciclo de fotograma, la función \texttt{Update()} lee estas variables y se las pasa al comando nativo \texttt{glClearColor}, logrando así el barrido y pintado de la pantalla con el color seleccionado:\\
 
 Código de los cambios realizados para el cambio de color de fondo:\\
 
@@ -60,34 +60,250 @@ En el segundo paso, se trabajó con el color de fondo de la ventana. Como los co
 
 Después, se configuró la parte interna de los gráficos creando los \textit{shaders} (el de vértices y el de fragmentos), que son pequeños códigos que se encargan de la posición y el color de las figuras. Se compilaron y se prepararon las estructuras de memoria (los VAO y VBO) para enviar las coordenadas y los colores desde la computadora hacia la tarjeta gráfica.
 
-El cuarto paso consistió en dibujar las figuras en dos dimensiones. Se comenzó trazando un rectángulo centrado en la pantalla con cuatro colores distintos en sus esquinas para ver cómo se mezclaban. Luego, se calculó una serie de puntos en semicírculo para rellenar un medio círculo. También se ubicaron cinco puntos bien distribuidos para formar un pentágono con colores llamativos en cada esquina, y finalmente se calcularon y unieron puntos con líneas para graficar la función matemática $\tan(2\theta)$.
+Por último, se hicieron pruebas y una pequeña variación a la figura y ejercicios anteriores, cambiando los colores y su rotación, para comprobar cómo respondía el programa y registrar todos los resultados obtenidos.
 
-Por último, se hicieron pruebas y pequeñas variaciones a cada una de las figuras y ejercicios anteriores, cambiando tamaños, colores o la forma de dibujarlos, para comprobar cómo respondía el programa y registrar todos los resultados obtenidos.
+Código de los cambios realizados para realizar el rectángulo:\\
+\begin{lstlisting}[language=C++, caption={Implementación de la clase Triangle para la Actividad 2 (Triangle.h)}]
+#ifndef TRIANGLE_H
+#define TRIANGLE_H
+
+#include <glad/glad.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include "Vertex.h"
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+#include <vector>
+
+using namespace std;
+using namespace glm;
+
+class Triangle {
+public:
+	Triangle(float size) {
+		buildVertices(size);
+		buildIndices();
+	}
+
+	~Triangle() {
+		vertices.clear();
+		indices.clear();
+	}
+
+	vector<Vertex>       vertices;
+	vector<unsigned int> indices;
+
+private:
+
+	void buildVertices(float size) {
+
+		Vertex v1, v2, v3, v4;
+
+		// Vertice 1: #FF5A5F (Coral)
+		v1.Position.x = -0.6f; v1.Position.y =  0.3f; v1.Position.z = 0.0f;
+		v1.Color.x = 1.0f;     v1.Color.y = 0.353f;   v1.Color.z = 0.373f;
+
+		// Vertice 2: #FFB400 (Amarillo)
+		v2.Position.x = -0.6f; v2.Position.y = -0.3f; v2.Position.z = 0.0f;
+		v2.Color.x = 1.0f;     v2.Color.y = 0.706f;   v2.Color.z = 0.0f;
+
+		// Vertice 3: #3DDC84 (Verde)
+		v3.Position.x =  0.6f; v3.Position.y = -0.3f; v3.Position.z = 0.0f;
+		v3.Color.x = 0.239f;   v3.Color.y = 0.863f;   v3.Color.z = 0.518f;
+
+		// Vertice 4: #00A6ED (Azul)
+		v4.Position.x =  0.6f; v4.Position.y =  0.3f; v4.Position.z = 0.0f;
+		v4.Color.x = 0.0f;     v4.Color.y = 0.651f;   v4.Color.z = 0.929f;
+
+		vertices.push_back(v1);
+		vertices.push_back(v2);
+		vertices.push_back(v3);
+		vertices.push_back(v4);
+	}
+
+	void buildIndices() {
+		
+		// Triangulo 1 
+		indices.push_back(0);
+		indices.push_back(1);
+		indices.push_back(2);
+
+		// Triangulo 2 
+		indices.push_back(0);
+		indices.push_back(2);
+		indices.push_back(3);
+	}
+};
+
+#endif
+\end{lstlisting}
+
+\subsection{Actividad 3: Medio círculo relleno}
+
+Para esta actividad se comentó la construcción del triángulo dentro de la función \texttt{Start()} y se habilitó en su lugar la instancia de la clase \texttt{Circle}, ajustando en consecuencia los argumentos con los que se construye el objeto \texttt{Mesh}.\\
+
+\begin{lstlisting}[language=C++, caption={Inicialización de la geometría en la función Start().}]
+// Init geometries
+// Activity 1.2
+// Triangle tri(0.5f);          // <-- se comento
+
+// Activity 1.3-1.5
+Circle circle(0.5f);            // <-- se descomento
+
+mesh = new Mesh(circle.vertices, circle.indices);   // <-- MODIFICADO
+if (mesh == nullptr) {
+    cout << "Error creating mesh object." << endl;
+    return false;
+}
+\end{lstlisting}
+
+La clase \texttt{Circle} construye su geometría tomando como primer vértice el centro de la figura y recorriendo después el ángulo \texttt{theta} en incrementos fijos, de modo que cada punto del contorno se obtiene evaluando $x = size \cdot \cos\theta$ y $y = size \cdot \sin\theta$. Los vértices quedan así ordenados de forma consecutiva alrededor del centro, lo cual determina la primitiva de dibujo que debe emplearse.\\
+
+Al ejecutar el programa con la configuración original, la figura aparecía fragmentada. Esto se debe a que \texttt{GL\_TRIANGLES} agrupa los vértices de tres en tres de manera independiente, criterio que no corresponde con el orden en que la clase los genera. Por ello, en el método \texttt{Draw()} de la clase \texttt{Mesh} se sustituyó dicha primitiva por \texttt{GL\_TRIANGLE\_FAN}, que interpreta el primer vértice como pivote y forma un triángulo entre él y cada par de vértices contiguos del contorno, generando un abanico que rellena la superficie completa.\\
+
+\begin{lstlisting}[language=C++, caption={Cambio de primitiva de dibujo en el metodo Draw() de la clase Mesh.}]
+if (indices.size() > 0)
+    glDrawElements(GL_TRIANGLE_FAN, (GLsizei)indices.size(),
+                   GL_UNSIGNED_INT, 0);             // <-- MODIFICADO
+else if (vertices.size() > 0)
+    glDrawArrays(GL_LINE_STRIP, 0, (GLsizei)vertices.size());
+\end{lstlisting}
+
+Finalmente, dado que la actividad solicita únicamente medio círculo, en el archivo \texttt{Circle.h} se modificó el límite del recorrido angular de $360^\circ$ a $180^\circ$, con lo que el trazo se detiene a la mitad de la circunferencia.\\
+
+\begin{lstlisting}[language=C++, caption={Modificación del recorrido angular en Circle.h.}]
+for (int theta = 0; theta <= 180; theta += 15) {    // <-- MODIFICADO
+\end{lstlisting}
+
+Al conservar el paso de $15^\circ$, el semicírculo queda conformado por doce triángulos a partir de trece vértices de contorno más el vértice central. El resultado se muestra en la Figura \ref{fig:mediocirculo}.\\
 
 \subsection{Actividad 4: Pentágono con colores distintos en cada vértice}
 
-Antes de escribir una sola línea de código, revisamos cómo estaba organizado el proyecto base y notamos que cada figura vivía en su propia clase dentro de la carpeta \texttt{include}. Para no romper esa organización decidimos seguir exactamente el mismo camino y creamos el archivo \texttt{Pentagon.h}, con un constructor que recibe el tamaño de la figura y dos listas públicas: una con los vértices y otra con los índices. De esta forma el pentágono se usa igual que cualquier otra figura del código base y no fue necesario tocar la lógica de dibujo.
+Para esta actividad se creó la clase \texttt{Pentagon}, alojada en el archivo \texttt{include/Pentagon.h}, conservando la organización que emplean las demás geometrías del proyecto base: un constructor que recibe el tamaño de la figura, los contenedores públicos \texttt{vertices} e \texttt{indices} y los métodos privados \texttt{buildVertices} y \texttt{buildIndices}. Al respetar dicha interfaz, la figura se instancia igual que cualquier otra del código base y no fue necesario modificar la lógica de dibujo de la clase \texttt{Mesh}.\\
 
-El primer paso fue el mismo que en la actividad uno: traducir los colores. La paleta venía en hexadecimal y OpenGL trabaja con valores entre 0.0 y 1.0, así que convertimos cada canal a decimal y lo dividimos entre 255. Esa conversión la dejamos escrita dentro de la propia clase, junto al color hexadecimal original en un comentario, para que después fuera fácil verificar que ningún tono se hubiera colado por error.
+Al igual que en la actividad 1, el primer paso consistió en convertir la paleta solicitada al formato normalizado que utiliza OpenGL. Cada canal del valor hexadecimal se interpreta como un entero de 8 bits, por lo que la conversión se reduce a dividir dicho entero entre 255. La operación se dejó escrita dentro de la propia clase, acompañada del valor hexadecimal original en un comentario, de modo que la correspondencia entre ambos formatos pueda verificarse directamente sobre el código.\\
 
-El siguiente punto era decidir dónde colocar los cinco vértices. La idea que seguimos fue pensar el pentágono como cinco puntos repartidos de manera pareja sobre una circunferencia: si la vuelta completa son 360 grados y necesitamos cinco esquinas, entonces basta con avanzar de 72 en 72 grados. Elegimos arrancar en los 90 grados simplemente porque así la punta del pentágono queda mirando hacia arriba, que es como uno espera verlo. Con el ángulo de cada esquina ya definido, obtener sus coordenadas fue cuestión de aplicar el coseno para la posición horizontal y el seno para la vertical, multiplicando ambos por el tamaño que pide el constructor.
+Los cinco vértices se distribuyeron de manera uniforme sobre una circunferencia de radio \texttt{size}: dado que una vuelta completa abarca $360^\circ$ y la figura requiere cinco esquinas, la separación angular entre vértices consecutivos es de $72^\circ$. El recorrido se inició en $90^\circ$ para que uno de los vértices quedara orientado hacia la parte superior de la ventana. Las coordenadas de cada esquina se obtienen entonces evaluando $x = size \cdot \cos\theta$ y $y = size \cdot \sin\theta$.\\
 
-Con los vértices ubicados faltaba rellenar la figura. Aquí conviene recordar que la tarjeta gráfica no sabe dibujar pentágonos: lo único que sabe pintar son triángulos. Por eso partimos la figura en tres triángulos que salen todos del mismo vértice, como si abriéramos un abanico desde una esquina hacia las demás. Lo interesante de resolverlo así es que no hubo que inventar puntos nuevos ni repetirlos: los mismos cinco vértices de la orilla sirven para armar los tres triángulos, y cada uno conserva el color que le tocaba. El degradado que se ve en el interior no lo programamos nosotros, lo genera la tarjeta gráfica al mezclar los colores de las esquinas mientras rellena cada triángulo.
+\begin{lstlisting}[language=C++, caption={Conversión de la paleta y construcción de los vértices en Pentagon.h.}]
+// Requested palette converted to the normalized OpenGL format
+const vec3 palette[5] = {
+    vec3(  8.0f, 247.0f, 254.0f) / 255.0f, // #08F7FE
+    vec3(  9.0f, 251.0f, 211.0f) / 255.0f, // #09FBD3
+    vec3(254.0f,  83.0f, 187.0f) / 255.0f, // #FE53BB
+    vec3(245.0f, 211.0f,   0.0f) / 255.0f, // #F5D300
+    vec3(113.0f,  34.0f, 250.0f) / 255.0f  // #7122FA
+};
 
-Como variación quisimos ver la misma figura dibujada solo con su contorno. En lugar de escribir otra clase, agregamos al constructor una bandera que, cuando está apagada, simplemente no genera la lista de triángulos y en su lugar repite el primer vértice al final para cerrar el recorrido. El programa detecta que no hay triángulos que dibujar y traza la figura uniendo los puntos con líneas. Nos pareció una forma limpia de comprobar que la misma geometría puede verse de dos maneras distintas sin mover una sola coordenada.
+int count = filled ? 5 : 6;
 
-La comprobación fue directa: compilar, ejecutar y comparar en pantalla cada esquina contra la paleta del manual, además de alternar entre la versión rellena y la de contorno para confirmar que ambas coincidían en forma y posición.
+for (int i = 0; i < count; i++) {
+    Vertex v;
+    double rdeg = glm::radians(90.0 + 72.0 * (i % 5));
+    v.Position.x = size * (float)cos(rdeg);
+    v.Position.y = size * (float)sin(rdeg);
+    v.Position.z = 0.0f;
+    v.Color.r = palette[i % 5].r;
+    v.Color.g = palette[i % 5].g;
+    v.Color.b = palette[i % 5].b;
+    v.Color.a = 1.0f;
+    vertices.push_back(v);
+}
+\end{lstlisting}
 
-\subsection{Actividad 5: Gráfica de la función \texorpdfstring{$\tan(2\theta)$}{tan(2 theta)}}
+Puesto que la etapa de rasterización únicamente procesa triángulos, la superficie del pentágono se descompuso en tres triángulos que comparten el primer vértice, siguiendo el mismo criterio de abanico empleado en la actividad 3. Esta triangulación no requiere generar vértices adicionales: los cinco puntos del contorno bastan para formar los tres triángulos mediante el arreglo de índices, y cada uno conserva el color que le corresponde. El degradado que se observa en el interior de la figura no se programa de forma explícita, sino que lo produce la interpolación de los atributos de color durante la rasterización.\\
 
-Para la última actividad partimos de la clase \texttt{MathFunction} que ya venía en el código base, la cual dibujaba una función seno a lo largo de un solo periodo. Nuestro trabajo consistió en adaptarla, y al hacerlo aparecieron dos problemas que valía la pena resolver con calma.
+\begin{lstlisting}[language=C++, caption={Triangulación en abanico del pentágono en Pentagon.h.}]
+void buildIndices() {
 
-El primero fue el del espacio disponible. La ventana de OpenGL no entiende de radianes ni de grados: para ella todo lo que se ve en pantalla ocurre entre $-1$ y $1$, tanto a lo ancho como a lo alto. Como el ejercicio pedía recorrer $\theta$ desde $-2\pi$ hasta $2\pi$, que es lo mismo que ir de $-360^\circ$ a $360^\circ$, tuvimos que traducir ese recorrido al ancho de la ventana. La equivalencia resultó sencilla: dividir cada ángulo entre $2\pi$ deja el dominio completo ocupando justo el ancho visible, sin que sobre ni falte espacio. La altura de cada punto es el valor de la función, multiplicado por un factor de escala que decidimos dejar como parámetro del constructor para poder experimentar con él más adelante.
+    // Fan triangulation from the first vertex: (0,1,2), (0,2,3), (0,3,4)
+    for (unsigned int i = 1; i + 1 < vertices.size(); i++) {
+        indices.push_back(0);
+        indices.push_back(i);
+        indices.push_back(i + 1);
+    }
+}
+\end{lstlisting}
 
-El segundo problema fue más interesante, porque no es de programación sino de la función misma: la tangente no existe en ciertos ángulos, y al acercarse a ellos se dispara hacia valores enormes. En el caso de $\tan(2\theta)$ esto pasa ocho veces dentro del dominio pedido, lo que parte la gráfica en nueve tramos separados. Si le hubiéramos entregado esos valores gigantescos a OpenGL tal cual, el resultado habría sido un enredo de líneas atravesando la pantalla. La solución que tomamos fue la más natural: antes de guardar un punto, revisamos si su altura cae dentro de lo que realmente se alcanza a ver y, si se sale, simplemente lo descartamos. Así la gráfica se dibuja únicamente con los puntos que tienen sentido mostrar.
+Para la variación se agregó al constructor el parámetro \texttt{filled}. Cuando este toma el valor \texttt{false} se omite la generación de índices y se repite el primer vértice al final del arreglo con el fin de cerrar el recorrido. Ante un vector de índices vacío, el método \texttt{Draw()} de la clase \texttt{Mesh} recurre a \texttt{glDrawArrays} con el modo \texttt{GL\_LINE\_STRIP}, por lo que la misma geometría se despliega como contorno cerrado en lugar de una superficie rellena, sin modificar una sola coordenada.\\
 
-Para que la curva se viera suave decidimos evaluar la función cada cuarto de grado. No hay una fórmula detrás de ese número, fue una cuestión de prueba: con muestras más separadas la curva se notaba quebrada, y con muchas más el resultado se veía igual pero se generaban puntos de sobra. Con ese muestreo, los segmentos rectos que unen los puntos son tan cortos que el ojo los percibe como una línea continua.
+\begin{lstlisting}[language=C++, caption={Parámetro filled del constructor de la clase Pentagon.}]
+// filled = true builds the indices for a solid figure, filled = false
+// leaves them empty so that the mesh is drawn as an outline
+Pentagon(float size, bool filled = true) {
+    buildVertices(size, filled);
+    if (filled)
+        buildIndices();
+}
+\end{lstlisting}
 
-Un detalle que nos ayudó bastante fue asignar un color distinto a cada tramo de la función. Como los puntos se van uniendo uno tras otro, el último punto de un tramo termina enlazado con el primero del siguiente, y eso produce esas líneas casi verticales que aparecen en la gráfica. Distinguir los tramos por color nos permitió confirmar de un vistazo que esas líneas caen exactamente donde la teoría dice que están las asíntotas, y que no se trataba de un error en el cálculo.
+Finalmente, en la función \texttt{Start()} se declaró la instancia de la clase \texttt{Pentagon} y se ajustaron en consecuencia los argumentos con los que se construye el objeto \texttt{Mesh}.\\
 
-Finalmente, aprovechamos que el factor de escala era un parámetro para hacer la variación del ejercicio: bastó con aumentarlo al construir la figura para observar cómo cambiaba lo que alcanza a mostrarse de cada tramo antes de salirse de la ventana.
+\begin{lstlisting}[language=C++, caption={Inicialización del pentágono en la función Start().}]
+// Report activity 4: pentagon with a different color per vertex
+Pentagon pentagon(0.5f);                                // <-- AGREGADO
+
+// Report activity 5: tan(2*theta) for theta = [-2pi : 2pi]
+// MathFunction tanfunc(0.1f);
+
+mesh = new Mesh(pentagon.vertices, pentagon.indices);   // <-- MODIFICADO
+\end{lstlisting}
+
+La comprobación consistió en compilar y ejecutar el programa, contrastando en pantalla el tono de cada vértice contra la paleta del manual y alternando entre la versión rellena y la de contorno para confirmar que ambas coinciden en forma y posición.\\
+
+\subsection{Actividad 5: Función \texorpdfstring{$\tan(2\theta)$}{tan(2 theta)}}
+
+Para esta actividad se partió de la clase \texttt{MathFunction} incluida en el proyecto base, la cual traza una función seno a lo largo de un solo periodo, y se adaptó para representar $\tan(2\theta)$ sobre el dominio $\theta = [-2\pi : 2\pi]$. El desarrollo obligó a resolver dos cuestiones ajenas a la expresión matemática en sí: el mapeo del dominio al espacio de coordenadas normalizadas de dispositivo y el tratamiento de las discontinuidades de la función.\\
+
+Respecto de lo primero, el área visible de la ventana queda limitada al intervalo $[-1, 1]$ tanto en $X$ como en $Y$. Dado que el dominio solicitado abarca de $-360^\circ$ a $360^\circ$, la posición horizontal de cada muestra se obtiene dividiendo el ángulo entre $360^\circ$ —lo que equivale a dividir entre $2\pi$ cuando se trabaja en radianes—, con lo cual el recorrido completo ocupa exactamente el ancho disponible sin que sobre ni falte espacio. La posición vertical corresponde al valor de la función multiplicado por un factor de escala que se dejó como parámetro del constructor.\\
+
+En cuanto a lo segundo, $\tan(2\theta)$ no está definida en $\theta = \pi/4 + k\pi/2$, condición que se satisface ocho veces dentro del dominio solicitado y divide la gráfica en nueve ramas continuas. Al aproximarse a dichos ángulos la función crece sin cota, de modo que las muestras correspondientes se proyectarían muy por fuera del área de dibujo. Por ello, antes de agregar un vértice se verifica que su altura pertenezca al intervalo visible y, en caso contrario, la muestra se descarta.\\
+
+\begin{lstlisting}[language=C++, caption={Evaluación, mapeo y filtrado de las muestras en MathFunction.h.}]
+double deg  = (double)i / samplesPerDegree;
+float  eval = size * (float)tan(2.0 * glm::radians(deg));
+
+// tan(2*theta) diverges at theta = pi/4 + k*pi/2, so the samples
+// that fall outside the normalized device coordinates are skipped
+if (eval > 1.0f || eval < -1.0f)
+    continue;
+
+Vertex v;
+v.Position.x = (float)(deg / 360.0);
+v.Position.y = eval;
+v.Position.z = 0.0f;
+\end{lstlisting}
+
+El dominio se discretizó en cuartos de grado. Dicho valor se determinó de manera experimental: con incrementos mayores el trazo se percibía quebrado, mientras que con incrementos menores el resultado en pantalla no presentaba diferencia apreciable y únicamente se incrementaba la cantidad de vértices generados. Con ese muestreo, los segmentos rectos que unen los puntos resultan lo bastante cortos para percibirse como una línea continua.\\
+
+Puesto que el método \texttt{buildIndices()} no genera índices, la geometría se despliega con \texttt{glDrawArrays} en modo \texttt{GL\_LINE\_STRIP}, primitiva que une todos los vértices en una sola polilínea. En consecuencia, el último vértice de una rama queda enlazado con el primero de la siguiente. Para distinguir dichas uniones se asignó un color distinto a cada rama, determinando su índice a partir del ángulo evaluado; de esta manera pudo verificarse que los segmentos casi verticales que aparecen en la gráfica coinciden en posición con las asíntotas previstas analíticamente y no corresponden a un error de cálculo.\\
+
+\begin{lstlisting}[language=C++, caption={Asignación de un color por rama de la función en MathFunction.h.}]
+// One color for each continuous branch of the function
+const vec3 branchColor[3] = {
+    vec3(1.0f, 0.0f, 0.0f),
+    vec3(0.0f, 1.0f, 0.0f),
+    vec3(0.0f, 0.0f, 1.0f)
+};
+
+int branch = (int)floor((2.0 * deg + 90.0) / 180.0);
+int c = ((branch % 3) + 3) % 3;
+v.Color.r = branchColor[c].r;
+v.Color.g = branchColor[c].g;
+v.Color.b = branchColor[c].b;
+v.Color.a = 1.0f;
+\end{lstlisting}
+
+Para desplegar esta actividad se comentó la instancia de la clase \texttt{Pentagon} y se habilitó en su lugar la de \texttt{MathFunction}, ya que el proyecto base construye un único objeto \texttt{Mesh} por ejecución. La variación de la actividad se obtuvo aprovechando que el factor de escala es un parámetro del constructor: basta con incrementarlo al instanciar la figura para modificar la porción de cada rama que alcanza a representarse dentro del área visible.\\
+
+\begin{lstlisting}[language=C++, caption={Inicialización de la función tangente en la función Start().}]
+// Report activity 4: pentagon with a different color per vertex
+// Pentagon pentagon(0.5f);                             // <-- se comento
+
+// Report activity 5: tan(2*theta) for theta = [-2pi : 2pi]
+MathFunction tanfunc(0.1f);                             // <-- se descomento
+
+mesh = new Mesh(tanfunc.vertices, tanfunc.indices);     // <-- MODIFICADO
+\end{lstlisting}
