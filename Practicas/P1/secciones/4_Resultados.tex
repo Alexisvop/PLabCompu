@@ -40,7 +40,11 @@ Trabajar de esta forma con OpenGL tiene varios puntos a favor y en contra que pu
 
 \subsection{Actividad 3}
 
-[PENDIENTE: integrar desarrollo y evidencias de la actividad 3 proporcionados por el integrante responsable]
+Se obtuvo un semicírculo relleno centrado en el origen, cuyo resultado en pantalla se muestra en la Figura \ref{fig:mediocirculo} de la sección de Experimentos. El trazo aparece cerrado sobre el diámetro y sin discontinuidades en el arco, lo que confirma que el recorrido angular limitado a $180^\circ$ genera la mitad exacta de la circunferencia.\\
+
+El resultado más relevante de esta actividad fue comprobar que una misma lista de vértices produce figuras distintas según la primitiva con que se interprete. Con \texttt{GL\_TRIANGLES} la geometría se desplegaba fragmentada, ya que los vértices se agrupan de tres en tres sin considerar el vértice central; al emplear \texttt{GL\_TRIANGLE\_FAN} ese primer vértice pasa a funcionar como pivote común y la superficie se rellena por completo. La corrección no requirió modificar una sola coordenada, únicamente el criterio de conexión entre los vértices ya existentes.\\
+
+Cabe señalar que la resolución de la figura queda determinada por el incremento angular. Al conservarse el paso de $15^\circ$, el contorno se aproxima mediante doce segmentos rectos, lo cual resulta perceptible en el borde curvo; reducir dicho incremento suavizaría el arco a costa de generar un mayor número de vértices.\\
 
 \subsection{Actividad 4}
 
