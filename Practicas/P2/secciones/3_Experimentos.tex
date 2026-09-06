@@ -1,10 +1,35 @@
+% En esta seccion se presentan experimentos concretos efectuados, exitosos o fallidos, mediante figuras y capturas de pantalla debidamente tituladas y referenciadas en el cuerpo del reporte.
 \section{Experimentos}
 
 \subsection{Actividad 1: Creacion de una casa sencilla con OpenGL}
-la
+Empezamos probando la clase \texttt{House3D} con los mismos valores con los que ya veníamos trabajando en \texttt{Triangle3D}, es decir, \texttt{size = 0.5f}, usando el constructor de un solo parámetro (el que fija la altura del techo igual a \texttt{size}). Al compilar y correr el programa, la casa aparecía en pantalla, pero el techo se veía demasiado alto y puntiagudo en proporción al cuerpo del cubo, casi como una torre.
+
+Para corregir esto probamos distintos valores de \texttt{roofHeight} llamando al constructor de dos parámetros. Terminamos usando \texttt{House3D(0.5f, 0.35f)}, que da una proporción de techo más parecida a una casa real, un poco menos alto que el ancho de la base. También aprovechamos las teclas WASD y las flechas, que ya estaban implementadas en el proyecto, para mover la cámara y confirmar visualmente que la figura quedaba centrada en el origen sin importar desde qué ángulo la viéramos.
+
+% TODO: insertar capturas de pantalla de la casa desde distintos ángulos
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{Imagenes/E1/Casa.png}
+    \includegraphics[width=0.4\textwidth]{Imagenes/E1/CasaA.png}
+    \caption{Figura de la casa (cubo + techo piramidal) centrada en el origen.}
+    \label{fig:actividad1-casa}
+\end{figure}
+
 
 \subsection{Actividad 2: Configuración de las vistas: frontal, lateral y superior}
-la
+Para probar las vistas compilamos el proyecto y, con la ventana ya abierta, fuimos presionando F1, F2 y F3 mientras observábamos cómo cambiaba la casa en pantalla. Con la configuración original del código (antes de modificar los bloques de las teclas) notamos que F1 mostraba una vista en perspectiva diagonal, F2 mostraba la casa desde arriba y F3 la mostraba de frente; es decir, el orden no coincidía con lo que pedía la actividad (frontal, lateral y superior, en ese orden).
+
+Después de reescribir los tres bloques con las posiciones sobre los ejes $X$, $Y$ y $Z$, volvimos a probar: F1 mostraba la fachada de la casa completamente de frente, con el techo apuntando hacia arriba de la pantalla; F2 mostraba el perfil lateral, dejando ver la silueta triangular del techo desde el costado; y F3 mostraba la vista de planta, con el contorno cuadrado de la base y el pico del techo justo en el centro. También probamos, a propósito, qué pasaba si dejábamos \texttt{Up = (0,1,0)} en la vista superior, y efectivamente la cámara perdía la orientación y la imagen se veía distorsionada, lo que confirmó que el ajuste del vector \texttt{Up} era necesario y no solo un detalle estético.
+
+% TODO: insertar capturas de las tres vistas (F1, F2, F3)
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.32\textwidth]{Imagenes/E2/CasaFrontal.png}
+    \includegraphics[width=0.32\textwidth]{Imagenes/E2/CasaLateral.png}
+    \includegraphics[width=0.32\textwidth]{Imagenes/E2/CasaSuperior.png}
+    \caption{Vistas frontal, lateral y superior de la casa, obtenidas con F1, F2 y F3 respectivamente.}
+    \label{fig:actividad2-vistas}
+\end{figure}
 
 \subsection{Actividad 3: 3 vistas de proyección ortogonal}
 ñla
