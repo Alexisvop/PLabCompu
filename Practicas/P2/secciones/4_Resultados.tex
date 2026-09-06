@@ -7,27 +7,26 @@ El resultado final es una casa simple pero reconocible: un cubo con techo pirami
 La principal desventaja de este enfoque es justamente esa reutilización de vértices: al compartirlos entre caras, no es posible asignarle un color completamente plano e independiente a cada cara sin duplicar geometría. Si en una práctica futura quisiéramos, por ejemplo, techos y paredes con colores sólidos bien definidos y sin ningún degradado, tendríamos que separar los vértices por cara, lo cual elevaría el conteo de 9 a unos 24 vértices aproximadamente. Otra limitación es que la proporción entre el cuerpo y el techo quedó fija en los valores que usamos (\texttt{0.5} y \texttt{0.35}); para una casa con otras proporciones habría que exponer esos parámetros de una forma más flexible, en vez de dejarlos fijos en el código.
 
 % TODO: insertar captura final de la casa terminada
-% \begin{figure}[h]
-%     \centering
-%     \includegraphics[width=0.7\textwidth]{figuras/resultado_casa.png}
-%     \caption{Resultado final de la Actividad 1: casa centrada en el origen.}
-%     \label{fig:resultado-casa}
-% \end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Imagenes/E1/CasaA.png}
+    \caption{Resultado final de la Actividad 1: casa centrada en el origen.}
+    \label{fig:resultado-casa}
+\end{figure}
 
 \subsection{Actividad 2: Configuración de las vistas: frontal, lateral y superior}
 Con los ajustes hechos a las teclas F1, F2 y F3, conseguimos las tres vistas que pedía la práctica, cada una activable con solo presionar una tecla mientras el programa corre. La ventaja más clara de esta solución es lo simple que resulta: no hace falta calcular ángulos ni interpolar entre posiciones, solo reasignar tres vectores fijos (\texttt{Position}, \texttt{View} y \texttt{Up}) por cada vista, y \texttt{glm::lookAt} se encarga del resto.
 
 Como desventaja, notamos que las posiciones de cámara quedaron \emph{hardcodeadas} a una distancia fija (3 unidades del origen en cada eje), lo cual funciona bien para el tamaño actual de la casa, pero si la geometría creciera bastante (por ejemplo, usando las teclas + y - de la Actividad 7 para agrandarla mucho) la cámara podría terminar mostrando el objeto recortado o demasiado pequeño, porque la distancia no se ajusta de forma dinámica al tamaño de la figura. Tampoco hay ninguna transición entre vistas: el cambio de una posición a otra es instantáneo, lo cual es aceptable para esta práctica pero se sentiría abrupto en una aplicación más pulida, donde normalmente se esperaría una interpolación suave entre la cámara actual y la nueva.
 
-% TODO: insertar captura final de las tres vistas
-% \begin{figure}[h]
-%     \centering
-%     \includegraphics[width=0.32\textwidth]{figuras/resultado_frontal.png}
-%     \includegraphics[width=0.32\textwidth]{figuras/resultado_lateral.png}
-%     \includegraphics[width=0.32\textwidth]{figuras/resultado_superior.png}
-%     \caption{Resultado final de la Actividad 2: vistas frontal, lateral y superior.}
-%     \label{fig:resultado-vistas}
-% \end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.32\textwidth]{Imagenes/E2/CasaFrontal.png}
+    \includegraphics[width=0.32\textwidth]{Imagenes/E2/CasaLateral.png}
+    \includegraphics[width=0.32\textwidth]{Imagenes/E2/CasaSuperior.png}
+    \caption{Vistas frontal, lateral y superior de la casa, obtenidas con F1, F2 y F3 respectivamente.}
+    \label{fig:actividad2-vistas}
+\end{figure}
 
 \subsection{Actividad 3: 3 vistas de proyección ortogonal}
 ñla
