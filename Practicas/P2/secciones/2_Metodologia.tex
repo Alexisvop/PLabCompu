@@ -73,6 +73,7 @@ Para las tres vistas no fue necesario tocar la lógica de renderizado ni las mat
 
 Colocamos la cámara sobre cada uno de los ejes principales, siempre apuntando hacia el origen, que es donde vive la casa: F1 sobre el eje $+Z$ para la vista frontal, F2 sobre el eje $+X$ para la vista lateral, y F3 sobre el eje $+Y$ para la vista superior. El único ajuste que requirió pensarlo dos veces fue el vector \texttt{Up} de la vista superior: como ahí la cámara mira directamente hacia abajo a lo largo del eje $Y$, no podíamos dejar \texttt{Up} apuntando también en $Y$, porque quedaría paralelo a la dirección de vista y \texttt{lookAt} no tendría forma de saber hacia dónde orientar la parte superior de la imagen. Resolvimos esto usando $(0,0,-1)$ como \texttt{Up} solo para esa vista, dejando $(0,1,0)$ para las otras dos.
 
+
 \begin{lstlisting}[language=C, caption=Código de las vistas: frontal, lateral y superior, label=lst:codigo-vistas]
 
 if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) {
@@ -101,7 +102,56 @@ la
 la
 
 \subsection{Actividad 5: Implementación de la camara usando WASD}
-la
+
+El proyecto base ya traía las teclas WASD asignadas, pero lo que hacían era sumar y restar cantidades fijas a las componentes \texttt{x} y \texttt{y} de la posición de la cámara. Eso mueve al observador sobre un plano, así que conforme uno recorre la escena la distancia a la figura va cambiando sola y la casa termina saliéndose del encuadre. Lo que queríamos era otra cosa: que A y D giraran alrededor del objeto sin acercarlo, y que W y S fueran las que se encargaran de acercar y alejar.
+
+Para lograrlo dejamos de guardar la posición de la cámara en coordenadas cartesianas y la describimos con dos cantidades: un ángulo \texttt{camAngulo} medido sobre el plano horizontal y un radio \texttt{camRadio} que es la distancia al origen. Con eso la posición se recupera en cada cuadro como $x = r\cos\theta$ y $y = r\operatorname{sen}\theta$, mientras que la altura se queda fija en \texttt{camAltura}. La ventaja es que cada tecla toca una sola variable: modificar el ángulo recorre una circunferencia de radio constante, y modificar el radio acerca o aleja al observador siguiendo la recta que lo une con el origen. Como en nuestra figura el eje vertical es $z$, la órbita se desarrolla sobre el plano $xy$.
+
+Las tres variables las declaramos como globales, junto al objeto \texttt{Camera}, porque las escribe la función que atiende el teclado y las lee la que dibuja. También ajustamos los argumentos del constructor: el punto de interés lo pusimos en el origen, ya que \texttt{glm::lookAt} espera ahí un punto y no un vector de dirección, y el vector vertical lo pusimos en $(0,0,1)$ para que el eje $z$ se despliegue hacia arriba de la ventana, que es como construimos la geometría de la casa.
+
+El cálculo de la posición lo agregamos dentro de \texttt{Update}, justo antes de armar la matriz de vista. El orden ahí sí importa: como \texttt{glm::lookAt} recibe la posición del observador, si el cálculo se hiciera después de esa llamada la matriz correspondería a la posición del cuadro anterior y el giro se vería con un cuadro de retraso. La conversión a radianes es necesaria porque las funciones trigonométricas trabajan en esa unidad, aunque nosotros preferimos manejar los incrementos en grados por ser más fáciles de ajustar a ojo.
+
+Por último, en \texttt{keyboardCallback} sustituimos las cuatro asignaciones originales por incrementos sobre el ángulo y el radio. Fue importante borrarlas y no solo agregar las nuevas: como la posición se recalcula en cada cuadro a partir del ángulo y el radio, cualquier valor asignado directamente a \texttt{camera.Position} queda sobrescrito antes de llegar a la pantalla y las teclas no harían nada. Los signos de A y D los decidimos probando, porque el sentido aparente del giro depende de dónde arranque el observador.
+
+\begin{lstlisting}[language=C, caption=Código de la cámara orbital controlada con WASD, label=lst:codigo-camara]
+// Declaracion de la camara y de los parametros de la orbita
+Camera camera(glm::vec3(3.0f, 0.0f, 0.0f),
+              glm::vec3(0.0f, 0.0f, 0.0f),
+              glm::vec3(0.0f, 0.0f, 1.0f));
+
+float camAngulo = 0.0f;
+float camRadio = 3.0f;
+float camAltura = 0.0f;
+
+// Dentro de Update(): posicion del observador en cada cuadro
+glm::mat4 projection = glm::perspective(glm::radians(45.0f),
+        (float)screenWidth / (float)screenHeight, 0.1f, 1000.0f);
+
+myShader->setMat4("projection", projection);
+
+camera.Position.x = camRadio * cos(glm::radians(camAngulo));
+camera.Position.y = camRadio * sin(glm::radians(camAngulo));
+camera.Position.z = camAltura;
+
+glm::mat4 view = glm::lookAt(camera.Position, camera.View, camera.Up);
+myShader->setMat4("view", view);
+
+// Dentro de keyboardCallback(): asignacion de las teclas
+if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+    camRadio -= 0.02f;
+    if (camRadio < 0.1f)
+        camRadio = 0.1f;
+}
+if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+    camRadio += 0.02f;
+}
+if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+    camAngulo += 0.2f;
+}
+if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+    camAngulo -= 0.2f;
+}
+\end{lstlisting}
 
 \subsection{Actividad 6: Implementación de las flechas del teclado con respecto al eje Z}
 la

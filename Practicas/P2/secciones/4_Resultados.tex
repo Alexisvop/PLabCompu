@@ -35,7 +35,35 @@ Como desventaja, notamos que las posiciones de cámara quedaron \emph{hardcodead
 la
 
 \subsection{Actividad 5: Implementación de la camara usando WASD}
-la
+
+Al ejecutar el programa la cámara arranca sobre el eje $x$, a tres unidades del origen y con el ángulo en cero, de modo que la casa se ve completamente de frente y sin escorzo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.55\textwidth]{Imagenes/E5/PosicionInicial.png}
+    \caption{Posición inicial de la cámara.}
+    \label{fig:actividad5-inicial}
+\end{figure}
+
+Al mantener presionada la tecla D el ángulo disminuye y el observador recorre la circunferencia hacia un costado, con lo que aparece la pared lateral y el techo empieza a verse en escorzo. La tecla A produce el mismo recorrido en sentido contrario. En ambos casos la casa se mantiene centrada en la ventana y conserva su tamaño, que era justamente lo que se buscaba con la parametrización polar.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.48\textwidth]{Imagenes/E5/D.png}
+    \includegraphics[width=0.48\textwidth]{Imagenes/E5/A.png}
+    \caption{Giro de la cámara con las teclas D (izquierda) y A (derecha).}
+    \label{fig:actividad5-giro}
+\end{figure}
+
+Las teclas W y S modifican el radio en lugar del ángulo. Con W la cámara se aproxima al origen y la figura ocupa una porción mayor de la ventana, mientras que con S se aleja y la casa se reduce hasta quedar como una figura pequeña al centro de la pantalla. En ninguno de los dos casos cambia la orientación desde la que se observa el modelo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.48\textwidth]{Imagenes/E5/W.png}
+    \includegraphics[width=0.48\textwidth]{Imagenes/E5/S.png}
+    \caption{Acercamiento con la tecla W (izquierda) y alejamiento con la tecla S (derecha).}
+    \label{fig:actividad5-zoom}
+\end{figure}
 
 \subsection{Actividad 6: Implementación de las flechas del teclado con respecto al eje Z}
 la
