@@ -153,7 +153,49 @@ if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
 \end{lstlisting}
 
 \subsection{Actividad 6: Implementación de las flechas del teclado con respecto al eje Z}
-la
+
+Para llevar a cabo esta actividad, el objetivo fue lograr que la figura se pudiera mover hacia adelante y hacia atrás a lo largo del eje $Z$ en tiempo real usando las flechas del teclado. En lugar de modificar directamente las coordenadas de cada uno de los vértices dentro de la clase de la geometría, se utilizó el concepto de transformación rígida de traslación mediante la matriz de modelo, lo cual permite desplazar todo el objeto completo sin alterar su forma original.
+
+El primer paso consistió en ubicar la función \textbf{keyboardCallback} dentro de 02\_ViewportTransformations.cpp, que es donde el programa detecta qué teclas se están presionando en la ventana. En el código base que nos dieron, las flechas del teclado estaban configuradas para modificar la posición del modelo en los ejes $X$ y $Y$. Por ello, se modificó la lógica para que al mantener presionada la tecla de la flecha arriba (\texttt{GLFW\_KEY\_UP}) se le sumara un incremento constante de $0.01\text{f}$ a la componente en $Z$ de la variable \texttt{modelPosition}, logrando que la figura avance hacia el frente. De igual manera, se configuró la flecha abajo (\texttt{GLFW\_KEY\_DOWN}) para restar ese mismo valor en $Z$, haciendo que el objeto retroceda alejándose de la pantalla.
+
+A continuación se muestra el fragmento modificado dentro de la función \texttt{keyboardCallback}:
+
+\begin{lstlisting}[language=C++, caption={Control del desplazamiento sobre el eje Z con las flechas del teclado}]
+// Ejercicio 6. Movimiento del objeto 3D en el eje Z
+// Flecha Arriba: avanzar hacia el frente (+Z)
+if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+    modelPosition.Position.z += 0.01f;
+}
+
+// Flecha Abajo: retroceder hacia el fondo (-Z)
+if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+    modelPosition.Position.z -= 0.01f;
+}
+
+// Flechas Izquierda y Derecha (desplazamiento lateral en el eje X)
+if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+    modelPosition.Position.x -= 0.01f;
+}
+if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+    modelPosition.Position.x += 0.01f;
+}
+\end{lstlisting}
+
+Finalmente, se revisó que dentro de la función \texttt{Update()} se estuviera calculando correctamente la matriz de modelo usando la función \texttt{glm::translate}. De esta manera, cada vez que cambia el valor de la posición en $Z$ por la entrada del teclado, la matriz se actualiza y se envía directamente al \textit{shader} antes de mandar a dibujar la malla con \texttt{Draw()}. 
+
+\begin{lstlisting}[language=C++, caption={Aplicación de la traslación a la matriz de modelo dentro de Update()}]
+// Aplicamos transformaciones del modelo (traslación rígida)
+glm::mat4 model = glm::mat4(1.0f);
+model = glm::translate(model, glm::vec3(modelPosition.Position.x, 
+                                        modelPosition.Position.y, 
+                                        modelPosition.Position.z));
+model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	
+myShader->setMat4("model", model);
+
+mesh->Draw(*myShader);
+\end{lstlisting}
+
 
 \subsection{Actividad 7: Implementación de las teclas + y - para aumentar y disminuir el tamaño de la geometría}
 la
