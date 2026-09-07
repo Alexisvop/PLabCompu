@@ -15,7 +15,11 @@
     La parte que más me sirvió fue la de las teclas WASD. Estuve un buen rato intentando que A y D giraran sin acercar la casa, y por más que le cambiaba los signos a las sumas no salía, porque mientras la posición estuviera guardada en x, y y z cada tecla movía varias cosas al mismo tiempo. Cuando la cambié por un ángulo y un radio el problema se resolvió prácticamente solo, sin escribir más código, nada más representando lo mismo de otra forma. Creo que los objetivos de la práctica se cumplieron, ya que configuré la cámara virtual con sus vectores de posición, vista y orientación, y usé las transformaciones para mover y escalar la figura desde el teclado mientras el programa corría.\\
 
     \subsection{Perez Olvera Alexis Abraham}
-    la
+    Viendo la práctica completa, de principio a fin, creo que su mayor valor no estuvo en ninguna actividad por separado, sino en cómo una se apoya en la otra para armar, sin que uno se dé mucha cuenta, el pipeline completo de gráficos 3D: primero hay que tener algo que dibujar, luego decidir desde dónde se ve, después cómo se proyecta esa vista a una pantalla plana, y finalmente cómo se hace todo eso interactivo. Las siete actividades, vistas juntas, terminan siendo justo eso: un recorrido del modelo a la cámara, de la cámara a la proyección, y de la proyección a algo que el usuario puede controlar en tiempo real.
+ 
+De todo el recorrido, lo que más trabajo me costó fue entender bien el papel del vector \texttt{Up} en la cámara: tenía la idea de que con \texttt{Position} y \texttt{View} ya bastaba para definir una vista, y solo al ver una vista romperse entendí que \texttt{Up} no es un capricho de \texttt{lookAt}, sino una pieza necesaria para que la cámara sepa cómo orientarse. Ese tipo de tropiezos, junto con ir pasando de geometría estática a proyecciones y luego a controles en tiempo real (cámara, objeto y escala), fue lo que hizo que la teoría de transformaciones dejara de sentirse abstracta.
+ 
+En general, esta práctica me ayudó a conectar por fin esa teoría (traslación, rotación, escala, proyección) con algo tangible que puedo ver correr en pantalla y modificar con solo tocar un par de números o presionar una tecla. Me llevo, sobre todo, la costumbre de cuestionar cada vector que uso en una transformación y preguntarme qué está representando realmente, en vez de copiarlo sin más porque "así funciona".
 
     \subsection{Segura Cedeño Luisa María}
     la
