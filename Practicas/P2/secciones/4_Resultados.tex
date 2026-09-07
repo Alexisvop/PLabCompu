@@ -7,7 +7,7 @@ El resultado final es una casa simple pero reconocible: un cubo con techo pirami
 La principal desventaja de este enfoque es justamente esa reutilización de vértices: al compartirlos entre caras, no es posible asignarle un color completamente plano e independiente a cada cara sin duplicar geometría. Si en una práctica futura quisiéramos, por ejemplo, techos y paredes con colores sólidos bien definidos y sin ningún degradado, tendríamos que separar los vértices por cara, lo cual elevaría el conteo de 9 a unos 24 vértices aproximadamente. Otra limitación es que la proporción entre el cuerpo y el techo quedó fija en los valores que usamos (\texttt{0.5} y \texttt{0.35}); para una casa con otras proporciones habría que exponer esos parámetros de una forma más flexible, en vez de dejarlos fijos en el código.
 
 % TODO: insertar captura final de la casa terminada
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.7\textwidth]{Imagenes/E1/CasaA.png}
     \caption{Resultado final de la Actividad 1: casa centrada en el origen.}
