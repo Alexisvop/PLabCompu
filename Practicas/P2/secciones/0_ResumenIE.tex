@@ -1,9 +1,38 @@
 \section{Resumen}
 \begin{abstract}
-le
+En esta práctica se construyó una escena tridimensional en OpenGL 3.3 con el
+propósito de estudiar, por separado, la definición de la geometría y la
+manera en que ésta se observa. Se modeló una casa formada por un cubo y un
+techo piramidal, centrada en el origen y descrita con nueve vértices y catorce
+triángulos. Sobre esa figura se configuró una cámara virtual mediante sus
+vectores de posición, vista y orientación, y se asociaron a las teclas
+\texttt{F1}, \texttt{F2} y \texttt{F3} las vistas frontal, lateral y superior.
+Se implementaron después tres variantes de proyección ortogonal y tres de
+proyección en perspectiva, un movimiento de cámara en órbita con las teclas
+\texttt{WASD}, una traslación rígida del modelo sobre el eje $Z$ con las
+flechas del teclado y un escalamiento uniforme con las teclas
+\texttt{+} y \texttt{-}. Los experimentos confirmaron que las matrices de
+modelo, vista y proyección actúan de forma independiente: los mismos vértices
+producen imágenes distintas según los parámetros del volumen de visualización,
+y una misma traslación sobre el eje $Z$ modifica el tamaño aparente de la
+figura en perspectiva pero no en proyección ortogonal.
 \end{abstract}
 
 \renewcommand{\abstractname}{Abstract}
 \begin{abstract}
-le
+This laboratory session builds a three-dimensional scene in OpenGL 3.3 in
+order to study, separately, the definition of geometry and the way it is
+observed. A house made of a cube and a pyramidal roof was modelled, centred at
+the origin and described by nine vertices and fourteen triangles. A virtual
+camera was then configured through its position, view and up vectors, and the
+front, side and top views were bound to the \texttt{F1}, \texttt{F2} and
+\texttt{F3} keys. Three orthographic and three perspective projection variants
+were implemented, together with an orbital camera controlled with the
+\texttt{WASD} keys, a rigid translation of the model along the $Z$ axis driven
+by the arrow keys, and a uniform scaling bound to the \texttt{+} and
+\texttt{-} keys. The experiments confirmed that the model, view and projection
+matrices act independently: the same vertices yield different images depending
+on the parameters of the viewing volume, and one and the same translation
+along the $Z$ axis changes the apparent size of the figure under perspective
+projection but leaves it unchanged under orthographic projection.
 \end{abstract}
