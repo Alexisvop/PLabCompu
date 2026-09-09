@@ -1,0 +1,187 @@
+% En esta seccion se presentan experimentos concretos efectuados, exitosos o fallidos, mediante figuras y capturas de pantalla debidamente tituladas y referenciadas en el cuerpo del reporte.
+\section{Experimentos}
+
+\subsection{Actividad 1: Plano paralelo al plano XY}
+La primera prueba se hizo descomentando el bloque del plano tal como viene en el
+proyecto base, es decir, con \texttt{Plane plane(1.0f)}. El plano apareció en
+pantalla y quedó centrado en el origen, pero era visiblemente más chico de lo
+que pedía el manual: sus vértices caen en $\pm0.5$, de modo que el lado mide una
+unidad y no dos. En la Figura \ref{fig:actividad1-tamano} se comparan las dos
+llamadas con la cámara en la misma posición, y se aprecia que el plano correcto
+ocupa exactamente el doble de lado que el del proyecto base. La confusión viene
+de que el parámetro parece ser el semilado, cuando en realidad el constructor
+lo divide entre dos internamente; sólo al ver que las aristas del plano no
+coincidían con las marcas de los ejes coordenados nos dimos cuenta del error.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Imagenes/E1/Plano_Base1x1.png}
+    \includegraphics[width=0.45\textwidth]{Imagenes/E1/Plano_Frontal.png}
+    \caption{Comparación del tamaño del plano con la cámara fija en la vista frontal: a la izquierda, \texttt{Plane(1.0f)}, el valor que trae comentado el proyecto base, que produce un plano de $1\times1$; a la derecha, \texttt{Plane(2.0f)}, que produce el plano de $2\times2$ unidades que pide el manual.}
+    \label{fig:actividad1-tamano}
+\end{figure}
+
+Con el tamaño ya correcto probamos las dos vistas. Con \texttt{F1} el plano se ve
+como un cuadrado perfecto, porque la cámara está sobre el eje $+Z$ y el plano es
+paralelo al plano $XY$; con \texttt{F2} la misma figura se ve como un
+paralelogramo, y es ahí donde se confirma que lo que hay en la escena es un
+objeto plano y no un cuadrado dibujado sobre la ventana. Ambas vistas aparecen
+en la Figura \ref{fig:actividad1-vistas}.
+
+Un detalle inesperado apareció en la vista frontal: las líneas de los ejes $X$ y
+$Y$ se siguen viendo \emph{encima} del plano, con su color íntegro, en lugar de
+quedar tapadas por él. Al principio pensamos que era una transparencia mal
+configurada. La explicación resultó más simple: los ejes y el plano están los dos
+contenidos en $z=0$, es decir, exactamente a la misma profundidad, y como los
+ejes se dibujan primero y la prueba de profundidad usa \texttt{GL\_LESS}, los
+fragmentos del plano no pasan la prueba en esos píxeles. Lo comprobamos midiendo
+el color de los píxeles sobre la línea, que resultó ser rojo puro
+$(255,0,0)$ y verde puro $(0,255,0)$, sin mezclarse con el degradado del plano.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Imagenes/E1/Plano_Frontal.png}
+    \includegraphics[width=0.45\textwidth]{Imagenes/E1/Plano_Oblicua.png}
+    \caption{Las dos perspectivas del plano de $2\times2$: vista frontal con \texttt{F1} (izquierda) y vista oblicua con \texttt{F2} (derecha).}
+    \label{fig:actividad1-vistas}
+\end{figure}
+
+Por último activamos el modo de alambre con la tecla \texttt{L} para verificar la
+descomposición. La Figura \ref{fig:actividad1-alambre} muestra las dos aristas
+del contorno y la diagonal que separa los dos triángulos, que es exactamente lo
+que declara el arreglo de índices.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Imagenes/E1/Plano_Alambre.png}
+    \caption{El plano en modo de alambre: se distinguen los cuatro vértices del contorno y la diagonal que divide la figura en dos triángulos.}
+    \label{fig:actividad1-alambre}
+\end{figure}
+
+\subsection{Actividad 2: Cubo centrado en el origen}
+El cubo repitió la misma historia del tamaño: con \texttt{Cube(1.0f)}, el valor
+del proyecto base, la arista mide una unidad en lugar de dos. Como ya
+sabíamos qué buscar, esta vez la corrección fue inmediata; la comparación se
+muestra en la Figura \ref{fig:actividad2-tamano}. Aprovechamos además la vista
+oblicua para comprobar que la figura sí está centrada: los tres ejes coordenados
+entran por tres aristas distintas y salen por las opuestas, lo que sólo ocurre si
+el origen coincide con el centro geométrico del cubo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Imagenes/E2/Cubo_Base1x1.png}
+    \includegraphics[width=0.45\textwidth]{Imagenes/E2/Cubo_Oblicua.png}
+    \caption{Efecto del argumento del constructor sobre el cubo, con la cámara fija en la vista oblicua: \texttt{Cube(1.0f)} a la izquierda y \texttt{Cube(2.0f)} a la derecha.}
+    \label{fig:actividad2-tamano}
+\end{figure}
+
+La prueba que más nos interesaba era la de las caras. En la vista frontal
+(Figura \ref{fig:actividad2-vistas}, izquierda) el cubo se ve como un cuadrado y
+resulta imposible saber si tiene seis caras o sólo una: la silueta sería idéntica
+en ambos casos. Al pasar a la vista oblicua aparecen tres caras al mismo tiempo y
+la figura se reconoce como un volumen, pero incluso así hay tres caras que no se
+ven nunca. Por eso recurrimos al modo de alambre, que se muestra en la Figura
+\ref{fig:actividad2-alambre}: como en ese modo no hay superficies rellenas que
+oculten nada, se ven simultáneamente las aristas del frente y las del fondo, y aparece
+una diagonal por cada una de las seis caras, que es lo que confirma que todas
+están formadas por dos triángulos y que ninguna quedó sin cubrir.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Imagenes/E2/Cubo_Frontal.png}
+    \includegraphics[width=0.45\textwidth]{Imagenes/E2/Cubo_Oblicua.png}
+    \caption{Las dos perspectivas del cubo de $2\times2\times2$: vista frontal con \texttt{F1} (izquierda), en la que la figura es indistinguible de un cuadrado, y vista oblicua con \texttt{F2} (derecha), en la que se aprecian tres caras.}
+    \label{fig:actividad2-vistas}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Imagenes/E2/Cubo_Alambre.png}
+    \caption{El cubo en modo de alambre desde la vista oblicua. Al no haber caras rellenas, se ven también las aristas del fondo y las diagonales de cada cara.}
+    \label{fig:actividad2-alambre}
+\end{figure}
+
+\subsection{Actividad 3: Círculo de radio unitario}
+Esta actividad fue la que dio más material. Empezamos ejecutando la clase
+\texttt{Circle} tal como viene en el proyecto base y el resultado, que se muestra
+en la Figura \ref{fig:actividad3-base}, no fue el que esperábamos: en lugar del
+degradado continuo que produce la interpolación de colores entre vértices, el
+círculo apareció dividido en tres sectores de color plano, con transiciones
+abruptas justo en los $0^\circ$, $120^\circ$ y $240^\circ$.
+
+Al leer la clase encontramos la causa. El lazo asigna color únicamente a los
+vértices de esos tres ángulos y deja los demás sin escribir, y como
+\texttt{Vertex} es una estructura sin constructor, declararla dentro del lazo no
+inicializa sus miembros \cite{cppreference_init}. En nuestra compilación la
+variable ocupa siempre la misma posición de la pila, de modo que cada vértice
+hereda el color del anterior y el resultado son los tres sectores planos que se
+observan; es importante subrayar que se trata de un valor indeterminado y que con
+otro compilador, u otra configuración, la imagen podría ser distinta.
+Ése fue el experimento que más nos costó interpretar, porque durante un rato
+buscamos el problema en el shader y no en la construcción de los vértices.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Imagenes/E3/Circulo_Base.png}
+    \includegraphics[width=0.45\textwidth]{Imagenes/E3/Circulo_Base_Alambre.png}
+    \caption{Resultado de la clase \texttt{Circle} del proyecto base: a la izquierda, los tres sectores de color plano que produce dejar sin inicializar el color de la mayoría de los vértices; a la derecha, la misma figura en modo de alambre, donde se aprecia que todos los triángulos del abanico convergen en el centro.}
+    \label{fig:actividad3-base}
+\end{figure}
+
+El segundo hallazgo no era visible en pantalla y apareció al contar los arreglos
+que genera la clase. Se instrumentó el programa para imprimir su tamaño y el
+índice más grande que emplea, con el resultado siguiente:
+
+\begin{lstlisting}[language=C, caption={Salida de la instrumentacion de las dos versiones de la clase Circle}, label=lst:salida-circulo]
+Circle base : 144 vertices, 435 indices, indice maximo = 144
+Circle nueva: 73 vertices, 216 indices
+\end{lstlisting}
+
+Los dos números de la primera línea son problemáticos. Por un lado, la clase
+genera 144 vértices para una figura que necesita 73, porque duplica el vértice
+del centro una vez por cada punto del contorno; ese desperdicio explica también
+por qué su segundo lazo de índices no dibuja nada, ya que todos los triángulos
+que arma tienen dos de sus tres vértices en el centro y quedan degenerados. Por
+otro lado, y esto es lo grave, el índice más grande que utiliza es el 144,
+mientras que los índices válidos van del 0 al 143: la clase le pide a OpenGL un
+vértice que no existe. Este error no produjo ningún síntoma visible en nuestro
+equipo, lo cual lo vuelve más peligroso que el de los colores, porque nada en la
+imagen delata que está ahí.
+
+Con la clase reescrita repetimos las pruebas. La Figura
+\ref{fig:actividad3-vistas} muestra las dos vistas: con \texttt{F1} se obtiene el
+círculo y con \texttt{F2} la misma figura se proyecta como una elipse, que es
+justamente lo que debe ocurrir con una figura plana observada desde un ángulo
+oblicuo. El degradado ahora sí es continuo alrededor de todo el contorno.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Imagenes/E3/Circulo_Frontal.png}
+    \includegraphics[width=0.45\textwidth]{Imagenes/E3/Circulo_Oblicua.png}
+    \caption{Las dos perspectivas del círculo de radio unitario con la clase reescrita: vista frontal con \texttt{F1} (izquierda) y vista oblicua con \texttt{F2} (derecha), en la que la figura se proyecta como una elipse.}
+    \label{fig:actividad3-vistas}
+\end{figure}
+
+El último experimento consistió en variar el número de lados del polígono con el
+que se aproxima la circunferencia. Con los 72 lados que quedaron como valor
+predeterminado, un vértice cada cinco grados, el contorno se ve liso a la
+resolución de la ventana; al bajarlo a 12 la figura deja de parecer un círculo y
+se reconoce con claridad como un polígono, tal como se aprecia en la Figura
+\ref{fig:actividad3-lados}. El modo de alambre, en la Figura
+\ref{fig:actividad3-alambre}, deja ver el abanico completo: 72 triángulos que
+comparten el vértice del centro.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Imagenes/E3/Circulo_12.png}
+    \includegraphics[width=0.45\textwidth]{Imagenes/E3/Circulo_Frontal.png}
+    \caption{Efecto del número de lados sobre la aproximación de la circunferencia: con 12 lados el contorno es claramente poligonal (izquierda) y con 72 se percibe liso a la resolución de la ventana (derecha).}
+    \label{fig:actividad3-lados}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Imagenes/E3/Circulo_Alambre.png}
+    \caption{El círculo en modo de alambre: los 72 triángulos del abanico convergen en el único vértice del centro.}
+    \label{fig:actividad3-alambre}
+\end{figure}

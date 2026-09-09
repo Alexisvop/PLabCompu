@@ -1,0 +1,163 @@
+% En esta seccion se presentan los resultados finales de los experimentos (versión final) mediante figuras y capturas de pantalla debidamente tituladas y referenciadas en el cuerpo del reporte. Analiza las ventajas y desventajas de la metodología aplicada.
+\section{Resultados}
+
+En la Tabla \ref{tab:resumen} se reúnen las tres primitivas de esta entrega con
+las medidas que pide el manual, la llamada con la que se construyen y el costo
+que tiene cada una en vértices y en triángulos. Los tres objetos quedan
+centrados en el origen y se seleccionan en tiempo de ejecución con las teclas
+\texttt{1}, \texttt{2} y \texttt{3}.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}clccc@{}}
+\toprule
+\textbf{Tecla} & \textbf{Primitiva} & \textbf{Construcción} & \textbf{Vértices} & \textbf{Triángulos} \\
+\midrule
+\texttt{1} & Plano de $2\times2$ paralelo a $XY$   & \texttt{Plane(2.0f)}      & 4  & 2  \\
+\texttt{2} & Cubo de $2\times2\times2$             & \texttt{Cube(2.0f)}       & 8  & 12 \\
+\texttt{3} & Círculo de radio 1                    & \texttt{Circle(1.0f, 72)} & 73 & 72 \\
+\bottomrule
+\end{tabular}
+\caption{Resumen de las tres primitivas implementadas, con su costo en vértices y triángulos.}
+\label{tab:resumen}
+\end{table}
+
+\subsection{Actividad 1: Plano paralelo al plano XY}
+La versión final construye el plano con \texttt{Plane(2.0f)}, con lo que sus
+cuatro vértices caen en $(\pm1,\pm1,0)$ y la figura mide las $2\times2$ unidades
+solicitadas. El resultado se muestra en la Figura \ref{fig:resultado-plano} en
+las dos vistas que pide el manual.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Imagenes/E1/Plano_Frontal.png}
+    \includegraphics[width=0.45\textwidth]{Imagenes/E1/Plano_Oblicua.png}
+    \caption{Resultado final de la Actividad 1: el plano de $2\times2$ unidades centrado en el origen, visto de frente con \texttt{F1} (izquierda) y desde un ángulo oblicuo con \texttt{F2} (derecha).}
+    \label{fig:resultado-plano}
+\end{figure}
+
+La ventaja de esta solución es que no hizo falta escribir código nuevo: bastó con
+leer con cuidado el constructor de la clase que ya venía en el proyecto y elegir
+el argumento correcto. Que el constructor reciba el lado completo, y no el
+semilado, es además lo que garantiza que la figura quede centrada en el origen
+para cualquier tamaño, sin necesidad de aplicar después una traslación con la
+matriz de modelo.
+
+Como desventaja, el plano tiene una sola cara en el sentido de que no se le
+asignó normal ni se activó el descarte de caras traseras, de modo que se ve
+igual por delante que por detrás; eso es suficiente para esta práctica pero
+dejará de serlo cuando se agreguen modelos de iluminación. La segunda limitación
+es la que apareció en los experimentos: al estar contenido en $z=0$, el plano
+comparte profundidad exacta con los ejes coordenados y las líneas de los ejes
+quedan por encima de él. Es un artificio del arreglo particular de esta escena y
+no un error de la figura, pero conviene tenerlo presente, porque la única forma
+de evitarlo sería desplazar ligeramente los ejes o desactivar la escritura de
+profundidad al dibujarlos.
+
+\subsection{Actividad 2: Cubo centrado en el origen}
+El cubo final se construye con \texttt{Cube(2.0f)}, con los ocho vértices en
+$(\pm1,\pm1,\pm1)$ y las seis caras formadas por doce triángulos. La Figura
+\ref{fig:resultado-cubo} muestra las dos vistas solicitadas.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Imagenes/E2/Cubo_Frontal.png}
+    \includegraphics[width=0.45\textwidth]{Imagenes/E2/Cubo_Oblicua.png}
+    \caption{Resultado final de la Actividad 2: el cubo de $2\times2\times2$ unidades centrado en el origen, visto de frente con \texttt{F1} (izquierda) y desde un ángulo oblicuo con \texttt{F2} (derecha).}
+    \label{fig:resultado-cubo}
+\end{figure}
+
+La ventaja principal de la construcción es su economía: ocho vértices bastan
+para las seis caras porque cada uno participa en tres de ellas, y esa
+reutilización es precisamente lo que permite el arreglo de índices. El degradado
+que se observa sobre las caras no costó ningún trabajo adicional; es el
+resultado de que cada vértice lleve su propio color y de que la etapa de
+rasterización interpole los valores intermedios.
+
+Esa misma economía tiene dos consecuencias que conviene anotar. La primera es
+que, al compartirse los vértices, es imposible darle a cada cara un color plano
+distinto sin duplicar geometría: habría que pasar de ocho a veinticuatro
+vértices, tres copias de cada esquina. La segunda es que el sentido de recorrido
+de los índices no es consistente entre las seis caras del proyecto base; mientras
+no se active \texttt{glEnable(GL\_CULL\_FACE)} el resultado es idéntico, pero en
+cuanto se active, algunas caras desaparecerán y habrá que reordenar los índices.
+Lo dejamos así a propósito, porque corregirlo ahora hubiera hecho más difícil
+comparar nuestra versión con la del proyecto base, pero queda identificado como
+trabajo pendiente.
+
+\subsection{Actividad 3: Círculo de radio unitario}
+El círculo final se construye con la clase reescrita, invocada como
+\texttt{Circle(1.0f, 72)}. La Figura \ref{fig:resultado-circulo} muestra las dos
+vistas, y en la Tabla \ref{tab:circulos} se comparan las dos versiones de la
+clase con los números que arrojó la instrumentación del programa.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Imagenes/E3/Circulo_Frontal.png}
+    \includegraphics[width=0.45\textwidth]{Imagenes/E3/Circulo_Oblicua.png}
+    \caption{Resultado final de la Actividad 3: el círculo de radio unitario centrado en el origen, visto de frente con \texttt{F1} (izquierda) y desde un ángulo oblicuo con \texttt{F2} (derecha), donde se proyecta como una elipse.}
+    \label{fig:resultado-circulo}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}p{5.6cm}cc@{}}
+\toprule
+\textbf{Aspecto} & \textbf{Clase del proyecto base} & \textbf{Clase reescrita} \\
+\midrule
+Vértices generados            & 144            & 73  \\
+Índices generados             & 435            & 216 \\
+Triángulos con área           & 72             & 72  \\
+Triángulos degenerados        & 73             & 0   \\
+Índice más grande empleado    & 144            & 72  \\
+Índice máximo válido          & 143            & 72  \\
+Vértices con color asignado   & 6 de 144       & 73 de 73 \\
+Número de lados               & fijo en 72     & parámetro del constructor \\
+\bottomrule
+\end{tabular}
+\caption{Comparación entre la clase \texttt{Circle} del proyecto base y la versión reescrita.}
+\label{tab:circulos}
+\end{table}
+
+La ventaja de la versión reescrita no es sólo que corrige los dos defectos. Al
+volver el número de lados un parámetro del constructor, la figura deja de ser un
+objeto fijo y se convierte en una familia de objetos, y esa es justamente la
+propiedad que se va a necesitar en las actividades siguientes: la tapa del
+cilindro y la base del cono son este mismo círculo con otro radio y otra
+posición. Además, el arreglo de índices quedó a la mitad y sin triángulos
+degenerados, lo que significa que la mitad del trabajo que hacía la versión
+original se gastaba en dibujar triángulos sin área.
+
+La desventaja es que el número de lados quedó fijado en el código en el momento
+de la construcción, de modo que cambiarlo obliga a recompilar; para un ejercicio
+de esta escala no vale la pena, pero en un programa real convendría reconstruir
+la malla en tiempo de ejecución. Una segunda limitación es que la aproximación
+poligonal se vuelve visible en cuanto la cámara se acerca lo suficiente: el
+número de lados que basta a una distancia deja de bastar a otra, y resolverlo
+bien exigiría ajustar la teselación según el tamaño que ocupa la figura en
+pantalla, que es un tema que queda fuera del alcance de esta práctica.
+
+\subsection{Sobre la metodología empleada}
+Dos decisiones de método resultaron útiles más allá de las actividades
+concretas. La primera fue reunir el dibujo de las cuatro mallas en una sola
+función en lugar de repetir el bloque de código una vez por figura, como venía
+en el proyecto base: además de acortar el archivo, garantiza que las tres
+primitivas se dibujen exactamente con la misma cadena de transformaciones, lo
+cual es indispensable para que las comparaciones de tamaño entre una y otra
+tengan sentido.
+
+La segunda fue agregar el modo de alambre. En las tres actividades hubo al menos
+una comprobación que sólo pudo hacerse con esa tecla: contar los dos triángulos
+del plano, verificar que al cubo no le faltara ninguna cara y ver el abanico
+completo del círculo. En modo relleno, ninguna de esas tres cosas se distingue,
+porque la silueta de la figura es la misma esté bien o mal construida por
+dentro.
+
+La limitación de la metodología es que todas las verificaciones fueron visuales,
+salvo la del conteo de vértices e índices. El caso del índice fuera de rango de
+la clase \texttt{Circle} original mostró bien el problema: es un error real que
+no produjo ningún efecto en pantalla y que sólo apareció al imprimir los valores
+del arreglo. Un método más sólido incluiría comprobaciones automáticas sobre los
+arreglos generados, por ejemplo verificar que todos los índices caigan dentro
+del rango válido y que ningún triángulo tenga dos vértices repetidos, antes de
+enviar la malla a la unidad de procesamiento gráfico.

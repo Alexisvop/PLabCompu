@@ -1,0 +1,426 @@
+% En esta seccion se presentan algoritmos, diagramas de flujo, diagramas de arquitecturas del programa, así como requerimientos de hardware y software. Presenta segmentos de código relevantes, figuras ilustrativas debidamente tituladas y referenciadas en el texto.
+
+\section{Metodología de la práctica}
+
+\subsection{Requerimientos de hardware y software}
+La práctica se desarrolló sobre el proyecto base proporcionado por el profesor,
+que se compila como una aplicación de escritorio de C++ enlazada contra OpenGL.
+En la Tabla \ref{tab:requerimientos} se resumen los recursos que se emplearon;
+todos ellos cumplen con lo indicado en el manual de la práctica, que pide
+Windows 10 o Linux y Visual Studio 2017 o superior \cite{teodoro_manual03}.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}p{4.0cm}p{10.5cm}@{}}
+\toprule
+\textbf{Elemento} & \textbf{Especificación empleada} \\
+\midrule
+Sistema operativo & Windows 11 (64 bits) \\
+Entorno de desarrollo & Microsoft Visual Studio, conjunto de herramientas MSVC, plataforma x64 \\
+Lenguaje & C++ (estándar \texttt{c++20}) \\
+API gráfica & OpenGL 3.3, perfil \textit{core} \\
+Bibliotecas & GLFW (creación de la ventana y manejo de eventos), GLAD (carga de las funciones de OpenGL) y GLM (álgebra de vectores y matrices) \\
+Hardware & Equipo de cómputo con adaptador gráfico, integrado o dedicado, compatible con OpenGL 3.3 \\
+Archivos de apoyo & \texttt{shaders/02-simplePVM.vs} y \texttt{shaders/02-simplePVM.fs}, ubicados en el directorio de trabajo del ejecutable \\
+\bottomrule
+\end{tabular}
+\caption{Requerimientos de hardware y software utilizados en la práctica.}
+\label{tab:requerimientos}
+\end{table}
+
+La configuración del proyecto siguió los mismos pasos de la práctica anterior:
+se creó una carpeta de proyecto dentro de \texttt{03\_GeomModelling}, se agregó
+el archivo de origen, se fijó el directorio de salida y el de trabajo en
+\texttt{bin}, y se declararon los directorios de inclusión
+(\texttt{deps/glad}, \texttt{deps/glfw}, \texttt{deps/glm} y el directorio
+\texttt{include} de la práctica), los directorios de bibliotecas y las entradas
+del vinculador (\texttt{opengl32.lib}, \texttt{glad.lib} y \texttt{glfw3.lib}).
+El directorio de trabajo es indispensable porque los shaders se cargan con una
+ruta relativa. Se reutilizaron los shaders \texttt{02-simplePVM.vs} y
+\texttt{02-simplePVM.fs} de la práctica anterior, ya que la cadena de
+transformaciones no cambia en esta práctica.
+
+\subsection{Arquitectura del programa y flujo de ejecución}
+El programa conserva la organización del proyecto base: la función
+\texttt{Start()} se ejecuta una sola vez y prepara la ventana, el contexto de
+OpenGL, los shaders y las geometrías, mientras que \texttt{Update()} se ejecuta
+una vez por cuadro y se encarga de leer el teclado, armar las matrices y
+dibujar. En la Figura \ref{fig:flujo} se muestra el flujo completo. Al igual
+que en la práctica anterior, la lectura del teclado ocurre \emph{antes} de
+construir las matrices, pues de lo contrario la imagen desplegada
+correspondería siempre al estado del cuadro anterior.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.60\textwidth]{Imagenes/Diagramas/flujo.png}
+    \caption{Diagrama de flujo del programa \texttt{03\_GeomModelling.cpp}.}
+    \label{fig:flujo}
+\end{figure}
+
+Sobre esa estructura se hicieron tres ajustes de carácter general. El primero
+fue interpretar el segundo vector de la cámara como el punto al que se mira y
+no como una dirección, que es lo que espera \texttt{glm::lookAt}
+\cite{glm_manual}; el proyecto base lo inicializa con $(0,0,-1)$, lo cual
+funciona por casualidad porque ese punto queda casi alineado con el origen,
+pero deja de funcionar en cuanto la cámara se coloca sobre otro eje. El segundo
+fue agregar \texttt{glfwSwapInterval(1)} después de crear el contexto, de modo
+que el lazo principal quede acotado a la frecuencia de actualización del
+monitor \cite{glfw_window}. El tercero fue sustituir los seis bloques de
+dibujo que el proyecto base trae comentados, idénticos entre sí salvo por el
+nombre de la malla, por una sola función \texttt{dibujarMalla()} que recibe la
+malla y aplica la cadena proyección--vista--modelo; con ello agregar una
+primitiva se reduce a una línea en un \texttt{switch}. En el Código
+\ref{lst:codigo-dibujo} se muestra esa función junto con el cuerpo de
+\texttt{Update()}.
+
+\begin{lstlisting}[language=C, caption={Funcion de dibujo comun a las tres primitivas y cuerpo de Update()}, label=lst:codigo-dibujo]
+// Dibuja una malla aplicando la cadena de transformaciones proyeccion-vista-modelo.
+void dibujarMalla(Mesh* malla) {
+    if (malla == nullptr)
+        return;
+
+    glUseProgram(myShader->ID);
+
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f),
+                                            (float)screenWidth / (float)screenHeight,
+                                            0.1f, 1000.0f);
+    myShader->setMat4("projection", projection);
+
+    glm::mat4 view = glm::lookAt(camera.Position, camera.View, camera.Up);
+    myShader->setMat4("view", view);
+
+    // Las primitivas ya se construyen centradas en el origen,
+    // asi que la matriz de modelo es la identidad.
+    glm::mat4 model = glm::mat4(1.0f);
+    myShader->setMat4("model", model);
+
+    malla->Draw(*myShader);
+
+    glUseProgram(0);
+}
+
+bool Update() {
+    keyboardCallback(window);
+
+    glClearColor(bgR, bgG, bgB, bgA);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // Los ejes se dibujan siempre en relleno para que sigan siendo visibles
+    // cuando la figura esta en modo alambre.
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    dibujarMalla(meshAxis);
+
+    glPolygonMode(GL_FRONT_AND_BACK, modoAlambre ? GL_LINE : GL_FILL);
+
+    switch (figuraActual) {
+        case 1:  dibujarMalla(meshPlane);  break;  // Actividad 1
+        case 2:  dibujarMalla(meshCube);   break;  // Actividad 2
+        case 3:  dibujarMalla(meshCircle); break;  // Actividad 3
+        default: break;
+    }
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    glfwSwapBuffers(window);
+    glfwPollEvents();
+
+    return true;
+}
+\end{lstlisting}
+
+Las tres primitivas de esta entrega comparten un mismo principio de
+construcción, resumido en la Figura \ref{fig:primitivas}: la figura se define
+en su propio sistema de coordenadas y centrada en el origen, se descompone en
+triángulos y se entrega a la clase \texttt{Mesh} como un par de arreglos, uno
+de vértices y otro de índices. Lo único que cambia de una figura a otra es la
+regla con la que se generan esos arreglos.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{Imagenes/Diagramas/primitivas.png}
+    \caption{Descomposición de las tres primitivas en triángulos, con el número de vértices e índices que genera cada una.}
+    \label{fig:primitivas}
+\end{figure}
+
+\subsection{Vistas y modo de rasterización}
+El manual pide que cada geometría pueda observarse desde dos perspectivas
+distintas mediante las teclas \texttt{F1} y \texttt{F2}. Como en esta práctica
+la cámara no es el objeto de estudio, ambas vistas se resolvieron reasignando
+los tres vectores que recibe \texttt{glm::lookAt}: \texttt{F1} coloca al
+observador sobre el eje $+Z$, a cinco unidades del origen, con lo que se
+obtiene la vista frontal, y \texttt{F2} lo coloca en el punto $(3,3,3)$, sobre
+la diagonal del primer octante, con lo que se obtiene la vista oblicua. En
+ambos casos el punto observado es el origen y el vector de orientación es
+$(0,1,0)$.
+
+Se agregó además la tecla \texttt{L}, que alterna el modo de rasterización
+entre relleno y alambre con \texttt{glPolygonMode}
+\cite{khronos_polygonmode}. Esta tecla no la pide el manual, pero resultó
+indispensable para las tres actividades, porque es la única forma de comprobar
+a simple vista que la descomposición en triángulos es la que se pretendía: en
+modo relleno, un triángulo faltante y un triángulo repetido producen a menudo
+la misma imagen. El cambio de modo se detecta por flanco y no por estado, ya
+que el teclado se consulta una vez por cuadro y, de otro modo, una sola
+pulsación alternaría el modo decenas de veces. En el Código
+\ref{lst:codigo-teclado} se muestra el manejo del teclado completo.
+
+\begin{lstlisting}[language=C, caption={Seleccion de figura, vistas F1 y F2 y alternancia del modo de rasterizacion}, label=lst:codigo-teclado]
+void keyboardCallback(GLFWwindow* window) {
+
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+        glfwSetWindowShouldClose(window, true);
+    }
+
+    // Seleccion de la primitiva que se despliega
+    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
+        figuraActual = 1;   // Actividad 1: plano
+    }
+    if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
+        figuraActual = 2;   // Actividad 2: cubo
+    }
+    if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
+        figuraActual = 3;   // Actividad 3: circulo
+    }
+
+    // Alternancia entre relleno y alambre. Se detecta el flanco de la tecla
+    // porque el teclado se consulta una vez por cuadro y, de lo contrario,
+    // el modo cambiaria decenas de veces con una sola pulsacion.
+    bool teclaLActual = (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS);
+    if (teclaLActual && !teclaLPrevia) {
+        modoAlambre = !modoAlambre;
+    }
+    teclaLPrevia = teclaLActual;
+
+    // Vistas solicitadas por la practica
+    if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) {
+        // Vista frontal: observador sobre el eje +Z mirando al origen
+        camera.Position = glm::vec3(0.0f, 0.0f, 5.0f);
+        camera.View     = glm::vec3(0.0f, 0.0f, 0.0f);
+        camera.Up       = glm::vec3(0.0f, 1.0f, 0.0f);
+    }
+    if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS) {
+        // Vista oblicua: observador sobre la diagonal del primer octante
+        camera.Position = glm::vec3(3.0f, 3.0f, 3.0f);
+        camera.View     = glm::vec3(0.0f, 0.0f, 0.0f);
+        camera.Up       = glm::vec3(0.0f, 1.0f, 0.0f);
+    }
+}
+\end{lstlisting}
+
+\subsection{Actividad 1: Plano paralelo al plano XY}
+La clase \texttt{Plane} del proyecto base ya construye un cuadrilátero contenido
+en el plano $z=0$ con cuatro vértices y dos triángulos, de modo que la actividad
+se reduce a elegir correctamente el argumento del constructor. El punto que
+conviene subrayar es que ese constructor no recibe el semilado sino el lado
+completo: internamente calcula \texttt{value = size / 2.0f} y coloca los
+vértices en $(\pm\texttt{value}, \pm\texttt{value}, 0)$. Para obtener el plano
+de $2\times2$ unidades que pide el manual hay que invocarlo entonces con
+\texttt{Plane(2.0f)}, y no con \texttt{Plane(1.0f)} como aparece en el ejemplo
+comentado del proyecto base, que produce un plano de $1\times1$. Esa división
+entre dos es también la que garantiza que la figura quede centrada en el
+origen para cualquier tamaño.
+
+Los cuatro vértices llevan colores distintos (rojo, verde, azul y cian), de
+manera que la interpolación que realiza la etapa de rasterización produce un
+degradado continuo sobre las dos caras triangulares. En el Código
+\ref{lst:codigo-plano} se reproduce la construcción de la clase y la línea con
+la que se instancia.
+
+\begin{lstlisting}[language=C, caption={Construccion del plano y su instanciacion con lado 2}, label=lst:codigo-plano]
+// --- Clase Plane del proyecto base (include/Plane.h) ---
+void buildVertices(float size) {
+    float value = size / 2.0f;   // el constructor recibe el lado completo
+
+    Vertex v;
+
+    v.Position.x =  value; v.Position.y =  value; v.Position.z = 0.0f;
+    v.Color.x = 1.0f; v.Color.y = 0.0f; v.Color.z = 0.0f;
+    vertices.push_back(v);
+
+    v.Position.x = -value; v.Position.y =  value; v.Position.z = 0.0f;
+    v.Color.x = 0.0f; v.Color.y = 1.0f; v.Color.z = 0.0f;
+    vertices.push_back(v);
+
+    v.Position.x = -value; v.Position.y = -value; v.Position.z = 0.0f;
+    v.Color.x = 0.0f; v.Color.y = 0.0f; v.Color.z = 1.0f;
+    vertices.push_back(v);
+
+    v.Position.x =  value; v.Position.y = -value; v.Position.z = 0.0f;
+    v.Color.x = 0.0f; v.Color.y = 1.0f; v.Color.z = 1.0f;
+    vertices.push_back(v);
+}
+
+void buildIndices() {
+    indices.push_back(0); indices.push_back(1); indices.push_back(2);
+    indices.push_back(0); indices.push_back(2); indices.push_back(3);
+}
+
+// --- Instanciacion en Start() ---
+// Plano paralelo al plano XY, de 2x2 unidades, centrado en el origen.
+Plane plane(2.0f);
+meshPlane = new Mesh(plane.vertices, plane.indices);
+\end{lstlisting}
+
+\subsection{Actividad 2: Cubo centrado en el origen}
+El cubo sigue el mismo criterio: la clase \texttt{Cube} recibe la arista
+completa y coloca los ocho vértices en $(\pm\texttt{value}, \pm\texttt{value},
+\pm\texttt{value})$, por lo que el cubo de $2\times2\times2$ unidades se obtiene
+con \texttt{Cube(2.0f)}. Los primeros cuatro vértices corresponden a la cara
+$z=-1$ y los cuatro restantes a la cara $z=+1$, y las seis caras se arman con
+dos triángulos cada una, para un total de doce triángulos y treinta y seis
+índices.
+
+Antes de darlo por bueno verificamos que la lista de índices efectivamente
+cubriera las seis caras, ya que un cubo al que le falta una cara se ve idéntico
+a uno completo mientras no se le gire lo suficiente. La comprobación se hizo
+agrupando los índices por caras: los vértices $\{0,1,2,3\}$ forman la cara
+trasera, $\{4,5,6,7\}$ la frontal, $\{0,3,4,7\}$ la derecha, $\{1,2,5,6\}$ la
+izquierda, $\{0,1,4,5\}$ la superior y $\{2,3,6,7\}$ la inferior; las seis
+aparecen en el arreglo. Conviene notar que el sentido de recorrido no es
+consistente entre todas ellas, lo cual no afecta el resultado porque en esta
+práctica no se activa el descarte de caras traseras, pero sí lo haría en
+prácticas posteriores. En el Código \ref{lst:codigo-cubo} se muestra la
+construcción de los índices y la instanciación.
+
+\begin{lstlisting}[language=C, caption={Indices por cara del cubo e instanciacion con arista 2}, label=lst:codigo-cubo]
+// --- Clase Cube del proyecto base (include/Cube.h) ---
+// Vertices 0..3: cara z = -value    Vertices 4..7: cara z = +value
+void buildIndices() {
+    // Cara trasera  (z = -value)
+    indices.push_back(0); indices.push_back(1); indices.push_back(2);
+    indices.push_back(0); indices.push_back(2); indices.push_back(3);
+
+    // Cara frontal  (z = +value)
+    indices.push_back(4); indices.push_back(5); indices.push_back(6);
+    indices.push_back(4); indices.push_back(6); indices.push_back(7);
+
+    // Cara derecha  (x = +value)
+    indices.push_back(0); indices.push_back(3); indices.push_back(4);
+    indices.push_back(3); indices.push_back(4); indices.push_back(7);
+
+    // Cara izquierda (x = -value)
+    indices.push_back(1); indices.push_back(5); indices.push_back(2);
+    indices.push_back(2); indices.push_back(5); indices.push_back(6);
+
+    // Cara superior (y = +value)
+    indices.push_back(0); indices.push_back(1); indices.push_back(5);
+    indices.push_back(0); indices.push_back(4); indices.push_back(5);
+
+    // Cara inferior (y = -value)
+    indices.push_back(2); indices.push_back(3); indices.push_back(6);
+    indices.push_back(3); indices.push_back(6); indices.push_back(7);
+}
+
+// --- Instanciacion en Start() ---
+// Cubo de 2x2x2 unidades, centrado en el origen.
+Cube cube(2.0f);
+meshCube = new Mesh(cube.vertices, cube.indices);
+\end{lstlisting}
+
+\subsection{Actividad 3: Círculo de radio unitario}
+El círculo es la primera figura de la práctica que no puede escribirse vértice
+por vértice, porque su contorno es una curva. Lo que se hace es aproximarlo con
+un polígono regular de $n$ lados: se recorre el ángulo $\theta$ en incrementos
+de $360^\circ/n$ y en cada paso se evalúa
+\[
+    x = r\cos\theta, \qquad y = r\sin\theta, \qquad z = 0,
+\]
+con lo que se obtienen los $n$ vértices del contorno. La superficie se cubre
+después con un abanico de triángulos: un único vértice en el centro se une con
+cada par de vértices consecutivos del contorno, de modo que hacen falta $n$
+triángulos y $1+n$ vértices en total.
+
+La clase \texttt{Circle} del proyecto base sigue esta misma idea, pero al
+ejecutarla encontramos tres problemas que se documentan en la sección de
+experimentos: sólo asigna color a los vértices correspondientes a
+$0^\circ$, $120^\circ$ y $240^\circ$, y deja los demás con el contenido
+indeterminado de la estructura \texttt{Vertex}; duplica el vértice del centro
+una vez por cada punto del contorno, de modo que emplea $2n$ vértices en lugar
+de $1+n$; y su segundo lazo de índices llega a escribir el valor
+\texttt{vertices.size()}, que es un índice que no existe dentro del arreglo.
+
+Por esa razón se reescribió la clase conservando su nombre y su interfaz, para
+no alterar el resto del programa. El archivo vive en la carpeta de código de la
+práctica, junto al archivo \texttt{.cpp}, y como el compilador resuelve
+\texttt{\#include "Circle.h"} buscando primero en el directorio del archivo que
+lo incluye, esta versión tiene precedencia sobre la del directorio
+\texttt{include} sin necesidad de tocar el proyecto base. El constructor recibe
+ahora el radio y el número de lados, con valor predeterminado de 72, es decir,
+un vértice cada cinco grados. Para el color del contorno se conservaron los
+tres tonos del proyecto original (cian en $0^\circ$, magenta en $120^\circ$ y
+azul en $240^\circ$), pero interpolados linealmente entre anclas, de manera que
+todos los vértices tengan un valor definido. En el Código
+\ref{lst:codigo-circulo} se muestra la clase completa.
+
+\begin{lstlisting}[language=C, caption={Clase Circle reescrita como abanico de triangulos}, label=lst:codigo-circulo]
+class Circle {
+public:
+    // radius: radio de la circunferencia.
+    // slices: numero de lados del poligono con el que se aproxima.
+    Circle(float radius, int slices = 72) {
+        if (slices < 3) slices = 3;
+        this->slices = slices;
+        buildVertices(radius);
+        buildIndices();
+    }
+
+    vector<Vertex>       vertices;
+    vector<unsigned int> indices;
+
+private:
+    int slices;
+
+    // Se conservan los tres tonos del proyecto base (cian en 0 grados,
+    // magenta en 120 y azul en 240) pero ahora se interpolan para que
+    // todos los vertices tengan un valor definido.
+    vec4 colorContorno(float grados) {
+        const vec3 anclas[3] = {
+            vec3(0.0f, 1.0f, 1.0f),   //   0 grados
+            vec3(1.0f, 0.0f, 1.0f),   // 120 grados
+            vec3(0.0f, 0.0f, 1.0f)    // 240 grados
+        };
+
+        float t = grados / 120.0f;      // sector de 120 grados
+        int   i = (int)t % 3;           // ancla inicial
+        float f = t - (float)((int)t);  // avance dentro del sector
+
+        vec3 c = anclas[i] * (1.0f - f) + anclas[(i + 1) % 3] * f;
+        return vec4(c, 1.0f);
+    }
+
+    void buildVertices(float radius) {
+        Vertex v;
+
+        // Vertice 0: centro del circulo
+        v.Position = vec3(0.0f, 0.0f, 0.0f);
+        v.Color    = vec4(0.20f, 0.20f, 0.25f, 1.0f);
+        vertices.push_back(v);
+
+        // Vertices 1..slices: contorno sobre el plano XY
+        float paso = 360.0f / (float)slices;
+        for (int i = 0; i < slices; i++) {
+            float grados = paso * (float)i;
+            float rad    = radians(grados);
+
+            v.Position = vec3(radius * cos(rad), radius * sin(rad), 0.0f);
+            v.Color    = colorContorno(grados);
+            vertices.push_back(v);
+        }
+    }
+
+    void buildIndices() {
+        // Un triangulo por cada lado del poligono. El operador modulo cierra
+        // el circulo uniendo el ultimo vertice del contorno con el primero.
+        for (int i = 0; i < slices; i++) {
+            indices.push_back(0);
+            indices.push_back(1 + i);
+            indices.push_back(1 + (i + 1) % slices);
+        }
+    }
+};
+
+// --- Instanciacion en Start() ---
+// Circulo de radio 1 unidad, centrado en el origen, con 72 lados.
+Circle circle(1.0f, 72);
+meshCircle = new Mesh(circle.vertices, circle.indices);
+\end{lstlisting}
