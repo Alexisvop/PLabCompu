@@ -1,0 +1,77 @@
+\usepackage{graphicx}
+\usepackage{geometry}
+\geometry{
+    a4paper,
+    top = 2cm,
+    left = 2cm,
+    right = 2cm,
+    bottom = 3cm
+}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel} % Renombra en automático los elementos a español
+\usepackage{float}  % Etiqueta 'H' (mayus) en figuras (imágenes)
+\usepackage{array}  % Padding en tablas
+\usepackage{url}    % Etiqueta url en .bib
+\usepackage{booktabs}   % Manejo de caudros (tablas)
+\usepackage[T1]{fontenc}    % Codificación de fuentes
+\usepackage{csquotes}       % Paquete para comillas tipográficas
+\usepackage{comment}    % Comentar bloques de líneas mediante begin-end
+\usepackage{multicol}   % Para poner contenido a doble columna
+\usepackage{enumitem}   % Para utilizar [noitemsep, topsep=0pt] en itemize
+\usepackage{amsmath}
+\usepackage[hidelinks]{hyperref}    % Habilitar hipervínculos sin cambiar colores
+\usepackage{mathabx} % Para testar en math mode
+\usepackage{makecell}
+\usepackage{fancyhdr}
+% biblatex queda deshabilitado a propósito. La bibliografía de este reporte se
+% escribe a mano con el entorno thebibliography en secciones/6_Referencias.tex,
+% y si biblatex se carga toma el control de \cite: como no hay archivo .bbl
+% generado por biber, todas las citas del documento salen sin resolver.
+% Además, el estilo apa junto con babel-spanish rompe la compilación en las
+% versiones recientes de LaTeX con un error de hooks sobre \@makecaption.
+% \usepackage[backend=biber, style=apa]{biblatex}
+% \addbibresource{Referencias/Ref.bib}
+
+% ... código anterior ...
+\addto\captionsspanish{\renewcommand{\tablename}{Tabla}}
+\addto\captionsspanish{\def\tablenamepunct{. }}
+% \addto\captionsspanish{\def\@captionhead#1#2{#1 #2.}} % Línea comentada
+
+%--------------- Configuraciones para tablas ---------------
+\usepackage{adjustbox}
+\usepackage[table,xcdraw]{xcolor}
+\definecolor{cellColor}{rgb}{0.788, 0.855, 0.972}    % RGB: 201, 218, 248 (Azul ocuro, Texto 2, Claro 80%)
+% \cellcolor{cellColor} -> ELIMINADA
+\usepackage{multirow}
+% ----------------------------------------------------------
+
+% --------------Para introducir codigo con colores--------------
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
