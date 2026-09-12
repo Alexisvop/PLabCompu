@@ -1,8 +1,86 @@
 % En esta seccion se presentan algoritmos, diagramas de flujo, diagramas de arquitecturas del programa, así como requerimientos de hardware y software. Presenta segmentos de código relevantes, figuras ilustrativas debidamente tituladas y referenciadas en el texto.
 
-\section{Metodologia de la practica}
+\section{Metodología de la práctica}
 
-\subsection{Actividad 1: Creacion de una casa sencilla con OpenGL}
+\subsection{Requerimientos de hardware y software}
+La práctica se desarrolló sobre el proyecto base proporcionado por el profesor,
+que se compila como una aplicación de escritorio de C++ enlazada contra OpenGL.
+En la Tabla \ref{tab:requerimientos} se resumen los recursos que se emplearon;
+todos ellos cumplen con lo indicado en el manual de la práctica, que pide
+Windows 10 o Linux y Visual Studio 2017 o superior \cite{teodoro_manual02}.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}p{4.0cm}p{10.5cm}@{}}
+\toprule
+\textbf{Elemento} & \textbf{Especificación empleada} \\
+\midrule
+Sistema operativo & Windows 11 (64 bits) \\
+Entorno de desarrollo & Microsoft Visual Studio 2022, conjunto de herramientas MSVC, plataforma x64 \\
+Lenguaje & C++ (estándar \texttt{c++20}) \\
+API gráfica & OpenGL 3.3, perfil \textit{core} \\
+Bibliotecas & GLFW (creación de la ventana y manejo de eventos), GLAD (carga de las funciones de OpenGL) y GLM (álgebra de vectores y matrices) \\
+Hardware & Equipo de cómputo con adaptador gráfico, integrado o dedicado, compatible con OpenGL 3.3 \\
+Archivos de apoyo & \texttt{shaders/02-simplePVM.vs} y \texttt{shaders/02-simplePVM.fs}, ubicados en el directorio de trabajo del ejecutable \\
+\bottomrule
+\end{tabular}
+\caption{Requerimientos de hardware y software utilizados en la práctica.}
+\label{tab:requerimientos}
+\end{table}
+
+La configuración del proyecto siguió los pasos 1 a 10 del manual: se creó una
+carpeta de proyecto dentro de \texttt{02\_ProjViewportTransformations}, se
+agregó el archivo de origen, se fijó el directorio de salida y el de trabajo en
+\texttt{bin}, y se declararon los directorios de inclusión
+(\texttt{deps/glad}, \texttt{deps/glfw} y \texttt{deps/glm}), los directorios
+de bibliotecas y las entradas del vinculador
+(\texttt{opengl32.lib}, \texttt{glad.lib} y \texttt{glfw3.lib}). El directorio
+de trabajo es indispensable porque los shaders se cargan con una ruta relativa.
+
+\subsection{Arquitectura del programa y flujo de ejecución}
+El programa se organiza en dos funciones principales: \texttt{Start()}, que se
+ejecuta una sola vez y prepara la ventana, el contexto de OpenGL, los shaders y
+la geometría, y \texttt{Update()}, que se ejecuta una vez por cuadro y se
+encarga de leer el teclado, armar las matrices y dibujar. En la Figura
+\ref{fig:flujo} se muestra este flujo completo. Conviene notar que la lectura
+del teclado ocurre \emph{antes} de construir las matrices: de lo contrario, la
+imagen desplegada correspondería siempre al estado del cuadro anterior.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.62\textwidth]{Imagenes/Diagramas/flujo.png}
+    \caption{Diagrama de flujo del programa \texttt{02\_ViewportTransformations.cpp}.}
+    \label{fig:flujo}
+\end{figure}
+
+La totalidad de las actividades de la práctica se reduce a decidir el contenido
+de tres matrices de $4 \times 4$ que el programa envía al \textit{vertex
+shader} como variables uniformes. La Figura \ref{fig:pipeline} resume la cadena
+de transformaciones que recorre cada vértice \cite{learnopengl_coord, shreiner_opengl}: la matriz \texttt{model} lleva la
+geometría de su sistema local al del mundo (Actividades 6 y 7), la matriz
+\texttt{view} pasa del mundo al sistema de referencia del observador
+(Actividades 2 y 5) y la matriz \texttt{projection} define el volumen de
+visualización y aplana la escena (Actividades 3 y 4). Como el orden de la
+multiplicación importa, un mismo conjunto de vértices produce imágenes
+distintas con sólo cambiar los parámetros de una de ellas, sin tocar los datos
+del modelo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{Imagenes/Diagramas/pipeline.png}
+    \caption{Cadena de transformaciones aplicada a cada vértice y funciones de GLM asociadas a cada etapa.}
+    \label{fig:pipeline}
+\end{figure}
+
+Como el lazo principal no tenía fijada la sincronización vertical, los
+incrementos que las teclas aplican a la posición y a la escala se acumulaban a
+la velocidad que alcanzara el equipo, de modo que una pulsación breve bastaba
+para sacar el modelo de la escena. Por esa razón se agregó
+\texttt{glfwSwapInterval(1)} inmediatamente después de crear el contexto, con
+lo cual el lazo queda acotado a la frecuencia de actualización del monitor y el
+comportamiento del teclado resulta comparable entre equipos \cite{glfw_window}.
+
+\subsection{Actividad 1: Creación de una casa sencilla con OpenGL}
 Para construir la casa decidimos extender el mismo patrón que ya usábamos con la clase \texttt{Triangle3D}, en vez de armar una jerarquía nueva de clases. La idea fue simple: una casa vista desde estas prácticas no es más que un cubo (las paredes) con una pirámide de base cuadrada encima (el techo), así que creamos una clase \texttt{House3D} que arma exactamente esa geometría.
 
 El constructor recibe dos parámetros, \texttt{size} (la mitad del ancho del cubo) y \texttt{roofHeight} (qué tan alto sobresale el techo respecto a la parte superior del cubo), y dejamos también un constructor de conveniencia que solo pide \texttt{size} y usa esa misma medida como altura del techo. Definimos 9 vértices en total: los primeros 8 corresponden a las esquinas del cubo (4 abajo y 4 arriba) y el noveno es el vértice donde convergen las cuatro caras del techo. Para que la figura quedara centrada en el origen, todas las coordenadas se calculan como desplazamientos de \texttt{size} respecto a $(0,0,0)$, de modo que sin importar qué tan grande o pequeña se haga la casa, su centro geométrico siempre cae en el origen.
@@ -80,33 +158,149 @@ if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) {
     camera.Position = glm::vec3(0.0f, 0.0f, 3.0f);
     camera.View = glm::vec3(0.0f, 0.0f, 0.0f);
     camera.Up = glm::vec3(0.0f, 1.0f, 0.0f); //rotacion
+    reiniciarOrbita();
+    vistaFija = true;
 }
 if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS) {
     // Vista de lado: camara sobre el eje +X mirando hacia el origen
     camera.Position = glm::vec3(3.0f, 1.0f, 1.0f); // Lo modifique para que se viera el lado, ya que si lo pongo "literalmente" de lado, no habria diferencia entre el frontal y el lado debido a que son pares las caras 
     camera.View = glm::vec3(0.0f, 0.0f, 0.0f);
     camera.Up = glm::vec3(0.0f, 1.0f, 0.0f);
+    reiniciarOrbita();
+    vistaFija = true;
 }
 if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_PRESS) {
     // Vista superior: camara sobre el eje +Y mirando hacia abajo
     camera.Position = glm::vec3(0.0f, 3.0f, 0.0f);
     camera.View = glm::vec3(0.0f, 0.0f, 0.0f);
     camera.Up = glm::vec3(0.0f, 0.0f, -1.0f);
+    reiniciarOrbita();
+    vistaFija = true;
 }
 \end{lstlisting}
 \subsection{Actividad 3: 3 vistas de proyección ortogonal}
-la
+El proyecto base ya traía la matriz de proyección ortogonal armada con
+\texttt{glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.1f, 1000.0f)}, pero como valor
+fijo dentro de \texttt{Update}, de manera que para probar otros parámetros
+había que recompilar. Lo primero que hicimos fue sacar esa decisión del cuerpo
+de \texttt{Update} y concentrarla en una función aparte,
+\texttt{matrizDeProyeccion()}, que consulta dos variables globales: una que
+indica el modo (ortogonal o perspectiva) y otra que selecciona la variante.
+Así, las siete actividades comparten un solo punto donde se decide la
+proyección y las variantes pueden cambiarse con el programa corriendo.
+
+Los seis primeros argumentos de \texttt{glm::ortho} son las coordenadas
+izquierda, derecha, inferior, superior, cercana y lejana del volumen de
+visualización, que en este caso es un paralelepípedo (Figura
+\ref{fig:volumenes}) \cite{glm_manual, hearn_baker}. Lo que la función construye es un cambio de escala y una
+traslación que llevan ese paralelepípedo al cubo canónico
+$[-1,1]^3$; por eso, ampliar el intervalo horizontal o vertical no acerca la
+cámara, sino que hace caber más mundo en la misma ventana y, en consecuencia,
+la casa se ve más pequeña. Los proyectores son paralelos entre sí, así que las
+medidas se conservan y no aparece escorzo: dos aristas de la misma longitud se
+dibujan del mismo tamaño sin importar su distancia al observador.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{Imagenes/Diagramas/volumenes.png}
+    \caption{Comparación entre el volumen de visualización de la proyección ortogonal y el de la proyección en perspectiva.}
+    \label{fig:volumenes}
+\end{figure}
+
+Elegimos tres juegos de parámetros que ilustran tres efectos distintos y los
+asignamos a las teclas \texttt{1}, \texttt{2} y \texttt{3}. El primero es el
+volumen unitario del código original y sirve como referencia. El segundo
+duplica los cuatro límites laterales manteniendo la razón de aspecto: el
+volumen abarca el doble en cada dirección y la casa aparece a la mitad de
+tamaño. El tercero deja el intervalo vertical en $[-1,1]$ pero abre el
+horizontal a $[-2,2]$; como la ventana es cuadrada, el volumen deja de ser
+proporcional a ella y la figura se comprime horizontalmente. Este último caso
+fue el que más nos aclaró el papel de los argumentos, porque muestra que la
+proporción de la imagen no depende sólo de la geometría sino también de la
+relación entre el volumen de visualización y el puerto de vista.
+
+\begin{lstlisting}[language=C, caption=Variantes de la proyeccion ortogonal y su asignacion al teclado, label=lst:codigo-ortho]
+// Ejercicio 3. Proyeccion ortogonal: los cuatro primeros argumentos
+// delimitan el volumen de visualizacion sobre los ejes X y Y.
+switch (varianteProyeccion) {
+case 0:  return glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.1f, 1000.0f);  // volumen unitario
+case 1:  return glm::ortho(-2.0f, 2.0f, -2.0f, 2.0f, 0.1f, 1000.0f);  // volumen ampliado
+default: return glm::ortho(-2.0f, 2.0f, -1.0f, 1.0f, 0.1f, 1000.0f);  // volumen anisotropo
+}
+
+// Dentro de keyboardCallback()
+if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
+    modoProyeccion = 0; varianteProyeccion = 0;
+}
+if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
+    modoProyeccion = 0; varianteProyeccion = 1;
+}
+if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
+    modoProyeccion = 0; varianteProyeccion = 2;
+}
+\end{lstlisting}
 
 \subsection{Actividad 4: 3 vistas de proyección perspectiva}
-la
+La proyección en perspectiva se construye con \texttt{glm::perspective}, cuyos
+argumentos son el ángulo de apertura vertical del \textit{frustum}, la razón de
+aspecto de la ventana y las distancias a los planos cercano y lejano. A
+diferencia del caso ortogonal, aquí los proyectores convergen en la posición
+del observador, de modo que el volumen de visualización es una pirámide
+truncada (Figura \ref{fig:volumenes}) y los objetos alejados se dibujan más
+pequeños \cite{marschner_shirley}. La matriz que resulta no es afín: introduce un término que provoca
+la división por la componente homogénea $w$, y de esa división proviene el
+escorzo.
+
+Como el ángulo de apertura es el parámetro que más cambia la apariencia de la
+escena, las tres variantes que elegimos lo modifican dejando fijos los demás
+argumentos, y se asignaron a las teclas \texttt{4}, \texttt{5} y \texttt{6}.
+La primera usa $45^\circ$, el valor del código original, y es la que
+consideramos de referencia. La segunda usa $90^\circ$: el frustum se abre, cabe
+mucho más escena y la casa se ve pequeña y con un escorzo pronunciado, igual
+que ocurre con un objetivo gran angular. La tercera usa $30^\circ$, que
+corresponde a un teleobjetivo; el volumen se estrecha, la casa ocupa casi toda
+la ventana y su aspecto se aproxima al de la proyección ortogonal, porque al
+reducirse el ángulo los proyectores tienden a volverse paralelos.
+
+Es importante notar que la razón de aspecto se calcula con las variables
+\texttt{screenWidth} y \texttt{screenHeight}, y que la matriz se reconstruye en
+cada cuadro. Gracias a ello, cuando la ventana se redimensiona y
+\texttt{resizeCallback} actualiza el puerto de vista, la imagen no se deforma.
+
+\begin{lstlisting}[language=C, caption=Variantes de la proyeccion en perspectiva y su asignacion al teclado, label=lst:codigo-persp]
+// Ejercicio 4. Proyeccion en perspectiva: el primer argumento es el
+// angulo de apertura vertical del frustum.
+float aspecto = (float)screenWidth / (float)screenHeight;
+
+switch (varianteProyeccion) {
+case 0:  return glm::perspective(glm::radians(45.0f), aspecto, 0.1f, 1000.0f);  // apertura media
+case 1:  return glm::perspective(glm::radians(90.0f), aspecto, 0.1f, 1000.0f);  // gran angular
+default: return glm::perspective(glm::radians(30.0f), aspecto, 0.1f, 1000.0f);  // teleobjetivo
+}
+
+// Dentro de keyboardCallback()
+if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) {
+    modoProyeccion = 1; varianteProyeccion = 0;
+}
+if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS) {
+    modoProyeccion = 1; varianteProyeccion = 1;
+}
+if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS) {
+    modoProyeccion = 1; varianteProyeccion = 2;
+}
+\end{lstlisting}
 
 \subsection{Actividad 5: Implementación de la camara usando WASD}
 
 El proyecto base ya traía las teclas WASD asignadas, pero lo que hacían era sumar y restar cantidades fijas a las componentes \texttt{x} y \texttt{y} de la posición de la cámara. Eso mueve al observador sobre un plano, así que conforme uno recorre la escena la distancia a la figura va cambiando sola y la casa termina saliéndose del encuadre. Lo que queríamos era otra cosa: que A y D giraran alrededor del objeto sin acercarlo, y que W y S fueran las que se encargaran de acercar y alejar.
 
-Para lograrlo dejamos de guardar la posición de la cámara en coordenadas cartesianas y la describimos con dos cantidades: un ángulo \texttt{camAngulo} medido sobre el plano horizontal y un radio \texttt{camRadio} que es la distancia al origen. Con eso la posición se recupera en cada cuadro como $x = r\cos\theta$ y $y = r\operatorname{sen}\theta$, mientras que la altura se queda fija en \texttt{camAltura}. La ventaja es que cada tecla toca una sola variable: modificar el ángulo recorre una circunferencia de radio constante, y modificar el radio acerca o aleja al observador siguiendo la recta que lo une con el origen. Como en nuestra figura el eje vertical es $z$, la órbita se desarrolla sobre el plano $xy$.
+Para lograrlo dejamos de guardar la posición de la cámara en coordenadas cartesianas y la describimos con dos cantidades: un ángulo \texttt{camAngulo} medido sobre el plano horizontal y un radio \texttt{camRadio} que es la distancia al origen. Con eso la posición se recupera en cada cuadro como $x = r\cos\theta$ y $z = r\operatorname{sen}\theta$, mientras que la altura se queda fija en \texttt{camAltura}. La ventaja es que cada tecla toca una sola variable: modificar el ángulo recorre una circunferencia de radio constante, y modificar el radio acerca o aleja al observador siguiendo la recta que lo une con el origen. Como la casa se construyó con el techo apuntando hacia $+Y$, el eje vertical de la escena es $y$ y la órbita se desarrolla sobre el plano $xz$.
 
-Las tres variables las declaramos como globales, junto al objeto \texttt{Camera}, porque las escribe la función que atiende el teclado y las lee la que dibuja. También ajustamos los argumentos del constructor: el punto de interés lo pusimos en el origen, ya que \texttt{glm::lookAt} espera ahí un punto y no un vector de dirección, y el vector vertical lo pusimos en $(0,0,1)$ para que el eje $z$ se despliegue hacia arriba de la ventana, que es como construimos la geometría de la casa.
+Las tres variables las declaramos como globales, junto al objeto \texttt{Camera}, porque las escribe la función que atiende el teclado y las lee la que dibuja. También ajustamos los argumentos del constructor: el punto de interés lo pusimos en el origen, ya que \texttt{glm::lookAt} espera ahí un punto y no un vector de dirección, y el vector vertical lo dejamos en $(0,1,0)$ para que el eje $y$ se despliegue hacia arriba de la ventana, que es como construimos la geometría de la casa. El ángulo inicial es de $90^\circ$, con lo que el observador arranca sobre el eje $+Z$ y la escena se abre con la vista frontal.
+
+Al integrar esta actividad con la Actividad 2 apareció un conflicto que no habíamos previsto: como la posición se recalcula en cada cuadro a partir del ángulo y el radio, los vectores que \texttt{F1}, \texttt{F2} y \texttt{F3} escriben directamente en \texttt{camera.Position} quedaban sobrescritos y las tres vistas dejaban de funcionar. Lo resolvimos con una bandera, \texttt{vistaFija}, que las teclas de función activan para suspender el recálculo y que las teclas \texttt{WASD} desactivan al retomar el control. Además, cada una de esas teclas llama a \texttt{reiniciarOrbita()}, que devuelve el ángulo y el radio a sus valores iniciales; sin esa llamada, al pasar de una vista fija a las teclas \texttt{WASD} la cámara saltaba de golpe a la última posición que hubiera tenido sobre la órbita.
+
+Por último, tras fijar la sincronización vertical el incremento angular original de $0.2^\circ$ por cuadro resultaba demasiado lento para recorrer la escena, así que lo ajustamos a $0.5^\circ$; los incrementos del radio se dejaron sin cambio.
 
 El cálculo de la posición lo agregamos dentro de \texttt{Update}, justo antes de armar la matriz de vista. El orden ahí sí importa: como \texttt{glm::lookAt} recibe la posición del observador, si el cálculo se hiciera después de esa llamada la matriz correspondería a la posición del cuadro anterior y el giro se vería con un cuadro de retraso. La conversión a radianes es necesaria porque las funciones trigonométricas trabajan en esa unidad, aunque nosotros preferimos manejar los incrementos en grados por ser más fáciles de ajustar a ojo.
 
@@ -114,88 +308,170 @@ Por último, en \texttt{keyboardCallback} sustituimos las cuatro asignaciones or
 
 \begin{lstlisting}[language=C, caption=Código de la cámara orbital controlada con WASD, label=lst:codigo-camara]
 // Declaracion de la camara y de los parametros de la orbita
-Camera camera(glm::vec3(3.0f, 0.0f, 0.0f),
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f),
               glm::vec3(0.0f, 0.0f, 0.0f),
-              glm::vec3(0.0f, 0.0f, 1.0f));
+              glm::vec3(0.0f, 1.0f, 0.0f));
 
-float camAngulo = 0.0f;
-float camRadio = 3.0f;
-float camAltura = 0.0f;
+float camAngulo = 90.0f;   // grados, medidos sobre el plano XZ
+float camRadio  = 3.0f;    // distancia al origen
+float camAltura = 0.0f;    // coordenada Y del observador
+bool  vistaFija = false;   // true mientras F1/F2/F3 fijen la camara
 
-// Dentro de Update(): posicion del observador en cada cuadro
-glm::mat4 projection = glm::perspective(glm::radians(45.0f),
-        (float)screenWidth / (float)screenHeight, 0.1f, 1000.0f);
+void reiniciarOrbita() {
+    camAngulo = 90.0f;
+    camRadio  = 3.0f;
+    camAltura = 0.0f;
+}
 
-myShader->setMat4("projection", projection);
-
-camera.Position.x = camRadio * cos(glm::radians(camAngulo));
-camera.Position.y = camRadio * sin(glm::radians(camAngulo));
-camera.Position.z = camAltura;
+// Dentro de Update(): posicion del observador en cada cuadro, calculada
+// antes de armar la matriz de vista
+if (!vistaFija) {
+    camera.Position.x = camRadio * cos(glm::radians(camAngulo));
+    camera.Position.z = camRadio * sin(glm::radians(camAngulo));
+    camera.Position.y = camAltura;
+}
 
 glm::mat4 view = glm::lookAt(camera.Position, camera.View, camera.Up);
 myShader->setMat4("view", view);
 
 // Dentro de keyboardCallback(): asignacion de las teclas
 if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+    vistaFija = false;
     camRadio -= 0.02f;
     if (camRadio < 0.1f)
         camRadio = 0.1f;
 }
 if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+    vistaFija = false;
     camRadio += 0.02f;
 }
 if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-    camAngulo += 0.2f;
+    vistaFija = false;
+    camAngulo += 0.5f;
 }
 if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-    camAngulo -= 0.2f;
+    vistaFija = false;
+    camAngulo -= 0.5f;
 }
 \end{lstlisting}
 
 \subsection{Actividad 6: Implementación de las flechas del teclado con respecto al eje Z}
+Hasta aquí todas las actividades habían modificado la manera de observar la
+escena; ésta es la primera que modifica el objeto. El proyecto base ya
+declaraba una variable \texttt{modelPosition} y ya la usaba dentro de
+\texttt{Update} para construir la matriz de modelo con
+\texttt{glm::translate}, pero las cuatro flechas del teclado estaban asignadas
+a las componentes $x$ y $y$. Como la actividad pide que la figura avance y
+retroceda respecto al eje $Z$, dejamos únicamente las flechas arriba y abajo y
+las conectamos a la componente $z$.
 
-Para llevar a cabo esta actividad, el objetivo fue lograr que la figura se pudiera mover hacia adelante y hacia atrás a lo largo del eje $Z$ en tiempo real usando las flechas del teclado. En lugar de modificar directamente las coordenadas de cada uno de los vértices dentro de la clase de la geometría, se utilizó el concepto de transformación rígida de traslación mediante la matriz de modelo, lo cual permite desplazar todo el objeto completo sin alterar su forma original.
+Una traslación es una transformación rígida: conserva las distancias entre los
+vértices y los ángulos entre las aristas, de modo que la casa no se deforma, y
+se expresa en coordenadas homogéneas como la matriz de la ecuación
+\eqref{eq:traslacion} \cite{hearn_baker}. Trabajar con matrices de $4\times4$ y una cuarta
+componente $w=1$ es precisamente lo que permite representar la traslación como
+una multiplicación y, por lo tanto, encadenarla con la rotación y el
+escalamiento en un solo producto.
 
-El primer paso consistió en ubicar la función \textbf{keyboardCallback} dentro de 02\_ViewportTransformations.cpp, que es donde el programa detecta qué teclas se están presionando en la ventana. En el código base que nos dieron, las flechas del teclado estaban configuradas para modificar la posición del modelo en los ejes $X$ y $Y$. Por ello, se modificó la lógica para que al mantener presionada la tecla de la flecha arriba (\texttt{GLFW\_KEY\_UP}) se le sumara un incremento constante de $0.01\text{f}$ a la componente en $Z$ de la variable \texttt{modelPosition}, logrando que la figura avance hacia el frente. De igual manera, se configuró la flecha abajo (\texttt{GLFW\_KEY\_DOWN}) para restar ese mismo valor en $Z$, haciendo que el objeto retroceda alejándose de la pantalla.
+\begin{equation}
+T(0,0,t_z) =
+\begin{pmatrix}
+1 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 \\
+0 & 0 & 1 & t_z \\
+0 & 0 & 0 & 1
+\end{pmatrix}
+\label{eq:traslacion}
+\end{equation}
 
-A continuación se muestra el fragmento modificado dentro de la función \texttt{keyboardCallback}:
+Conviene subrayar que el desplazamiento se aplica al modelo y no a la cámara:
+la matriz de vista permanece intacta y lo que cambia es la posición de la casa
+dentro del mundo. Por eso, cuando se observa la escena de frente, el efecto no
+se percibe como un desplazamiento sino como un cambio de tamaño, ya que el
+movimiento ocurre a lo largo de la dirección en la que mira el observador. Al
+cambiar a la vista lateral con \texttt{F2}, el mismo movimiento se ve como lo
+que realmente es: un recorrido de la figura sobre el eje $Z$.
 
-\begin{lstlisting}[language=C++, caption={Control del desplazamiento sobre el eje Z con las flechas del teclado}]
-// Ejercicio 6. Movimiento del objeto 3D en el eje Z
-// Flecha Arriba: avanzar hacia el frente (+Z)
+\begin{lstlisting}[language=C, caption=Traslacion rigida del modelo sobre el eje Z, label=lst:codigo-traslacion]
+// Ejercicio 6. Posicion del modelo (las flechas la mueven sobre el eje Z)
+Vertex modelPosition;
+
+// Dentro de Update(): la traslacion se compone en la matriz de modelo
+glm::mat4 model = glm::mat4(1.0f);
+model = glm::translate(model, glm::vec3(modelPosition.Position.x,
+                                        modelPosition.Position.y,
+                                        modelPosition.Position.z));
+
+// Dentro de keyboardCallback(): avance y retroceso sobre el eje Z
 if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
     modelPosition.Position.z += 0.01f;
 }
-
-// Flecha Abajo: retroceder hacia el fondo (-Z)
 if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
     modelPosition.Position.z -= 0.01f;
 }
-
-// Flechas Izquierda y Derecha (desplazamiento lateral en el eje X)
-if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-    modelPosition.Position.x -= 0.01f;
-}
-if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-    modelPosition.Position.x += 0.01f;
-}
 \end{lstlisting}
-
-Finalmente, se revisó que dentro de la función \texttt{Update()} se estuviera calculando correctamente la matriz de modelo usando la función \texttt{glm::translate}. De esta manera, cada vez que cambia el valor de la posición en $Z$ por la entrada del teclado, la matriz se actualiza y se envía directamente al \textit{shader} antes de mandar a dibujar la malla con \texttt{Draw()}. 
-
-\begin{lstlisting}[language=C++, caption={Aplicación de la traslación a la matriz de modelo dentro de Update()}]
-// Aplicamos transformaciones del modelo (traslación rígida)
-glm::mat4 model = glm::mat4(1.0f);
-model = glm::translate(model, glm::vec3(modelPosition.Position.x, 
-                                        modelPosition.Position.y, 
-                                        modelPosition.Position.z));
-model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	
-myShader->setMat4("model", model);
-
-mesh->Draw(*myShader);
-\end{lstlisting}
-
 
 \subsection{Actividad 7: Implementación de las teclas + y - para aumentar y disminuir el tamaño de la geometría}
-la
+El escalamiento es una transformación de forma: a diferencia de la traslación,
+no conserva las distancias, aunque al aplicarse con el mismo factor en los tres
+ejes sí conserva los ángulos y, por lo tanto, la figura sigue siendo
+reconocible como una casa. Su matriz en coordenadas homogéneas es la de la
+ecuación \eqref{eq:escalamiento}, y basta con una sola variable global,
+\texttt{modelScale}, para controlarla.
+
+\begin{equation}
+S(s,s,s) =
+\begin{pmatrix}
+s & 0 & 0 & 0 \\
+0 & s & 0 & 0 \\
+0 & 0 & s & 0 \\
+0 & 0 & 0 & 1
+\end{pmatrix}
+\label{eq:escalamiento}
+\end{equation}
+
+El punto que nos obligó a detenernos fue el orden en que se componen las
+transformaciones \cite{marschner_shirley}. En el código, la matriz de modelo se arma como
+$M = T \cdot R \cdot S$, es decir, el escalamiento se aplica primero y la
+traslación al final. Ese orden es el que queremos, porque el escalamiento en
+OpenGL se hace respecto al origen del sistema de coordenadas del objeto: al
+escalar antes de trasladar, la casa crece alrededor de su propio centro y sólo
+después se lleva a su posición. Si se invirtiera el orden, el factor de escala
+multiplicaría también al vector de traslación y la figura se alejaría del
+origen conforme creciera. Aquí se aprecia la ventaja de haber construido la
+geometría centrada en el origen desde la Actividad 1.
+
+Se añadieron dos límites al factor de escala, uno inferior de $0.05$ y otro
+superior de $5.0$. El inferior evita que la casa se reduzca hasta desaparecer
+y que un valor negativo invierta la orientación de las caras; el superior
+impide que la geometría crezca tanto que atraviese el plano cercano del
+volumen de visualización. Además de la tecla \texttt{+} del teclado numérico,
+que es la que indica el manual, se aceptó también la tecla \texttt{=} del
+bloque alfanumérico, porque varios de los equipos del equipo son portátiles y
+carecen de teclado numérico.
+
+\begin{lstlisting}[language=C, caption=Escalamiento uniforme del modelo con las teclas + y -, label=lst:codigo-escala]
+// Ejercicio 7. Factor de escalamiento uniforme del modelo
+float modelScale = 1.0f;
+
+// Dentro de Update(): el escalamiento es el ultimo factor del producto,
+// de modo que se aplica antes que la rotacion y la traslacion
+model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+model = glm::scale(model, glm::vec3(modelScale, modelScale, modelScale));
+myShader->setMat4("model", model);
+
+// Dentro de keyboardCallback(): se aceptan las teclas del teclado numerico
+// y las del bloque alfanumerico, para equipos portatiles
+if (glfwGetKey(window, GLFW_KEY_KP_SUBTRACT) == GLFW_PRESS ||
+    glfwGetKey(window, GLFW_KEY_MINUS)       == GLFW_PRESS) {
+    modelScale -= 0.01f;
+    if (modelScale < 0.05f)
+        modelScale = 0.05f;
+}
+if (glfwGetKey(window, GLFW_KEY_KP_ADD) == GLFW_PRESS ||
+    glfwGetKey(window, GLFW_KEY_EQUAL)  == GLFW_PRESS) {
+    modelScale += 0.01f;
+    if (modelScale > 5.0f)
+        modelScale = 5.0f;
+}
+\end{lstlisting}

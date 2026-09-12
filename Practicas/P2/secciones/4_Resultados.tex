@@ -2,20 +2,20 @@
 \section{Resultados}
 
 \subsection{Actividad 1: Creacion de una casa sencilla con OpenGL}
-El resultado final es una casa simple pero reconocible: un cubo con techo piramidal, perfectamente centrada en el origen del mundo, construida a partir de una sola clase (\texttt{House3D}) que sigue el mismo estilo de las demás clases de geometría del proyecto. Como ventaja, esta forma de construir la figura es muy compacta: con solo 9 vértices y 14 triángulos se obtiene la casa completa, y al reutilizar vértices entre caras en vez de duplicarlos, el código queda corto y fácil de leer; de paso, el degradado de color entre pared y techo se obtiene prácticamente gratis gracias a la interpolación de colores que hace OpenGL entre vértices.
+El resultado final es una casa simple pero reconocible: un cubo con techo piramidal, perfectamente centrada en el origen del mundo, construida a partir de una sola clase (\texttt{House3D}) que sigue el mismo estilo de las demás clases de geometría del proyecto. Como ventaja, esta forma de construir la figura es muy compacta: con solo 9 vértices y 14 triángulos se obtiene la casa completa, y al reutilizar vértices entre caras en vez de duplicarlos, el código queda corto y fácil de leer; de paso, el degradado de color entre pared y techo se obtiene prácticamente gratis gracias a la interpolación de colores que hace OpenGL entre vértices. El resultado se muestra en la Figura \ref{fig:resultado-casa}.
 
 La principal desventaja de este enfoque es justamente esa reutilización de vértices: al compartirlos entre caras, no es posible asignarle un color completamente plano e independiente a cada cara sin duplicar geometría. Si en una práctica futura quisiéramos, por ejemplo, techos y paredes con colores sólidos bien definidos y sin ningún degradado, tendríamos que separar los vértices por cara, lo cual elevaría el conteo de 9 a unos 24 vértices aproximadamente. Otra limitación es que la proporción entre el cuerpo y el techo quedó fija en los valores que usamos (\texttt{0.5} y \texttt{0.35}); para una casa con otras proporciones habría que exponer esos parámetros de una forma más flexible, en vez de dejarlos fijos en el código.
 
-% TODO: insertar captura final de la casa terminada
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.56\textwidth]{Imagenes/E1/CasaA.png}
-    \caption{Resultado final de la Actividad 1: casa centrada en el origen.}
+    \includegraphics[width=0.42\textwidth]{Imagenes/E2/V_Frontal.png}
+    \includegraphics[width=0.42\textwidth]{Imagenes/E1/Casa_Perspectiva.png}
+    \caption{Resultado final de la Actividad 1: la casa centrada en el origen, vista de frente (izquierda) y desde un ángulo intermedio (derecha).}
     \label{fig:resultado-casa}
 \end{figure}
 
 \subsection{Actividad 2: Configuración de las vistas: frontal, lateral y superior}
-Con los ajustes hechos a las teclas F1, F2 y F3, conseguimos las tres vistas que pedía la práctica, cada una activable con solo presionar una tecla mientras el programa corre. La ventaja más clara de esta solución es lo simple que resulta: no hace falta calcular ángulos ni interpolar entre posiciones, solo reasignar tres vectores fijos (\texttt{Position}, \texttt{View} y \texttt{Up}) por cada vista, y \texttt{glm::lookAt} se encarga del resto.
+Con los ajustes hechos a las teclas F1, F2 y F3, conseguimos las tres vistas que pedía la práctica (Figura \ref{fig:resultado-vistas}), cada una activable con solo presionar una tecla mientras el programa corre. La ventaja más clara de esta solución es lo simple que resulta: no hace falta calcular ángulos ni interpolar entre posiciones, solo reasignar tres vectores fijos (\texttt{Position}, \texttt{View} y \texttt{Up}) por cada vista, y \texttt{glm::lookAt} se encarga del resto.
 
 Como desventaja, notamos que las posiciones de cámara quedaron \emph{hardcodeadas} a una distancia fija (3 unidades del origen en cada eje), lo cual funciona bien para el tamaño actual de la casa, pero si la geometría creciera bastante (por ejemplo, usando las teclas + y - de la Actividad 7 para agrandarla mucho) la cámara podría terminar mostrando el objeto recortado o demasiado pequeño, porque la distancia no se ajusta de forma dinámica al tamaño de la figura. Tampoco hay ninguna transición entre vistas: el cambio de una posición a otra es instantáneo, lo cual es aceptable para esta práctica pero se sentiría abrupto en una aplicación más pulida, donde normalmente se esperaría una interpolación suave entre la cámara actual y la nueva.
 
@@ -24,43 +24,115 @@ Como desventaja, notamos que las posiciones de cámara quedaron \emph{hardcodead
     \includegraphics[width=0.32\textwidth]{Imagenes/E2/CasaFrontal.png}
     \includegraphics[width=0.32\textwidth]{Imagenes/E2/CasaLateral.png}
     \includegraphics[width=0.32\textwidth]{Imagenes/E2/CasaSuperior.png}
-    \caption{Vistas frontal, lateral y superior de la casa, obtenidas con F1, F2 y F3 respectivamente.}
-    \label{fig:actividad2-vistas}
+    \caption{Resultado final de la Actividad 2: vistas frontal, lateral y superior de la casa, obtenidas con \texttt{F1}, \texttt{F2} y \texttt{F3} respectivamente.}
+    \label{fig:resultado-vistas}
 \end{figure}
 
 \subsection{Actividad 3: 3 vistas de proyección ortogonal}
-ñla
+La versión final permite alternar entre las tres variantes de proyección
+ortogonal con las teclas \texttt{1}, \texttt{2} y \texttt{3} mientras el
+programa corre, sin recompilar. En la Tabla \ref{tab:ortho} se resumen los
+parámetros de cada una y el efecto que producen, y la Figura
+\ref{fig:actividad3-experimentos} muestra las imágenes correspondientes.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}cp{7.2cm}p{5.6cm}@{}}
+\toprule
+\textbf{Tecla} & \textbf{Llamada a \texttt{glm::ortho}} & \textbf{Efecto observado} \\
+\midrule
+\texttt{1} & \texttt{ortho(-1, 1, -1, 1, 0.1, 1000)}  & Volumen unitario. La casa ocupa cerca de la mitad de la ventana. \\
+\texttt{2} & \texttt{ortho(-2, 2, -2, 2, 0.1, 1000)}  & Volumen ampliado al doble. La figura se dibuja a la mitad de tamaño. \\
+\texttt{3} & \texttt{ortho(-2, 2, -1, 1, 0.1, 1000)}  & Volumen anisótropo. La figura se comprime en dirección horizontal. \\
+\bottomrule
+\end{tabular}
+\caption{Parámetros de las tres variantes de proyección ortogonal y su efecto sobre la imagen.}
+\label{tab:ortho}
+\end{table}
+
+La principal ventaja de haber concentrado la decisión en la función
+\texttt{matrizDeProyeccion()} es que el ciclo de prueba se volvió inmediato:
+comparar dos volúmenes de visualización pasó de requerir una recompilación a
+requerir una pulsación, lo que hizo posible observar los tres casos uno tras
+otro sobre la misma escena. La ventaja de la proyección ortogonal en sí misma
+es que conserva las medidas, lo que la vuelve la elección natural para vistas
+técnicas como las de la Actividad 2.
+
+Como desventaja, esa misma propiedad hace que las imágenes resulten poco
+naturales: sin escorzo es difícil juzgar la profundidad, y en la vista frontal
+la casa se ve prácticamente como una figura plana. Además, los tres juegos de
+parámetros quedaron escritos directamente en el código; un diseño más flexible
+los expondría como variables ajustables desde el teclado o desde un archivo de
+configuración, en lugar de obligar a editar la función para probar un cuarto
+volumen.
 
 \subsection{Actividad 4: 3 vistas de proyección perspectiva}
-la
+De la misma forma, las teclas \texttt{4}, \texttt{5} y \texttt{6} seleccionan
+las tres variantes de proyección en perspectiva, cuyos parámetros y efectos se
+resumen en la Tabla \ref{tab:persp} y se ilustran en la Figura
+\ref{fig:actividad4-experimentos}. En todas ellas se conservaron la razón de
+aspecto calculada a partir del tamaño de la ventana y los planos cercano y
+lejano en $0.1$ y $1000$, de modo que la única variable es el ángulo de
+apertura.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}ccp{9.4cm}@{}}
+\toprule
+\textbf{Tecla} & \textbf{Apertura} & \textbf{Efecto observado} \\
+\midrule
+\texttt{4} & $45^\circ$ & Apertura media. Escorzo moderado; es la vista de referencia. \\
+\texttt{5} & $90^\circ$ & Gran angular. La casa se ve pequeña y el escorzo se pronuncia. \\
+\texttt{6} & $30^\circ$ & Teleobjetivo. La casa llena la ventana, el escorzo casi desaparece y el techo se recorta. \\
+\bottomrule
+\end{tabular}
+\caption{Parámetros de las tres variantes de proyección en perspectiva y su efecto sobre la imagen.}
+\label{tab:persp}
+\end{table}
+
+La ventaja de esta proyección es evidente en cuanto se compara con la anterior:
+al converger los proyectores aparece la profundidad, y basta con mirar la casa
+desde un ángulo intermedio para reconocerla como un volumen y no como un
+contorno. Reunir las seis variantes bajo una sola función y un par de variables
+de estado también resultó cómodo, porque permite pasar de una proyección a otra
+sin tocar el resto del programa.
+
+La desventaja principal es que la deformación crece hacia los bordes de la
+ventana, algo que se aprecia con claridad en la variante de $90^\circ$: la casa
+se ve inclinada aunque no se le haya aplicado ninguna rotación. La segunda
+desventaja es que el resultado depende de la posición del observador, de manera
+que un mismo juego de parámetros produce imágenes muy distintas según el radio
+de la cámara; por eso, para los experimentos de esta actividad tuvimos que
+fijar la cámara con \texttt{F1} antes de cambiar la proyección, pues de otro
+modo no habría sido posible atribuir las diferencias a un solo factor.
 
 \subsection{Actividad 5: Implementación de la camara usando WASD}
 
-Al ejecutar el programa la cámara arranca sobre el eje $x$, a tres unidades del origen y con el ángulo en cero, de modo que la casa se ve completamente de frente y sin escorzo.
+Al ejecutar el programa la cámara arranca sobre el eje $z$, a tres unidades del origen y con el ángulo en $90^\circ$, de modo que la casa se ve completamente de frente, como se aprecia en la Figura \ref{fig:actividad5-inicial}.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.55\textwidth]{Imagenes/E5/PosicionInicial.png}
+    \includegraphics[width=0.55\textwidth]{Imagenes/E5/Cam_Inicial.png}
     \caption{Posición inicial de la cámara.}
     \label{fig:actividad5-inicial}
 \end{figure}
 
-Al mantener presionada la tecla D el ángulo disminuye y el observador recorre la circunferencia hacia un costado, con lo que aparece la pared lateral y el techo empieza a verse en escorzo. La tecla A produce el mismo recorrido en sentido contrario. En ambos casos la casa se mantiene centrada en la ventana y conserva su tamaño, que era justamente lo que se buscaba con la parametrización polar.
+Al mantener presionada la tecla D el ángulo disminuye y el observador recorre la circunferencia hacia un costado, con lo que aparece la pared lateral y el techo empieza a verse en escorzo. La tecla A produce el mismo recorrido en sentido contrario. En ambos casos la casa se mantiene centrada en la ventana y conserva su tamaño, que era justamente lo que se buscaba con la parametrización polar (Figura \ref{fig:actividad5-giro}).
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.48\textwidth]{Imagenes/E5/D.png}
-    \includegraphics[width=0.48\textwidth]{Imagenes/E5/A.png}
+    \includegraphics[width=0.48\textwidth]{Imagenes/E5/Cam_GiroD.png}
+    \includegraphics[width=0.48\textwidth]{Imagenes/E5/Cam_GiroA.png}
     \caption{Giro de la cámara con las teclas D (izquierda) y A (derecha).}
     \label{fig:actividad5-giro}
 \end{figure}
 
-Las teclas W y S modifican el radio en lugar del ángulo. Con W la cámara se aproxima al origen y la figura ocupa una porción mayor de la ventana, mientras que con S se aleja y la casa se reduce hasta quedar como una figura pequeña al centro de la pantalla. En ninguno de los dos casos cambia la orientación desde la que se observa el modelo.
+Las teclas W y S modifican el radio en lugar del ángulo. Con W la cámara se aproxima al origen y la figura ocupa una porción mayor de la ventana, mientras que con S se aleja y la casa se reduce hasta quedar como una figura pequeña al centro de la pantalla. En ninguno de los dos casos cambia la orientación desde la que se observa el modelo, tal como muestra la Figura \ref{fig:actividad5-zoom}.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.48\textwidth]{Imagenes/E5/W.png}
-    \includegraphics[width=0.48\textwidth]{Imagenes/E5/S.png}
+    \includegraphics[width=0.48\textwidth]{Imagenes/E5/Cam_Cerca.png}
+    \includegraphics[width=0.48\textwidth]{Imagenes/E5/Cam_Lejos.png}
     \caption{Acercamiento con la tecla W (izquierda) y alejamiento con la tecla S (derecha).}
     \label{fig:actividad5-zoom}
 \end{figure}
@@ -80,6 +152,71 @@ El desplazamiento se observó fluido y sin deformaciones en la figura. Como la t
     \label{fig:actividad5-giro}
 \end{figure}
 
+En la versión final las flechas arriba y abajo desplazan la casa sobre el eje
+$Z$ en incrementos de $0.01$ unidades por cuadro, dejando intactas la matriz de
+vista y la de proyección. La Figura \ref{fig:resultado-traslacion} muestra el
+resultado desde la vista lateral, que es la que permite apreciar directamente
+el recorrido; en la Figura \ref{fig:actividad6-ortho} se comprueba, además, que
+bajo proyección ortogonal el mismo desplazamiento no altera la imagen.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.32\textwidth]{Imagenes/E6/Z_Lat_Retroceso.png}
+    \includegraphics[width=0.32\textwidth]{Imagenes/E6/Z_Lat_Inicial.png}
+    \includegraphics[width=0.32\textwidth]{Imagenes/E6/Z_Lat_Avance.png}
+    \caption{Resultado final de la Actividad 6: la casa retrocede (izquierda), permanece en el origen (centro) y avanza (derecha) sobre el eje $Z$, observada desde la vista lateral.}
+    \label{fig:resultado-traslacion}
+\end{figure}
+
+La ventaja de resolverlo mediante la matriz de modelo, y no moviendo los
+vértices, es que la geometría se construye una sola vez y se sube a la memoria
+de video una sola vez: cada cuadro únicamente se envía una matriz de $4\times4$
+al shader, sin importar cuántos vértices tenga la figura. Es también la razón
+por la que la casa no se deforma, ya que una traslación es una transformación
+rígida y conserva distancias y ángulos.
+
+Como desventaja, la posición no tiene ningún límite. Si se mantiene presionada
+la flecha arriba el tiempo suficiente, el modelo atraviesa el plano cercano del
+volumen de visualización y desaparece de la escena sin ningún aviso, y para
+recuperarlo hay que presionar la flecha contraria durante el mismo tiempo
+porque el programa no tiene una tecla que devuelva el modelo al origen. Otra
+limitación es que el incremento está expresado por cuadro y no por unidad de
+tiempo; aunque la sincronización vertical acota el problema, en un monitor de
+mayor frecuencia de actualización la figura se movería más rápido. Una
+implementación más cuidadosa multiplicaría el incremento por el tiempo
+transcurrido entre cuadros.
 
 \subsection{Actividad 7: Implementación de las teclas + y - para aumentar y disminuir el tamaño de la geometría}
-la
+La versión final escala la casa de manera uniforme entre los factores $0.05$ y
+$5.0$ con las teclas \texttt{+} y \texttt{-}, aceptando tanto las del teclado
+numérico como las del bloque alfanumérico. La Figura
+\ref{fig:resultado-escala} muestra los tres tamaños; nótese que la figura
+crece y se reduce alrededor de su propio centro, sin desplazarse de la ventana.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.32\textwidth]{Imagenes/E7/Escala_Menor.png}
+    \includegraphics[width=0.32\textwidth]{Imagenes/E7/Escala_Inicial.png}
+    \includegraphics[width=0.32\textwidth]{Imagenes/E7/Escala_Mayor.png}
+    \caption{Resultado final de la Actividad 7: factor de escala reducido (izquierda), unitario (centro) y aumentado (derecha).}
+    \label{fig:resultado-escala}
+\end{figure}
+
+La ventaja más clara de esta solución es su costo: una sola variable global y
+una llamada a \texttt{glm::scale} bastan para controlar el tamaño de toda la
+geometría, y como el escalamiento se compone en la matriz de modelo junto con
+la traslación, ambas actividades conviven sin interferir entre sí. El hecho de
+que la casa se hubiera construido centrada en el origen desde la Actividad 1
+resultó decisivo aquí, porque es lo que hace que el escalamiento se perciba
+como un cambio de tamaño y no como un desplazamiento.
+
+Entre las desventajas, la más importante es que el escalamiento es uniforme y
+no permite estirar la figura en un solo eje, que sería lo natural si se
+quisiera, por ejemplo, hacer la casa más alta sin hacerla más ancha; para eso
+habría que llevar tres factores independientes. Además, las cotas se eligieron
+de manera empírica a partir del tamaño actual de la casa y de la distancia de
+la cámara, de modo que no se adaptarían solas a una figura de otras
+dimensiones. Por último, el orden $T \cdot R \cdot S$ quedó fijo en el código;
+si en una práctica posterior se necesitara escalar respecto a un punto distinto
+del origen, habría que componer explícitamente una traslación al punto, el
+escalamiento y la traslación inversa.

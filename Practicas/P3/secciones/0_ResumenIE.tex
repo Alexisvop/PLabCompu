@@ -1,0 +1,40 @@
+\section{Resumen}
+\begin{abstract}
+En esta práctica se abordó el modelado geométrico, es decir, la construcción de
+objetos tridimensionales a partir de primitivas más sencillas. Se
+implementaron con OpenGL 3.3 las tres primeras primitivas que solicita el
+manual: un plano paralelo al plano $XY$ de $2\times2$ unidades, un cubo de
+$2\times2\times2$ unidades y un círculo de radio unitario, las tres centradas
+en el origen del sistema de referencia y descritas mediante listas de vértices
+e índices que la clase \texttt{Mesh} envía a la unidad de procesamiento
+gráfico. Cada figura puede observarse desde dos puntos de vista distintos,
+asignados a las teclas \texttt{F1} y \texttt{F2}, y puede alternarse entre
+relleno y alambre para exhibir la triangulación con la que fue construida.
+El trabajo dejó ver que una primitiva geométrica no se dibuja directamente:
+antes se descompone en primitivas gráficas, en este caso triángulos, y de la
+forma en que se elija esa descomposición dependen tanto el número de vértices
+como la apariencia final. Al ejecutar la clase \texttt{Circle} del proyecto
+base detectamos que dejaba sin inicializar el color de casi todos sus vértices y que su
+arreglo de índices rebasaba el tamaño del arreglo de vértices, por lo que se
+reescribió como un abanico de triángulos con un único vértice central.
+\end{abstract}
+
+\renewcommand{\abstractname}{Abstract}
+\begin{abstract}
+This laboratory session deals with geometric modelling, that is, the
+construction of three-dimensional objects out of simpler primitives. The first
+three primitives requested by the manual were implemented in OpenGL 3.3: a
+plane parallel to the $XY$ plane measuring $2\times2$ units, a cube measuring
+$2\times2\times2$ units and a circle of unit radius, all three centred at the
+origin of the reference system and described by vertex and index lists that
+the \texttt{Mesh} class uploads to the graphics processing unit. Each figure
+can be observed from two different viewpoints, bound to the \texttt{F1} and
+\texttt{F2} keys, and can be switched between filled and wireframe rendering
+in order to expose the triangulation it was built from. The work made clear
+that a geometric primitive is not drawn directly: it is first decomposed into
+graphic primitives, triangles in this case, and both the vertex count and the
+final appearance depend on how that decomposition is chosen. When running the
+\texttt{Circle} class supplied with the base project we found that it left the colour of nearly all its vertices uninitialised and
+that its index array exceeded the size of the vertex array, so it was rewritten as a triangle fan with a single
+central vertex.
+\end{abstract}
