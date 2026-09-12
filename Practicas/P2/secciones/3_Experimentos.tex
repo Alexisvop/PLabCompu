@@ -124,6 +124,28 @@ un radio en lugar de coordenadas cartesianas.
 \end{figure}
 
 \subsection{Actividad 6: Implementación de las flechas del teclado con respecto al eje Z}
+
+Para el experimento, primero probamos mover la casa dejando el valor de avance en $0.01\text{f}$ como venía en el código original. Al presionar las flechas arriba y abajo la figura sí se movía sobre el eje $Z$, pero iba bastante lento; teníamos que dejar la tecla aplastada mucho tiempo para notar que se alejaba o se acercaba. Además, si la mirábamos de frente casi no se notaba la profundidad, solo parecía como si la casa se hiciera chiquita o grandota.
+
+Como variación, decidimos subirle el número del incremento a $0.05\text{f}$ para que el movimiento fuera más rápido y no tan pesado de probar. También cambiamos la cámara a la vista en diagonal usando la tecla F1, porque desde esa esquina inclinada sí se alcanza a ver claramente todo el recorrido de la casa en tres dimensiones hacia adelante y hacia atrás.
+
+Al correr el programa con estos cambios, la figura respondió mucho mejor y fue mucho más fácil de controlar. La casa se desplazó de forma pareja por toda la pantalla sin trabarse ni perder su forma, con lo que pudimos comprobar que la traslación sobre el eje $Z$ funciona perfectamente bien.
+
+\begin{lstlisting}[language=C++, caption={Variación de la velocidad de desplazamiento en el eje Z (keyboardCallback)}]
+// Variación Actividad 6: Incremento ajustado a 0.05f para mayor fluidez
+float stepZ = 0.05f;
+
+// Flecha Arriba: avanzar en +Z
+if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+    modelPosition.Position.z += stepZ;
+}
+
+// Flecha Abajo: retroceder en -Z
+if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+    modelPosition.Position.z -= stepZ;
+}
+\end{lstlisting}
+
 La primera prueba la hicimos desde la vista frontal, que es la que teníamos
 activa mientras programábamos, y estuvo a punto de hacernos pensar que la
 traslación no funcionaba: la casa no se movía de lugar, únicamente cambiaba de

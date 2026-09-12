@@ -138,6 +138,20 @@ Las teclas W y S modifican el radio en lugar del ángulo. Con W la cámara se ap
 \end{figure}
 
 \subsection{Actividad 6: Implementación de las flechas del teclado con respecto al eje Z}
+
+Al compilar y correr el programa, la figura de la casa apareció en su posición inicial en el centro. Para apreciar con claridad el movimiento en tres dimensiones. Al mantener presionada la tecla de la flecha arriba ($\blacktriangle$), la coordenada $Z$ del modelo empezó a aumentar de forma continua, logrando que la casa avanzara hacia el frente y se acercara a la pantalla. Por el contrario, al presionar la flecha abajo ($\blacktriangledown$), el valor de $Z$ disminuyó progresivamente, haciendo que la casa retrocediera hacia el fondo del escenario y se observara cada vez más lejana y pequeña.
+
+El desplazamiento se observó fluido y sin deformaciones en la figura. Como la transformación se aplica directamente sobre la matriz de modelo en la tarjeta gráfica, la casa conservó intactas sus dimensiones y sus proporciones originales en todo momento. En las capturas obtenidas se pueden apreciar la ejecución: del lado izquierdo cuando la casa se encuentra cerca tras avanzar sobre el eje $+Z$, y del lado derecho cuando se encuentra lejos al retroceder sobre el eje $-Z$.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.48\textwidth]{Imagenes/E6/act6_cerca.png}
+    \includegraphics[width=0.48\textwidth]{Imagenes/E6/act6_lejos.png}
+    \caption{Giro de la cámara con las teclas D (izquierda) y A (derecha).}
+    \label{fig:actividad5-giro}
+\end{figure}
+
 En la versión final las flechas arriba y abajo desplazan la casa sobre el eje
 $Z$ en incrementos de $0.01$ unidades por cuadro, dejando intactas la matriz de
 vista y la de proyección. La Figura \ref{fig:resultado-traslacion} muestra el
