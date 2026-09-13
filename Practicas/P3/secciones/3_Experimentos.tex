@@ -185,3 +185,41 @@ comparten el vértice del centro.
     \caption{El círculo en modo de alambre: los 72 triángulos del abanico convergen en el único vértice del centro.}
     \label{fig:actividad3-alambre}
 \end{figure}
+
+\subsection{Actividad 4}
+
+
+\subsection{Actividad 5. Esfera centrada en el origen}
+Con la triangulación ya implementada, el primer experimento reveló el mismo
+patrón de color que ya habíamos documentado en la Actividad 3: al dejar el
+esquema de color original de la clase, sólo los tres meridianos en
+$\theta = 0^\circ$, $120^\circ$ y $240^\circ$ se veían coloreados, y el resto
+de la superficie aparecía en negro, con la triangulación ya correcta pero
+invisible al no recibir color propio. La Figura
+\ref{fig:actividad5-colorbase} lo muestra en las dos vistas.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Imagenes/E5/Esfera_ColorBase_Frontal.png}
+    \includegraphics[width=0.45\textwidth]{Imagenes/E5/Esfera_ColorBase_Oblicua.png}
+    \caption{Esfera ya triangulada pero con el esquema de color original de la clase: sólo tres meridianos reciben color y el resto de los 2592 vértices quedan sin inicializar. Vista frontal con \texttt{F1} (izquierda) y oblicua con \texttt{F2} (derecha).}
+    \label{fig:actividad5-colorbase}
+\end{figure}
+
+Con el color corregido mediante el mapeo de la posición normalizada, repetimos
+las pruebas de siempre. Con \texttt{F1} y \texttt{F2} se confirmó que la
+esfera se ve igual de redonda desde cualquier ángulo, a diferencia del plano y
+el círculo, cuya silueta sí cambiaba entre una vista y otra; esto tiene
+sentido porque la silueta de una esfera es un círculo sin importar la
+dirección desde la que se observe. La Figura \ref{fig:actividad5-vistas}
+muestra las dos vistas con el degradado ya continuo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Imagenes/E5/Esfera_Frontal.png}
+    \includegraphics[width=0.45\textwidth]{Imagenes/E5/Esfera_Oblicua.png}
+    \caption{Las dos perspectivas de la esfera de radio unitario, ya con el color corregido: vista frontal con \texttt{F1} (izquierda) y vista oblicua con \texttt{F2} (derecha).}
+    \label{fig:actividad5-vistas}
+\end{figure}
+
+\subsection{Actividad 6}

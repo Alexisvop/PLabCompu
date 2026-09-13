@@ -424,3 +424,79 @@ private:
 Circle circle(1.0f, 72);
 meshCircle = new Mesh(circle.vertices, circle.indices);
 \end{lstlisting}
+
+\subsection{Actividad 4}
+
+
+\subsection{Actividad 5. Esfera centrada en el origen}
+La clase \texttt{Sphere} del proyecto base ya resuelve la mitad del problema:
+\texttt{buildVertices} recorre dos ángulos, la colatitud $\varphi$ y el
+azimut $\theta$, en incrementos de $5^\circ$, y para cada pareja evalúa
+\[
+    x = r\,\mathrm{sen}\,\varphi\cos\theta, \qquad
+    y = r\,\mathrm{sen}\,\varphi\,\mathrm{sen}\,\theta, \qquad
+    z = r\cos\varphi,
+\]
+con $\varphi \in [0^\circ, 175^\circ]$ y $\theta \in [0^\circ, 355^\circ]$, lo
+que produce una rejilla de $36 \times 72$ vértices, 2592 en total. Lo que el
+proyecto base deja vacío es \texttt{buildIndices}, es decir, el método que
+debía triangular esa rejilla.
+
+Como la rejilla que entrega \texttt{buildVertices} se guarda en un solo
+arreglo, recorriendo primero todos los valores de $\theta$ de una fila de
+$\varphi$ antes de pasar a la siguiente, el vértice de la fila $i$
+(el índice de $\varphi$) y columna $j$ (el índice de $\theta$) vive en la
+posición $i \cdot \mathit{slices} + j$, con $\mathit{slices}=72$. Con esa
+fórmula, cualquier celda de la rejilla, delimitada por dos filas y dos
+columnas consecutivas, queda definida por cuatro índices que se pueden
+calcular directamente sin recorrer nada. Cada celda se dividió en dos
+triángulos, como en el cubo y como se resume en la Figura
+\ref{fig:primitivas}, y la columna se cierra con el operador módulo para que
+la última, en $\theta=355^\circ$, se conecte con la primera, en
+$\theta=0^\circ$, sin dejar una costura abierta. El recorrido de filas se
+detiene en la penúltima, porque no existe una fila 36 con la que emparejarla.
+En el Código \ref{lst:codigo-esfera} se muestra el método completo.
+
+\begin{lstlisting}[language=C, caption={Triangulacion de la rejilla de la esfera por celdas}, label=lst:codigo-esfera]
+void buildIndices() {
+    int stacks = 180 / 5; // filas de la rejilla (segun phi): 36
+    int slices = 360 / 5; // columnas de la rejilla (segun theta): 72
+
+    for (int i = 0; i < stacks - 1; i++) {
+        for (int j = 0; j < slices; j++) {
+            int actual         = i * slices + j;
+            int siguiente      = i * slices + (j + 1) % slices;
+            int abajo          = (i + 1) * slices + j;
+            int abajoSiguiente = (i + 1) * slices + (j + 1) % slices;
+
+            indices.push_back(actual);     indices.push_back(siguiente);
+            indices.push_back(abajo);
+            indices.push_back(siguiente);  indices.push_back(abajoSiguiente);
+            indices.push_back(abajo);
+        }
+    }
+}
+\end{lstlisting}
+
+El segundo ajuste fue de color. Igual que en el círculo original, la clase
+sólo pinta los vértices cuyo $\theta$ vale $0^\circ$, $120^\circ$ o
+$240^\circ$ y deja el resto sin inicializar; a diferencia del círculo, aquí la
+condición no depende de $\varphi$, así que son 108 de los 2592 vértices
+(los tres meridianos completos) los que reciben color, y el resto queda
+indeterminado. En vez de repetir la interpolación por anclas que se usó en el
+círculo, se optó por un esquema más simple y habitual en gráficos por
+computadora para depurar geometría esférica: colorear cada vértice según su
+propia posición normalizada, es decir, tratar la dirección
+$(x,y,z)/r$ como si fuera directamente un color $(r,g,b)$, remapeando cada
+componente de $[-1,1]$ a $[0,1]$:
+\[
+    \mathit{Color.r} = 0.5 + 0.5\,\frac{x}{r}, \quad
+    \mathit{Color.g} = 0.5 + 0.5\,\frac{y}{r}, \quad
+    \mathit{Color.b} = 0.5 + 0.5\,\frac{z}{r}.
+\]
+Con esto los 2592 vértices quedan con un color definido y, como puntos
+cercanos en la esfera tienen posiciones normalizadas cercanas, la
+interpolación entre vértices vecinos produce una transición continua en toda
+la superficie.
+
+\subsection{Actividad 6}

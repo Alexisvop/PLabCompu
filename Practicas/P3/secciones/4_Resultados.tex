@@ -161,3 +161,41 @@ del arreglo. Un método más sólido incluiría comprobaciones automáticas sobr
 arreglos generados, por ejemplo verificar que todos los índices caigan dentro
 del rango válido y que ningún triángulo tenga dos vértices repetidos, antes de
 enviar la malla a la unidad de procesamiento gráfico.
+
+\subsection{Actividad 4}
+
+
+\subsection{Actividad 5. Esfera centrada en el origen}
+La versión final se construye con \texttt{Sphere(1.0f)}, que genera 2592
+vértices y, con la triangulación implementada, 5040 triángulos (35 filas de
+celdas por 72 columnas, dos triángulos por celda). La Figura \ref{fig:resultado-esfera}
+muestra el resultado final en las dos vistas.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Imagenes/E5/Esfera_Frontal.png}
+    \includegraphics[width=0.45\textwidth]{Imagenes/E5/Esfera_Oblicua.png}
+    \caption{Resultado final de la Actividad 5: la esfera de radio unitario centrada en el origen, con el color asignado según la posición normalizada de cada vértice, vista de frente con \texttt{F1} (izquierda) y desde un ángulo oblicuo con \texttt{F2} (derecha).}
+    \label{fig:resultado-esfera}
+\end{figure}
+
+La ventaja principal de resolver \texttt{buildIndices} por celdas de la
+rejilla, en lugar de caso por caso como en el cubo, es que el mismo esquema
+--dos filas consecutivas, dos columnas consecutivas, dos triángulos, cerrar
+la columna con el operador módulo-- no depende de que la figura sea
+específicamente una esfera: cualquier superficie generada por revolución
+sobre una rejilla de $\varphi$ y $\theta$ se triangula igual, así que este
+mismo código es, en esencia, el que se reutilizará en el cilindro y en el
+cono de las actividades 4 y 6, cambiando únicamente la fórmula con la que se
+calcula la posición de cada vértice. El color por posición normalizada
+también resultó más barato que la interpolación por anclas del círculo,
+porque no exige guardar un arreglo de colores de referencia ni calcular en
+qué sector cae cada ángulo.
+
+Como desventaja, los ángulos de paso quedaron fijos en $5^\circ$ dentro del
+propio método, y no como parámetro del constructor; siguiendo el mismo
+criterio que se aplicó al reescribir el círculo, sería preferible exponer el
+número de anillos y de columnas como argumentos, de modo que la resolución de
+la esfera pueda ajustarse sin recompilar.
+
+\subsection{Actividad 6}
