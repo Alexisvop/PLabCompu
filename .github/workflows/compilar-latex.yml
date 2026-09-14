@@ -1,0 +1,22 @@
+name: Compilar Reporte LaTeX
+
+# Se ejecuta cada vez que alguien hace un Pull Request hacia main
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Verificacion de Compilacion PDF
+    steps:
+      - name: Descargar el código del repositorio
+        uses: actions/checkout@v4
+
+      - name: Compilar documento principal
+        uses: xu-cheng/latex-action@v3
+        with:
+          # Sustituye esto por el nombre real de tu archivo principal (ej. reporte.tex)
+          root_file: main.tex 
+          # Estas banderas obligan a que el proceso falle si hay un error de sintaxis
+          args: -pdf -file-line-error -halt-on-error -interaction=nonstopmode
