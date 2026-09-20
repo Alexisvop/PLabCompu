@@ -1,10 +1,10 @@
 % En esta seccion se presentan los resultados finales de los experimentos (versión final) mediante figuras y capturas de pantalla debidamente tituladas y referenciadas en el cuerpo del reporte. Analiza las ventajas y desventajas de la metodología aplicada.
+
 \section{Resultados}
 
 En la Tabla \ref{tab:resumen} se reúnen las tres primitivas de esta entrega con
 las medidas que pide el manual, la llamada con la que se construyen y el costo
-que tiene cada una en vértices y en triángulos. Los tres objetos quedan
-centrados en el origen y se seleccionan en tiempo de ejecución con las teclas
+que tiene cada una en vértices y en triángulos. Los tres objetos quedan centrados en el origen y se seleccionan en tiempo de ejecución con las teclas
 \texttt{1}, \texttt{2} y \texttt{3}.
 
 \begin{table}[H]
@@ -198,4 +198,31 @@ criterio que se aplicó al reescribir el círculo, sería preferible exponer el
 número de anillos y de columnas como argumentos, de modo que la resolución de
 la esfera pueda ajustarse sin recompilar.
 
-\subsection{Actividad 6}
+\subsection{Actividad 6: Cono centrado en el origen}
+
+Para el resultado final, creamos el cono usando la instrucción \texttt{Cone(1.0f, 2.0f, 72)}, logrando que mida 1 unidad de radio y 2 unidades de alto, quedando justo en medio del origen de coordenadas. En total se usaron 74 puntos (la punta de arriba, 72 puntos alrededor de la orilla y uno más en el centro del círculo de abajo) y 144 triángulos (72 para el cuerpo inclinado y 72 para tapar la base). En la Figura~\ref{fig:resultado_cono} se pueden ver las dos tomas.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Imagenes/E6/act6_f1.png}
+        \vspace{1mm}
+        {\footnotesize (a) Vista de frente (F1).}
+    \end{minipage}\hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Imagenes/E6/act6_f2.png}
+        \vspace{1mm}
+        {\footnotesize (b) Vista en diagonal (F2).}
+    \end{minipage}
+    \vspace{2mm}
+    \caption{Resultado final de la Actividad 6: cono de radio 1 y altura 2 centrado en el origen, visto de frente (izquierda) y de lado (derecha).}
+    \label{fig:resultado_cono}
+\end{figure}
+
+Al poner la vista de frente con la tecla F1 (Figura~\ref{fig:resultado_cono}a), el cono se ve derechito como un triángulo plano que mide una unidad hacia arriba y una hacia abajo del centro. Cuando cambiamos a la vista en diagonal con F2 (Figura~\ref{fig:resultado_cono}b), ya se nota redondito en 3D y se comprueba que no quedó hueco de abajo.
+
+La ventaja principal de esta forma de trabajar fue que dejamos la figura bien programada desde cero: en vez de dejar valores fijos, le dejamos variables para el radio, la altura y los lados, así que si quisiéramos cambiarle el tamaño a futuro se hace muy fácil. También evitamos que la computadora guardara la punta 72 veces en el mismo lugar, ahorrando memoria y quitando triángulos encimados que no servían de nada. 
+
+Como desventaja, el número de lados se queda fijo en el código; si acercáramos mucho la cámara, la orilla redonda empezaría a verse recta como un polígono y haría falta aumentarle las divisiones. Además, todavía no le calculamos normales a las caras, lo cual ahorita se ve bien con los colores básicos, pero hará falta agregárselo más adelante cuando nos toque poner luces y sombras en la escena.
