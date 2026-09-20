@@ -16,7 +16,6 @@ jobs:
       - name: Compilar documento principal
         uses: xu-cheng/latex-action@v3
         with:
-          # Sustituye esto por el nombre real de tu archivo principal (ej. reporte.tex)
-          root_file: main.tex 
-          # Estas banderas obligan a que el proceso falle si hay un error de sintaxis
+          root_file: main.tex
+          working_directory: Practicas/P3
           args: -pdf -file-line-error -halt-on-error -interaction=nonstopmode
