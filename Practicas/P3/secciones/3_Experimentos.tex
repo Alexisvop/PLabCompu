@@ -186,7 +186,7 @@ comparten el vértice del centro.
     \label{fig:actividad3-alambre}
 \end{figure}
 
-\subsection{Actividad 4}
+\subsection{Actividad 4: Cilindro centrado en el origen}
 
 
 \subsection{Actividad 5. Esfera centrada en el origen}
@@ -222,4 +222,42 @@ muestra las dos vistas con el degradado ya continuo.
     \label{fig:actividad5-vistas}
 \end{figure}
 
-\subsection{Actividad 6}
+\subsection{Actividad 6: Cono centrado en el origen}
+
+Para esta actividad, primero corrimos la clase del cono tal como venía en la plantilla que nos dieron. Nos pasó exactamente lo mismo que con el círculo: casi toda la figura se veía de color negro y sólo tenía tres líneas de color en $0^\circ$, $120^\circ$ y $240^\circ$. Al revisar el código vimos que a los demás puntos no se les había puesto color, así que la computadora no sabía de qué tono pintarlos. Además, al girar la cámara por debajo, la figura estaba completamente hueca porque le faltaba la tapa de abajo.
+
+También revisamos los números del código y notamos que repetía la punta del cono 72 veces en el mismo lugar, gastando memoria y armando triángulos encimados que ni se veían. Por eso arreglamos la clase para ponerle un solo punto en la punta, cerrar la base redonda con su propia tapa y repartir bien los colores cian, magenta y azul.
+
+Con la figura ya corregida, probamos las diferentes vistas del programa, las cuales se muestran en la Figura~\ref{fig:experimento_cono}:
+\begin{enumerate}
+    \item Con la tecla F1 pusimos la vista de frente. Como la cámara queda derecha, el cono se ve perfectamente como un triángulo plano.
+    \item Con la tecla F2 pasamos a la vista de lado en diagonal. Aquí sí se nota el volumen en 3D y se comprueba que el cono está justo en medio del origen, ya que las líneas de los ejes le pasan por el centro.
+    \item Con la tecla L activamos el modo de alambre. Así pudimos comprobar que todos los triángulos suben parejitos hacia la punta y que el círculo de la base quedó bien cerrado sin huecos.
+\end{enumerate}
+
+\begin{figure}[htbp]
+    \centering
+    \begin{minipage}{0.31\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Imagenes/E6/act6_f1.png}
+        \vspace{1mm}
+        {\footnotesize (a) Vista frontal (F1).}
+    \end{minipage}\hfill
+    \begin{minipage}{0.31\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Imagenes/E6/act6_f2.png}
+        \vspace{1mm}
+        {\footnotesize (b) Vista oblicua (F2).}
+    \end{minipage}\hfill
+    \begin{minipage}{0.31\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Imagenes/E6/act6_alambre.png}
+        \vspace{1mm}
+        {\footnotesize (c) Modo alambre (L).}
+    \end{minipage}
+    \vspace{2mm}
+    \caption{Pruebas de visualización del cono de radio 1 y altura 2 centrado en el origen.}
+    \label{fig:experimento_cono}
+\end{figure}
+
+\subsection{Actividad 7: Escena con OpenGL}

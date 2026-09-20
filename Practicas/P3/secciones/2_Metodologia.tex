@@ -425,7 +425,7 @@ Circle circle(1.0f, 72);
 meshCircle = new Mesh(circle.vertices, circle.indices);
 \end{lstlisting}
 
-\subsection{Actividad 4}
+\subsection{Actividad 4: Cilindro centrado en el origen}
 
 
 \subsection{Actividad 5. Esfera centrada en el origen}
@@ -499,4 +499,112 @@ cercanos en la esfera tienen posiciones normalizadas cercanas, la
 interpolación entre vértices vecinos produce una transición continua en toda
 la superficie.
 
-\subsection{Actividad 6}
+\subsection{Actividad 6: Cono centrado en el origen}
+
+Para esta actividad se construyó un cono de radio unitario ($r = 1.0$) y altura de dos unidades ($h = 2.0$), centrado en el origen del sistema de referencia. Al igual que en las primitivas anteriores, el cono no se dibuja como una superficie continua, sino que se descompone en un conjunto de triángulos procesados por la clase Mesh. Su geometría se resolvió mediante dos abanicos triangulares.
+
+Al revisar la clase \texttt{Cone} que venía en el proyecto base (\texttt{include/Cone.h}), encontramos inconsistencias estructurales:
+\begin{enumerate}
+    \item \textbf{Duplicación de vértices:} En \texttt{buildVertices} se recorre nuevamente la variable angular para colocar repetidamente el vértice del ápice en $(0, 0, \text{size})$, generando $n$ copias idénticas en lugar de un único punto compartido.
+    \item \textbf{Color no inicializado:} Únicamente se asigna color a los pasos angulares correspondientes a $0^\circ$, $120^\circ$ y $240^\circ$, dejando el resto de los vértices con memoria residual no inicializada.
+    \item \textbf{Triángulos degenerados y falta de base:} El método \texttt{buildIndices} original genera caras sin área y omite la construcción de la base circular.
+\end{enumerate}
+
+Por estas razones, volvimos a escribir la clase desde cero. Le pusimos como datos ajustables el radio de la base, la altura total y el número de lados del círculo, dejándolo en 72 para dar un paso de cinco grados en cada vuelta, igual que en las figuras anteriores.
+
+Los puntos de la figura se programaron dentro de \texttt{buildVertices}. Como el cono debe medir 2 unidades de alto y quedar a la mitad del origen, dividimos la altura entre dos ($2.0 / 2.0 = 1.0$). Así, pusimos la punta de arriba (el ápice) en $z = 1.0$ y la base redonda en $z = -1.0$. La orilla de la base se formó girando en círculo con las funciones de seno y coseno:
+\begin{equation}
+    x = r \cos\theta, \quad y = r \sin\theta, \quad z = -1.0
+\end{equation}
+lo que nos da los 72 puntos de la orilla. Después, agregamos un punto más en el centro de la base $(0, 0, -1.0)$ para poder taparlo por abajo. Para que no quedaran partes en negro o con fallas, pintamos el contorno combinando suavemente los colores cian, magenta y azul.
+
+Para armar los triángulos en \texttt{buildIndices}, se hicieron dos recorridos que forman 144 caras en total:
+\begin{itemize}
+    \item \textbf{Cuerpo del cono:} Se conectó la punta de arriba con cada parejita de puntos vecinos de la orilla, formando una especie de rebanadas que cierran los lados.
+    \item \textbf{Tapa de abajo:} Se unió el punto del centro de la base con esos mismos puntos de la orilla para que el cono no quedara hueco por debajo.
+\end{itemize}
+
+En el Código~\ref{lst:cone_class} se presenta la implementación completa de la clase cone.h.
+
+\begin{lstlisting}[language=C++, caption={Clase Cone reescrita con centrado paramétrico y base cerrada}, label={lst:cone_class}]
+class Cone {
+public:
+    Cone(float radius = 1.0f, float height = 2.0f, int slices = 72) {
+        if (slices < 3) slices = 3;
+        this->slices = slices;
+        buildVertices(radius, height);
+        buildIndices();
+    }
+
+    vector<Vertex>       vertices;
+    vector<unsigned int> indices;
+
+private:
+    int slices;
+
+    vec4 colorContorno(float grados) {
+        const vec3 anclas[3] = {
+            vec3(0.0f, 1.0f, 1.0f), // 0 grados: cian
+            vec3(1.0f, 0.0f, 1.0f), // 120 grados: magenta
+            vec3(0.0f, 0.0f, 1.0f)  // 240 grados: azul
+        };
+        float t = grados / 120.0f;
+        int i = (int)t % 3;
+        float f = t - (float)((int)t);
+        vec3 c = anclas[i] * (1.0f - f) + anclas[(i + 1) % 3] * f;
+        return vec4(c, 1.0f);
+    }
+
+    void buildVertices(float radius, float height) {
+        Vertex v;
+        float halfH = height / 2.0f;
+
+        // Vertice 0: apice superior
+        v.Position = vec3(0.0f, 0.0f, halfH);
+        v.Color = vec4(0.2f, 0.2f, 0.8f, 1.0f);
+        vertices.push_back(v);
+
+        // Vertices 1..slices: perimetro de la base
+        float paso = 360.0f / (float)slices;
+        for (int i = 0; i < slices; i++) {
+            float rad = radians(paso * (float)i);
+            v.Position = vec3(radius * cos(rad), radius * sin(rad), -halfH);
+            v.Color = colorContorno(paso * (float)i);
+            vertices.push_back(v);
+        }
+
+        // Vertice slices + 1: centro de la base circular
+        v.Position = vec3(0.0f, 0.0f, -halfH);
+        v.Color = vec4(0.1f, 0.1f, 0.2f, 1.0f);
+        vertices.push_back(v);
+    }
+
+    void buildIndices() {
+        unsigned int apex = 0;
+        unsigned int centerBase = slices + 1;
+
+        for (int i = 0; i < slices; i++) {
+            unsigned int actual = 1 + i;
+            unsigned int siguiente = 1 + ((i + 1) % slices);
+
+            // Triangulos del manto lateral
+            indices.push_back(apex);
+            indices.push_back(actual);
+            indices.push_back(siguiente);
+
+            // Triangulos de la tapa inferior
+            indices.push_back(centerBase);
+            indices.push_back(siguiente);
+            indices.push_back(actual);
+        }
+    }
+};
+
+// Cono de radio 1 y altura 2 centrado en el origen (72 lados)
+Cone cone(1.0f, 2.0f, 72);
+meshCone = new Mesh(cone.vertices, cone.indices);
+\end{lstlisting}
+
+En el ciclo principal dentro de \texttt{Update()}, la geometría se integró al \textit{switch} de selección en la tecla 6 mediante la función unificada \texttt{dibujarMalla()}. Debido a que la parametrización matemática alinea el eje del cono con el eje coordenado $Z$, se incluyó una rotación de $-90^\circ$ sobre el eje $X$ en su matriz de modelo para orientar el ápice hacia el semieje $+Y$, posando la base de manera natural sobre el plano horizontal $XZ$[cite: 8, 9]. Finalmente, la alternancia con las teclas F1 y F2 permitió validar la perspectiva cónica, y la tecla L habilitó la inspección en modo alambre para corroborar que los 144 triángulos coincidieran con la estructura proyectada~\cite{khronos_poly}
+
+\subsection{Actividad 7: Escena con OpenGL}
