@@ -162,7 +162,32 @@ arreglos generados, por ejemplo verificar que todos los índices caigan dentro
 del rango válido y que ningún triángulo tenga dos vértices repetidos, antes de
 enviar la malla a la unidad de procesamiento gráfico.
 
-\subsection{Actividad 4}
+\subsection{Actividad 4: Cilindro centrado en el origen}
+
+La versión final del cilindro se instanció con los parámetros \texttt{Cylinder(1.0f, 2.0f, 72)}, logrando una geometría sólida, cerrada y centrada en el origen $(0,0,0)$. La estructura final quedó compuesta por un total de 146 vértices (72 por cada anillo perimétrico más 2 vértices centrales para las tapas) y 288 triángulos (144 para el cuerpo lateral y 72 en cada extremo plano). En la Figura~\ref{fig:resultado_cilindro} se aprecian las dos vistas finales.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Imagenes/E4/act4_f1.png}
+        \vspace{1mm}
+        \centerline{\footnotesize (a) Vista frontal con F1.}
+    \end{minipage}\hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Imagenes/E4/act4_f2.png}
+        \vspace{1mm}
+        \centerline{\footnotesize (b) Vista oblicua con F2.}
+    \end{minipage}
+    \vspace{2mm}
+    \caption{Resultado final de la Actividad 4: cilindro de radio 1 y altura 2 centrado en el origen, visto de frente (izquierda) y en perspectiva oblicua (derecha).}
+    \label{fig:resultado_cilindro}
+\end{figure}
+
+Al ver el cilindro de frente con la tecla F1 (Figura~\ref{fig:resultado_cilindro}a), se ve como un rectángulo de 2 unidades de ancho por 2 de alto, lo que confirma que quedó derecho y bien centrado en el origen porque los ejes pasan justo por en medio. Al cambiar a la vista en diagonal con F2 (Figura~\ref{fig:resultado_cilindro}b), se aprecia claramente su forma redonda y se comprueba que la tapa de arriba quedó bien cerrada.
+
+La ventaja de este método es que poner el cilindro a lo largo del eje Y y usar un solo punto en el centro para tapar las bases hace que la figura quede completa sin gastar memoria de más. Como limitación, dejar el círculo fijo en 72 lados hace que se vea bien y redondito a una distancia normal, pero si acercamos mucho la cámara se alcanzan a notar las líneas rectas de los triángulos.
 
 
 \subsection{Actividad 5. Esfera centrada en el origen}

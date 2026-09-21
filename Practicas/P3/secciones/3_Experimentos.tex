@@ -188,6 +188,35 @@ comparten el vértice del centro.
 
 \subsection{Actividad 4: Cilindro centrado en el origen}
 
+Para verificar el correcto modelado del cilindro, se realizaron pruebas de ejecución modificando las condiciones de la cámara y el modo de renderizado de OpenGL. Se configuraron las teclas de función F1 y F2 para alternar entre dos puntos de vista clave.
+
+El experimento se dividió en las siguientes fases:
+\begin{enumerate}
+    \item \textbf{Prueba de alineación y simetría (F1):} Se posicionó la cámara en $(0, 0, 5)$ con vista directa hacia el origen $(0, 0, 0)$. Esta perspectiva frontal permitió comprobar que el cuerpo del cilindro abarcase una unidad hacia arriba y una unidad hacia abajo sobre el eje vertical $Y$, y que sus costados coincidieran con $x = -1.0$ y $x = +1.0$.
+    \item \textbf{Prueba de volumen tridimensional y sellado (F2):} Se cambió la cámara a una vista oblicua en $(4.0, 3.5, 4.5)$. Mediante esta toma se verificó que la tapa superior e inferior estuvieran construidas correctamente, y que la interpolación continua de color eliminara las caras negras del código original.
+\end{enumerate}
+
+En la Figura~\ref{fig:experimento_cilindro} se ven las tres capturas obtenidas durante las pruebas.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Imagenes/E4/act4_f1.png}
+        \vspace{1mm}
+        \centerline{\footnotesize (a) Vista frontal (F1).}
+    \end{minipage}\hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Imagenes/E4/act4_f2.png}
+        \vspace{1mm}
+        \centerline{\footnotesize (b) Vista oblicua (F2).}
+    \end{minipage}
+    \vspace{2mm}
+    \caption{Pruebas experimentales del cilindro de radio 1 y altura 2 centrado en el origen.}
+    \label{fig:experimento_cilindro}
+\end{figure}
+
 
 \subsection{Actividad 5. Esfera centrada en el origen}
 Con la triangulación ya implementada, el primer experimento reveló el mismo
@@ -235,7 +264,7 @@ Con la figura ya corregida, probamos las diferentes vistas del programa, las cua
     \item Con la tecla L activamos el modo de alambre. Así pudimos comprobar que todos los triángulos suben parejitos hacia la punta y que el círculo de la base quedó bien cerrado sin huecos.
 \end{enumerate}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \begin{minipage}{0.31\textwidth}
         \centering

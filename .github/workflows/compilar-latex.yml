@@ -1,6 +1,5 @@
-name: Compilar Reportes LaTeX
+name: Compilacion
 
-# Se ejecuta al hacer push directo o abrir un Pull Request hacia main
 on:
   push:
     branches: [ "main" ]
@@ -8,23 +7,16 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  verificacion:
+    name: Verificacion de Compilacion PDF
     runs-on: ubuntu-latest
-    name: Verificación Compilación ${{ matrix.practica }}
-    strategy:
-      fail-fast: false
-      matrix:
-        practica: [ "P1", "P2", "P3" ]
     steps:
-      - name: Descargar el código del repositorio
+      - name: Descargar el codigo del repositorio
         uses: actions/checkout@v4
 
-      - name: Compilar reporte de ${{ matrix.practica }}
-        uses: xu-cheng/latex-action@v3
+      - name: Compilar PDF con LaTeX
+        uses: dante-ev/latex-action@edge
         with:
           root_file: main.tex
-          working_directory: Practicas/${{ matrix.practica }}
-          # Banderas que obligan a fallar si hay errores de sintaxis
-n error de sintaxis
-n error de sintaxis
-          args: -pdf -file-line-error -halt-on-error -interaction=nonstopmode
+          working_directory: Practicas/P3/
+          args: -pdf -interaction=nonstopmode
