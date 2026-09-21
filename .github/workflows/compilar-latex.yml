@@ -17,6 +17,5 @@ jobs:
       - name: Compilar PDF con LaTeX
         uses: dante-ev/latex-action@edge
         with:
-          root_file: reporte.tex
-          working_directory: Practicas/P3/
+          root_file: Practicas/P3/main.tex
           args: -pdf -interaction=nonstopmode
