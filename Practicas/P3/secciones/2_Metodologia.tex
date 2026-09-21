@@ -608,3 +608,175 @@ meshCone = new Mesh(cone.vertices, cone.indices);
 En el ciclo principal dentro de \texttt{Update()}, la geometría se integró al \textit{switch} de selección en la tecla 6 mediante la función unificada \texttt{dibujarMalla()}. Debido a que la parametrización matemática alinea el eje del cono con el eje coordenado $Z$, se incluyó una rotación de $-90^\circ$ sobre el eje $X$ en su matriz de modelo para orientar el ápice hacia el semieje $+Y$, posando la base de manera natural sobre el plano horizontal $XZ$[cite: 8, 9]. Finalmente, la alternancia con las teclas F1 y F2 permitió validar la perspectiva cónica, y la tecla L habilitó la inspección en modo alambre para corroborar que los 144 triángulos coincidieran con la estructura proyectada~\cite{khronos_poly}
 
 \subsection{Actividad 7: Escena con OpenGL}
+La escena se armó dentro de la función \texttt{Update} reutilizando las
+geometrías construidas en las actividades anteriores. Cada objeto se dibuja
+con su propia matriz de modelo, que en el código se forma aplicando
+\texttt{glm::translate}, \texttt{glm::rotate} y \texttt{glm::scale} en ese
+orden. Como GLM multiplica por la derecha, la matriz resultante es
+\[
+    M = T\,R\,S,
+\]
+por lo que sobre cada vértice se aplica primero el escalamiento, después la
+rotación y al final la traslación. Esto permitió escalar cada figura en sus
+propios ejes locales antes de orientarla y colocarla en la escena.
+
+El primer elemento fue la superficie. El plano se escaló por un factor de 5
+en sus tres ejes y se rotó $90^\circ$ respecto al eje $x$, con lo que pasó de
+estar paralelo al plano $XY$ a quedar acostado sobre el plano $XZ$, funcionando
+como el piso de la escena. No fue necesario trasladarlo, ya que se dejó
+centrado en el origen, como se muestra en el Código \ref{lst:plano-escena}.
+
+\begin{lstlisting}[language=C, caption={Matriz de modelo de la superficie}, label=lst:plano-escena]
+glm::mat4 model = glm::mat4(1.0f);
+model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
+myOtherShader->setMat4("model", model);
+
+meshPlane->Draw(*myOtherShader);
+\end{lstlisting}
+
+Después se colocaron los cilindros. La clase \texttt{Cylinder} construye la
+figura a lo largo del eje $z$, entre $z=-1$ y $z=1$, y el bloque de dibujo del
+código original ya incluía una rotación de $90^\circ$ respecto al eje $x$ que
+la deja de pie sobre el piso. Al cilindro grande se le redujo el largo
+escalándolo por 0.5 en el eje $z$ y se trasladó a $(1.25,\,0.5,\,-1.25)$; con
+la mitad de altura igual a 0.5 y el centro en $y=0.5$, su base queda justo
+sobre la superficie. Los cilindros que funcionan como troncos de los árboles
+se escalaron en los tres ejes con $(0.1,\,0.1,\,0.6)$, lo que los hizo
+delgados y alargados, y se trasladaron a $(-1,\,0.6,\,-1.25)$,
+$(-1,\,0.6,\,0.5)$, $(-2,\,0.6,\,0.5)$ y $(-1.5,\,0.6,\,2)$. En ellos no hizo
+falta modificar la rotación, ya que se conservó la misma de $90^\circ$ que
+traía el código original, y al estar centrados en $y=0.6$ con esa misma mitad
+de altura, los troncos quedan apoyados en el piso. En el Código
+\ref{lst:cilindros-escena} se muestran las transformaciones del cilindro
+grande y del primer tronco; los otros tres troncos sólo cambian en los
+valores de la traslación.
+
+\begin{lstlisting}[language=C, caption={Transformaciones del cilindro grande y del primer tronco}, label=lst:cilindros-escena]
+// Cilindro grande
+glm::mat4 model = glm::mat4(1.0f);
+model = glm::translate(model, glm::vec3(1.25f, 0.5f, -1.25f));
+model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+model = glm::scale(model, glm::vec3(1.0f, 1.0f, 0.5f));
+myOtherShader->setMat4("model", model);
+
+meshCylinder->Draw(*myOtherShader);
+
+// Troncos
+model = glm::mat4(1.0f);
+model = glm::translate(model, glm::vec3(-1.0f, 0.6f, -1.25f));
+model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.6f));
+myOtherShader->setMat4("model", model);
+
+meshTronco->Draw(*myOtherShader);
+\end{lstlisting}
+
+Posteriormente se agregaron las esferas, ya con la construcción de sus caras
+implementada en la Actividad 5. Las tres se escalaron uniformemente por 0.25
+en los tres ejes, lo que redujo su radio de 1 a 0.25, se rotaron $90^\circ$
+respecto al eje $x$ y se trasladaron a $(2,\,0.25,\,2)$,
+$(1.25,\,0.25,\,2)$ y $(0.5,\,0.25,\,2)$. De esta forma quedan alineadas y
+descansando sobre la superficie, pues su radio coincide con la altura de su
+centro. El Código \ref{lst:esferas-escena} muestra las transformaciones de la
+primera esfera.
+
+\begin{lstlisting}[language=C, caption={Transformaciones de la primera esfera}, label=lst:esferas-escena]
+glm::mat4 model = glm::mat4(1.0f);
+model = glm::translate(model, glm::vec3(2.0f, 0.25f, 2.0f));
+model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
+myOtherShader->setMat4("model", model);
+
+meshSphere->Draw(*myOtherShader);
+\end{lstlisting}
+
+Por último se colocaron los conos. Al cono grande se le aplicó un
+escalamiento de $(1.2,\,1.2,\,0.5)$, que lo ensancha un poco y lo recorta en
+el eje $z$, y se trasladó a $(1.25,\,1.5,\,-1.25)$, encima del cilindro
+grande, a manera de techo. Los conos pequeños, que funcionan como el follaje
+de los árboles, se escalaron por 0.5 en los tres ejes y se trasladaron a las
+mismas coordenadas $x$ y $z$ de cada tronco, con $y=1.7$, para que quedaran
+sobre ellos. En todos los conos no hizo falta modificar la rotación, ya que se
+conservó la de $-90^\circ$ respecto al eje $x$ que traía el código original y
+que deja la punta hacia arriba. En el Código \ref{lst:conos-escena} se
+muestran las transformaciones del cono grande y de las hojas del primer árbol.
+
+\begin{lstlisting}[language=C, caption={Transformaciones del cono grande y de las hojas del primer arbol}, label=lst:conos-escena]
+// Cono grande (techo)
+glm::mat4 model = glm::mat4(1.0f);
+model = glm::translate(model, glm::vec3(1.25f, 1.5f, -1.25f));
+model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+model = glm::scale(model, glm::vec3(1.2f, 1.2f, 0.5f));
+myOtherShader->setMat4("model", model);
+
+meshCone->Draw(*myOtherShader);
+
+// Arboles
+model = glm::mat4(1.0f);
+model = glm::translate(model, glm::vec3(-1.0f, 1.7f, -1.25f));
+model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+myOtherShader->setMat4("model", model);
+
+meshArbol->Draw(*myOtherShader);
+\end{lstlisting}
+
+Con la geometría ya colocada, el siguiente paso fue asignar un color distinto
+a cada tipo de objeto. En las clases del proyecto base el color se guarda en
+cada vértice y sólo se asigna a los que tienen $\theta$ igual a $0^\circ$,
+$120^\circ$ o $240^\circ$, así que todas las figuras del mismo tipo se veían
+iguales. Como el color forma parte de los datos que se envían al
+\textit{buffer} cuando se crea el objeto \texttt{Mesh}, no basta con dibujar
+la misma malla varias veces: cada color necesita su propia malla. Por ello,
+en la función \texttt{Start} se construyó una figura por cada color, se
+recorrieron todos sus vértices para asignarles el mismo valor RGB y hasta
+entonces se creó su \texttt{Mesh}, como se muestra en el Código
+\ref{lst:colores-escena} para el cilindro grande.
+
+\begin{lstlisting}[language=C, caption={Asignacion de color a todos los vertices del cilindro grande}, label=lst:colores-escena]
+Cylinder cylinder(1.0f);
+for (auto& v : cylinder.vertices) {
+    v.Color.r = 0.80f; v.Color.g = 0.40f; v.Color.b = 0.20f; v.Color.a = 1.0f;
+}
+meshCylinder = new Mesh(cylinder.vertices, cylinder.indices);
+\end{lstlisting}
+
+El mismo procedimiento se repitió con el resto de las figuras, agregando las
+variables globales \texttt{meshTronco}, \texttt{meshSphere2},
+\texttt{meshSphere3} y \texttt{meshArbol}, como se muestra en el Código
+\ref{lst:globales-escena}. En \texttt{Update} únicamente se cambió qué malla
+se dibuja en cada llamada a \texttt{Draw}, sin modificar ninguna
+transformación; por ejemplo, los troncos pasaron de dibujarse con
+\texttt{meshCylinder} a dibujarse con \texttt{meshTronco}, y las hojas de los
+árboles con \texttt{meshArbol} en lugar de \texttt{meshCone}.
+
+\begin{lstlisting}[language=C, caption={Declaracion de las mallas de la escena}, label=lst:globales-escena]
+Mesh      *mesh, *meshAxis, *meshPlane, *meshCircle, 
+          *meshCylinder, *meshTronco, *meshCube, *meshSphere,
+          *meshSphere2, *meshSphere3,
+          *meshCone, *meshArbol;
+\end{lstlisting}
+
+La superficie se dejó con sus colores originales. Los colores utilizados se
+resumen en la Tabla \ref{tab:colores-escena}.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{l l c}
+        \toprule
+        Objeto & Color & $(r,\,g,\,b)$ \\
+        \midrule
+        Cilindro grande & Naranja barro & $(0.80,\,0.40,\,0.20)$ \\
+        Troncos & Café claro & $(0.55,\,0.40,\,0.27)$ \\
+        Esfera 1 & Rojo & $(0.90,\,0.10,\,0.10)$ \\
+        Esfera 2 & Amarillo & $(1.00,\,0.85,\,0.10)$ \\
+        Esfera 3 & Morado & $(0.55,\,0.20,\,0.80)$ \\
+        Cono grande & Beige & $(0.96,\,0.87,\,0.70)$ \\
+        Conos pequeños & Verde claro & $(0.40,\,0.75,\,0.20)$ \\
+        \bottomrule
+    \end{tabular}
+    \caption{Colores asignados a cada objeto de la escena}
+    \label{tab:colores-escena}
+\end{table}

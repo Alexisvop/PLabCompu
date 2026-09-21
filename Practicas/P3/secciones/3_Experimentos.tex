@@ -261,3 +261,20 @@ Con la figura ya corregida, probamos las diferentes vistas del programa, las cua
 \end{figure}
 
 \subsection{Actividad 7: Escena con OpenGL}
+
+Para los experimentos se modificaron únicamente las transformaciones y los colores de algunos objetos de la escena, cambiando un solo objeto por cada tipo de transformación para poder compararlos contra el resultado original. Los cuatro cambios se aplicaron al mismo tiempo y se pueden ver en la Figura~\ref{fig:experimento_escena}.
+
+En el primer experimento se cambió el escalamiento de la esfera roja de $(0.25,\,0.25,\,0.25)$ a $(0.25,\,0.25,\,0.5)$ y su centro se subió de $y=0.25$ a $y=0.5$ para que siguiera apoyada en el piso. La esfera se convirtió en un óvalo alargado de forma vertical, aunque el escalamiento se hizo en el eje $z$. Esto pasa porque el escalamiento se aplica antes que la rotación de $90^\circ$ respecto al eje $x$, y esa rotación convierte el eje $z$ local de la esfera en el eje vertical de la escena, lo que confirma que el orden $T\,R\,S$ de las transformaciones sí afecta el resultado.
+
+En el segundo experimento se cambió la rotación del cono grande de $-90^\circ$ a $-60^\circ$ respecto al eje $x$. El techo dejó de estar derecho sobre la casa y quedó inclinado $30^\circ$, por lo que ahora se alcanza a ver parte de su base y ya no cubre de forma pareja al cilindro.
+
+En el tercer experimento se trasladó el tercer árbol de $x=-2$ a $x=2$, moviendo tanto el tronco como las hojas con los mismos valores en $x$ y $z$. El árbol quedó del lado derecho de la escena, frente a la casa, sin separarse. Esto se debe a que el tronco y las hojas son objetos independientes con su propia matriz de modelo, así que para mover el árbol completo fue necesario aplicar la misma traslación a los dos.
+
+Por último, en el cuarto experimento se cambiaron los colores de la casa: el cilindro pasó de naranja barro a azul grisáceo, con $(0.35,\,0.45,\,0.60)$, y el techo de beige a rojo teja, con $(0.70,\,0.15,\,0.10)$. El cambio se reflejó sin afectar al resto de los objetos, ya que cada uno tiene su propia malla con los colores asignados en sus vértices.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Imagenes/E7/Escena_ex1.png}
+    \caption{Escena con los cuatro experimentos aplicados: esfera roja escalada, techo rotado $-60^\circ$, tercer árbol trasladado a la derecha y nuevos colores de la casa, vista oblicua (F2).}
+    \label{fig:experimento_escena}
+\end{figure}
