@@ -1,4 +1,4 @@
-name: Verificacion de Compilacion PDF
+name: Compilacion
 
 on:
   push:
@@ -17,5 +17,6 @@ jobs:
       - name: Compilar PDF con LaTeX
         uses: dante-ev/latex-action@edge
         with:
-          root_file: Practicas/P3/main.tex
+          root_file: main.tex
+          working_directory: Practicas/P3/
           args: -pdf -interaction=nonstopmode
