@@ -427,6 +427,98 @@ meshCircle = new Mesh(circle.vertices, circle.indices);
 
 \subsection{Actividad 4: Cilindro centrado en el origen}
 
+Para esta actividad se construyó un cilindro tridimensional de radio unitario ($r = 1.0$) y altura de dos unidades ($h = 2.0$) centrado en el origen del sistema cartesiano. Al analizar la plantilla base del archivo \texttt{Cylinder.h}, se encontró que el cuerpo se dibujaba acostado a lo largo del eje $Z$, le faltaban las tapas circulares y la mayor parte de los vértices quedaban sin asignación de color.
+
+La metodología consistió en reescribir la clase utilizando parametrización de radio, altura y subdivisiones angulares:
+\begin{enumerate}
+    \item \textbf{Generación de anillos perimétricos:} Se generaron dos círculos de 72 vértices cada uno sobre planos paralelos al plano $XZ$: el anillo inferior ubicado en $y = -1.0$ y el superior en $y = +1.0$. Las coordenadas horizontales se obtuvieron mediante $x = r \cos(\theta)$ y $z = r \sin(\theta)$ con incrementos angulares regulares.
+    \item \textbf{Interpolación de color:} Se aplicó una función de mezcla de colores suave que recorre diferentes tonalidades de azul en función del ángulo $\theta$.
+    \item \textbf{Construcción del manto lateral:} Se conectaron los vértices de ambos anillos formando dos triángulos por cada sector angular, asegurando el orden horario y antihorario para la orientación de caras.
+    \item \textbf{Cierre de tapas:} Se agregaron dos vértices centrales adicionales: uno en $(0, +1.0, 0)$ para la tapa superior y otro en $(0, -1.0, 0)$ para la inferior. Cada tapa se construyó mediante un abanico de triángulos conectando el centro con cada segmento del perímetro.
+\end{enumerate}
+
+El código implementado en la clase \texttt{Cylinder.h} fue:
+
+\begin{lstlisting}[language=C++, caption={Construcción geométrica y tapas del cilindro en Cylinder.h.}]
+void buildGeometry(float radius, float height, int sectors) {
+    float halfH = height * 0.5f; // Rango de -1.0 a +1.0
+
+    // 1. Anillo inferior (y = -halfH)
+    for (int i = 0; i < sectors; ++i) {
+        float theta = glm::radians(i * (360.0f / (float)sectors));
+        Vertex v;
+        v.Position = glm::vec3(radius * cos(theta), -halfH, radius * sin(theta));
+        glm::vec3 col = interpolarColor((float)i / (float)sectors);
+        v.Color = glm::vec4(col * 0.85f, 1.0f);
+        vertices.push_back(v);
+    }
+
+    // 2. Anillo superior (y = +halfH)
+    for (int i = 0; i < sectors; ++i) {
+        float theta = glm::radians(i * (360.0f / (float)sectors));
+        Vertex v;
+        v.Position = glm::vec3(radius * cos(theta), halfH, radius * sin(theta));
+        glm::vec3 col = interpolarColor((float)i / (float)sectors);
+        v.Color = glm::vec4(col, 1.0f);
+        vertices.push_back(v);
+    }
+
+    // 3. Triangulacion del manto lateral
+    for (int i = 0; i < sectors; ++i) {
+        int next = (i + 1) % sectors;
+        int bot1 = i, bot2 = next;
+        int top1 = sectors + i, top2 = sectors + next;
+
+        indices.push_back(bot1); indices.push_back(top1); indices.push_back(bot2);
+        indices.push_back(top1); indices.push_back(top2); indices.push_back(bot2);
+    }
+
+    // 4. Tapa superior (centro en y = +halfH)
+    unsigned int centerTopIdx = vertices.size();
+    Vertex vTop;
+    vTop.Position = glm::vec3(0.0f, halfH, 0.0f);
+    vTop.Color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    vertices.push_back(vTop);
+
+    for (int i = 0; i < sectors; ++i) {
+        int next = (i + 1) % sectors;
+        indices.push_back(centerTopIdx);
+        indices.push_back(sectors + i);
+        indices.push_back(sectors + next);
+    }
+
+    // 5. Tapa inferior (centro en y = -halfH)
+    unsigned int centerBotIdx = vertices.size();
+    Vertex vBot;
+    vBot.Position = glm::vec3(0.0f, -halfH, 0.0f);
+    vBot.Color = glm::vec4(0.1f, 0.1f, 0.2f, 1.0f);
+    vertices.push_back(vBot);
+
+    for (int i = 0; i < sectors; ++i) {
+        int next = (i + 1) % sectors;
+        indices.push_back(centerBotIdx);
+        indices.push_back(next);
+        indices.push_back(i);
+    }
+}
+\end{lstlisting}
+
+En el archivo principal \texttt{03\_GeomModelling.cpp}, el objeto se instancia con las dimensiones pedidas y se dibuja aplicando una matriz de modelo unitaria en el origen:
+
+\begin{lstlisting}[language=C++, caption={Instanciación y dibujado del cilindro en 03\_GeomModelling.cpp.}]
+// Inicializacion en Start()
+Cylinder cylinder(1.0f, 2.0f, 72);
+meshCylinder = new Mesh(cylinder.vertices, cylinder.indices);
+
+// Renderizado en Update()
+glm::mat4 model = glm::mat4(1.0f);
+myShader->setMat4("model", model);
+
+glPolygonMode(GL_FRONT_AND_BACK, modoAlambre ? GL_LINE : GL_FILL);
+if (meshCylinder != nullptr) {
+    meshCylinder->Draw(*myShader);
+}
+\end{lstlisting}
 
 \subsection{Actividad 5. Esfera centrada en el origen}
 La clase \texttt{Sphere} del proyecto base ya resuelve la mitad del problema:
