@@ -251,3 +251,27 @@ Al poner la vista de frente con la tecla F1 (Figura~\ref{fig:resultado_cono}a), 
 La ventaja principal de esta forma de trabajar fue que dejamos la figura bien programada desde cero: en vez de dejar valores fijos, le dejamos variables para el radio, la altura y los lados, así que si quisiéramos cambiarle el tamaño a futuro se hace muy fácil. También evitamos que la computadora guardara la punta 72 veces en el mismo lugar, ahorrando memoria y quitando triángulos encimados que no servían de nada. 
 
 Como desventaja, el número de lados se queda fijo en el código; si acercáramos mucho la cámara, la orilla redonda empezaría a verse recta como un polígono y haría falta aumentarle las divisiones. Además, todavía no le calculamos normales a las caras, lo cual ahorita se ve bien con los colores básicos, pero hará falta agregárselo más adelante cuando nos toque poner luces y sombras en la escena.
+
+
+\subsection{Actividad 7: Escena con OpenGL}
+
+Como resultado se obtuvo una escena con todos los objetos apoyados sobre la superficie, que quedó de color verde con sus colores originales. Del lado derecho se formó una casa con el cilindro naranja barro como base y el cono beige como techo, del lado izquierdo quedaron los cuatro árboles formados por los troncos café claro y los conos verde claro, y al frente las tres esferas alineadas en rojo, amarillo y morado. En la vista oblicua se aprecia la distribución completa de la escena sobre el piso, mientras que en la vista frontal el plano no se alcanza a ver porque la cámara queda a la misma altura que él, y las esferas aparecen encimadas sobre la casa porque están más cerca de la cámara. En la Figura~\ref{fig:resultado_escena} se pueden ver las dos tomas.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Imagenes/E7/Escena_Frontal.png}
+        \vspace{1mm}
+        {\footnotesize (a) Vista de frente (F1).}
+    \end{minipage}\hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Imagenes/E7/Escena_oblicua.png}
+        \vspace{1mm}
+        {\footnotesize (b) Vista oblicua (F2).}
+    \end{minipage}
+    \vspace{2mm}
+    \caption{Resultado final de la Actividad 7: escena construida con el plano, cilindros, esferas y conos, vista de frente (izquierda) y en diagonal (derecha).}
+    \label{fig:resultado_escena}
+\end{figure}
