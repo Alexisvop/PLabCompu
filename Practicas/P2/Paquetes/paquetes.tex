@@ -23,8 +23,14 @@
 \usepackage{mathabx} % Para testar en math mode
 \usepackage{makecell}
 \usepackage{fancyhdr}
-\usepackage[backend=biber, style=apa]{biblatex}
-\addbibresource{Referencias/Ref.bib}
+% biblatex queda deshabilitado a propósito. La bibliografía de este reporte se
+% escribe a mano con el entorno thebibliography en secciones/6_Referencias.tex,
+% y si biblatex se carga toma el control de \cite: como no hay archivo .bbl
+% generado por biber, todas las citas del documento salen sin resolver.
+% Además, el estilo apa junto con babel-spanish rompe la compilación en las
+% versiones recientes de LaTeX con un error de hooks sobre \@makecaption.
+% \usepackage[backend=biber, style=apa]{biblatex}
+% \addbibresource{Referencias/Ref.bib}
 
 % ... código anterior ...
 \addto\captionsspanish{\renewcommand{\tablename}{Tabla}}
@@ -65,7 +71,11 @@
     showspaces=false,                
     showstringspaces=false,
     showtabs=false,                  
-    tabsize=2
+    tabsize=2,
+    literate=
+      {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+      {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+      {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {ü}{{\"u}}1 {Ü}{{\"U}}1
 }
 
 \lstset{style=mystyle}
