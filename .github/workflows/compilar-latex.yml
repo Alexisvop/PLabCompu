@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        practica: [ "P1", "P2", "P3" ]
+        practica: [ "P1", "P2", "P3", "P4" ]
 
     steps:
       - name: Descargar el código del repositorio
