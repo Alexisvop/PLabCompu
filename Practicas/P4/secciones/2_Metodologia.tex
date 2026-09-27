@@ -1,0 +1,74 @@
+% En esta seccion se presentan algoritmos, diagramas de flujo, diagramas de arquitecturas del programa, así como requerimientos de hardware y software. Presenta segmentos de código relevantes, figuras ilustrativas debidamente tituladas y referenciadas en el texto.
+
+\section{Metodología de la práctica}
+
+\subsection{Requerimientos de hardware y software}
+El desarrollo de esta práctica se llevó a cabo utilizando software especializado en modelado, rigging y animación tridimensional. En la Tabla \ref{tab:requerimientos} se detallan las especificaciones técnicas del entorno de trabajo empleado.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}p{4.2cm}p{11.0cm}@{}}
+\toprule
+\textbf{Elemento} & \textbf{Especificación empleada} \\
+\midrule
+Sistema operativo & Windows 11 (64 bits) / Linux \\
+Software principal 3D & Blender 4.x / 3.x (entorno integral de modelado, armaduras y animación) \\
+Motor de visualización & Motor de renderizado en tiempo real (EEVEE) y sombreado PBR \\
+Herramientas complementarias & Adobe Mixamo (rigging y animación web), MakeHuman y DAZ Studio \\
+Hardware & Equipo de cómputo con procesador multinúcleo y GPU compatible con OpenGL 3.3+ \\
+\bottomrule
+\end{tabular}
+\caption{Requerimientos de hardware y software utilizados en la práctica.}
+\label{tab:requerimientos}
+\end{table}
+
+\subsection{Fundamentos teóricos: estructuras jerárquicas y cinemática directa}
+En computación gráfica, una estructura jerárquica (o esqueleto de animación) se modela formalmente como una cadena cinemática o árbol acíclico dirigido, compuesto por un conjunto de cuerpos rígidos denominados \textit{huesos} conectados mediante \textit{articulaciones}. 
+
+Cada hueso $i$ posee su propio sistema de coordenadas local y una matriz de transformación relativa $M_{\text{local}}^{(i)}$ respecto a su nodo padre, definida comúnmente a partir de traslaciones, rotaciones y escalamientos locales:
+\begin{equation}
+    M_{\text{local}}^{(i)} = T(\mathbf{t}_i) \cdot R(\mathbf{r}_i) \cdot S(\mathbf{s}_i)
+\end{equation}
+
+Bajo el modelo de \textbf{Cinemática Directa} (\textit{Forward Kinematics}, FK), la posición y orientación global de una articulación hija no se calculan de manera aislada, sino a través de la multiplicación acumulativa de las transformaciones de toda su línea de ascendencia a partir del nodo raíz (\textit{Root}):
+\begin{equation}
+    M_{\text{global}}^{(i)} = M_{\text{global}}^{(\text{padre})} \cdot M_{\text{local}}^{(i)} = \prod_{k \in \text{ancestros}(i)} M_{\text{local}}^{(k)}
+\end{equation}
+
+Posteriormente, para transferir el movimiento del esqueleto a la superficie de la geometría, se emplea el algoritmo de deformación lineal por combinación de pesos (\textit{Linear Blend Skinning}, LBS). La posición final deformada de cualquier vértice $v'$ se obtiene como una combinación convexa de las transformaciones de los huesos que lo influyen:
+\begin{equation}
+    v' = \sum_{j=1}^{m} w_j \cdot M_{\text{global}}^{(j)} \cdot \left(B_j\right)^{-1} \cdot v
+\end{equation}
+donde $v$ es la posición original del vértice en pose de reposo, $B_j$ es la matriz de pose de reposo del hueso $j$ (\textit{Bind Pose Matrix}), $M_{\text{global}}^{(j)}$ es la matriz de transformación del hueso en la pose actual, y $w_j$ es el factor de peso asignado al vértice por el hueso $j$, sujeto a la restricción de partición de la unidad:
+\begin{equation}
+    \sum_{j=1}^{m} w_j = 1, \quad \text{con } w_j \ge 0
+\end{equation}
+
+\subsection{Actividad 1: Modelado de una pierna con articulaciones jerarquizadas en Blender}
+
+Para el desarrollo de esta primera actividad decidimos construir la pierna como una sola malla continua en lugar de ensamblar figuras rígidas independientes. La razón principal de esta decisión fue asegurar que la piel se deformara de forma natural y elástica en las articulaciones sin que se abrieran huecos o costuras visibles al momento de flexionar la extremidad.
+
+Comenzamos el trabajo en Modo Objeto agregando una primitiva cilíndrica básica (\texttt{Shift + A} $\to$ \textit{Mesh} $\to$ \textit{Cylinder}). A partir de ahí, en Modo Edición, fuimos extruyendo hacia abajo con la tecla \texttt{E} y ajustando el grosor con la escala (\texttt{S}) para reproducir los volúmenes anatómicos del cuerpo: el ensanchamiento muscular del cuádriceps en el muslo, el estrechamiento en torno a la rótula, y la curvatura posterior de los gemelos en la pantorrilla descendiendo hacia el tendón de Aquiles. Al llegar al tobillo, bifurcamos la extrusión hacia el frente para modelar el empeine, el arco plantar y las falanges de los dedos, mientras que hacia atrás extendimos la geometría para conformar el talón (calcáneo).
+
+Un criterio metodológico fundamental durante esta etapa fue el cuidado de la topología: cuidamos que toda la malla estuviera conformada exclusivamente por cuadriláteros (\textit{quads}) y agregamos cortes de bucle regulares (\texttt{Ctrl + R}) en la rodilla y el tobillo. Esta disposición de aristas perpendiculares a los ejes de flexión es indispensable para que la geometría retenga su volumen y no sufra pellizcos severos al doblarse. Para el acabado final aplicamos sombreado suave (\textit{Shade Smooth}), incorporamos un modificador de Subdivisión de Superficie (\textit{Subdivision Surface}) en nivel 2 con el algoritmo de Catmull-Clark para suavizar la silueta, y asignamos un material con el nodo \textit{Principled BSDF} activando dispersión subsuperficial (\textit{Subsurface Scattering}) para darle un aspecto orgánico a la piel.
+
+Con la malla lista, procedimos a diseñar el esqueleto creando una armadura básica (\texttt{Shift + A} $\to$ \textit{Armature} $\to$ \textit{Single Bone}). En Modo Edición colocamos el hueso raíz en la parte superior de la cadera (\texttt{1\_Cadera\_Pelvis}) y fuimos extruyendo consecutivamente cada segmento con la tecla \texttt{E} haciendo coincidir las uniones con los centros de rotación anatómicos: primero el fémur (\texttt{2\_Muslo\_Femur}), luego la espinilla (\texttt{3\_Espinilla\_Tibia}), el metatarso (\texttt{4\_Pie\_Metatarso}) y finalmente los dedos (\texttt{5\_Dedos\_Pie}). Para evitar que las piezas se desfasaran o se separaran al rotar, mantuvimos activa la opción \texttt{Connected}, de modo que la cabeza de cada hueso hijo quedó físicamente ligada a la cola de su hueso padre en una cadena continua:
+\begin{center}
+\texttt{1\_Cadera\_Pelvis} $\longrightarrow$ \texttt{2\_Muslo\_Femur} $\longrightarrow$ \texttt{3\_Espinilla\_Tibia} $\longrightarrow$ \texttt{4\_Pie\_Metatarso} $\longrightarrow$ \texttt{5\_Dedos\_Pie}
+\end{center}
+Además, activamos las casillas \textit{In Front} (Rayos X) y \textit{Names} en las propiedades de la armadura para poder monitorear la jerarquía y la orientación de los huesos a través de la malla en todo momento.
+
+En esta fase consideramos un detalle crucial para el comportamiento cinemático: si alineábamos el fémur y la espinilla en una línea recta vertical de $180^\circ$, el cálculo de rotación no tenía un eje de referencia claro y la rodilla tendía a flexionarse en direcciones impredecibles. Para resolver esto, en la vista lateral ortogonal (\textit{Numpad 3}) desplazamos la articulación de la rodilla ligeramente hacia adelante en el eje $+Y$, introduciendo una pre-flexión anatómica natural que obliga a la pierna a doblarse siempre hacia atrás.
+
+Para transferir el movimiento de los huesos a los vértices de la malla, en Modo Objeto seleccionamos la pierna y la armadura y aplicamos el emparentado automático mediante \texttt{Ctrl + P} $\to$ \textit{With Automatic Weights}. Este paso vincula el modificador \textit{Armature} y utiliza el algoritmo de difusión de calor de Blender (\textit{bone heat weighting}), el cual interpreta los huesos como fuentes térmicas que irradian influencia sobre el volumen cerrado de la pierna. Como habíamos planificado bucles de soporte limpios en las articulaciones, los pesos se distribuyeron con degradados suaves y normalizados ($\sum w_j = 1$), lo que comprobamos inspeccionando la rodilla en Modo Pintura de Pesos (\textit{Weight Paint}) sin necesidad de tener que pintar vértices a mano de forma pesada.
+
+Por último, entramos a Modo Pose (\texttt{Ctrl + Tab}) para evaluar la cadena cinemática mediante Cinemática Directa (FK), rotando cada hueso con la tecla \texttt{R}. Esta verificación nos permitió comprobar en la práctica el principio de propagación jerárquica: al mover la cadera se traslada toda la pierna, al girar el fémur se orienta la rodilla y el pie, y al rotar el pie solo se mueven las falanges, confirmando que la acumulación de transformaciones $M_{\text{global}} = M_{\text{padre}} \cdot M_{\text{local}}$ opera exactamente como lo marca la teoría.
+
+\subsection{Actividad 2: Animación y análisis de relaciones padre-hijo de un personaje de Adobe Mixamo en Blender}
+% [Pendiente de desarrollo]
+
+\subsection{Actividad 3: Diagrama de las relaciones padre-hijo de la estructura jerárquica desde el nodo raíz}
+% [Pendiente de desarrollo]
+
+\subsection{Actividad 4: Exploración de software para estructuras humanoides (MakeHuman y DAZ3D)}
+% [Pendiente de desarrollo]

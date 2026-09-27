@@ -1,0 +1,20 @@
+% En esta seccion se expresan sus conclusiones del trabajo realizado de manera concreta y coherente.
+
+\section{Conclusiones}
+
+\subsection{Basilio Illescas Andrés}
+% Conclusión individual del integrante...
+
+\subsection{Cruz Macedo Samuel Santiago}
+% Conclusión individual del integrante...
+
+\subsection{Medel Piña Ángel de Jesús}
+% Conclusión individual del integrante...
+
+\subsection{Pérez Olvera Alexis Abraham}
+Esta práctica representó un cambio de paradigma respecto a lo que veníamos trabajando en las entregas anteriores. En las primeras prácticas los objetos eran cuerpos rígidos que se transformaban en bloque mediante una única matriz de modelo; aquí, en cambio, el reto fue entender cómo una geometría continua y orgánica puede deformarse de manera creíble a partir de una estructura interna. Ver cómo la rotación se transmite en cascada desde la cadera hasta las falanges del pie me ayudó a aterrizar por fin la teoría de las estructuras jerárquicas: no hace falta recalcular la posición en el mundo de cada segmento, porque la propia multiplicación acumulada de matrices ($M_{\text{padre}} \cdot M_{\text{local}}$) se encarga de arrastrar a los nodos hijos de forma natural.
+
+El aspecto que más me llamó la atención fue descubrir que el éxito de una armadura no depende únicamente de cómo se coloquen los huesos, sino de la topología previa de la malla. Al inicio pensé que el algoritmo de pesos automáticos resolvería cualquier geometría, pero al probar las primeras flexiones quedó claro que sin bucles de soporte limpios en las zonas de articulación (como la rótula y el pliegue poplíteo), la malla simplemente colapsa y pierde volumen. Igualmente ilustrativo fue el detalle del eje de flexión en la rodilla: colocar los huesos en una línea vertical perfectamente recta parecía lo más intuitivo, pero matemáticamente creaba una ambigüedad que desorientaba la rotación; desplazar la articulación apenas unos milímetros hacia adelante en el eje $Y$ para darle una pre-flexión anatómica solucionó el problema de inmediato. En conclusión, me quedo con la lección de que en animación y modelado jerárquico la geometría, la cinemática y la anatomía tienen que estar pensadas en conjunto desde el primer trazo, ya que ningún rig puede compensar una mala distribución de polígonos.
+
+\subsection{Segura Cedeño Luisa María}
+% Conclusión individual del integrante...
