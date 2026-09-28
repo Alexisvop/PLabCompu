@@ -1,0 +1,544 @@
+{
+  "archivo": "remy_walking_rootmotion.fbx",
+  "armadura": "Armature",
+  "malla": "Body",
+  "vertices": 6995,
+  "grupos_de_vertices": 64,
+  "total_huesos": 67,
+  "nodo_raiz": "mixamorig:Hips",
+  "acciones": [
+    {
+      "nombre": "Armature|mixamo.com|Layer0",
+      "frame_inicial": 1,
+      "frame_final": 32
+    }
+  ],
+  "arbol": {
+    "nombre": "mixamorig:Hips",
+    "padre": null,
+    "conectado": false,
+    "longitud": 22.28796,
+    "hijos": [
+      {
+        "nombre": "mixamorig:Spine",
+        "padre": "mixamorig:Hips",
+        "conectado": false,
+        "longitud": 23.62008,
+        "hijos": [
+          {
+            "nombre": "mixamorig:Spine1",
+            "padre": "mixamorig:Spine",
+            "conectado": true,
+            "longitud": 27.83347,
+            "hijos": [
+              {
+                "nombre": "mixamorig:Spine2",
+                "padre": "mixamorig:Spine1",
+                "conectado": true,
+                "longitud": 25.82027,
+                "hijos": [
+                  {
+                    "nombre": "mixamorig:Neck",
+                    "padre": "mixamorig:Spine2",
+                    "conectado": false,
+                    "longitud": 23.18901,
+                    "hijos": [
+                      {
+                        "nombre": "mixamorig:Head",
+                        "padre": "mixamorig:Neck",
+                        "conectado": false,
+                        "longitud": 29.4483,
+                        "hijos": [
+                          {
+                            "nombre": "mixamorig:HeadTop_End",
+                            "padre": "mixamorig:Head",
+                            "conectado": false,
+                            "longitud": 29.44829,
+                            "hijos": []
+                          },
+                          {
+                            "nombre": "mixamorig:RightEye",
+                            "padre": "mixamorig:Head",
+                            "conectado": false,
+                            "longitud": 29.44829,
+                            "hijos": []
+                          },
+                          {
+                            "nombre": "mixamorig:LeftEye",
+                            "padre": "mixamorig:Head",
+                            "conectado": false,
+                            "longitud": 29.44829,
+                            "hijos": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "nombre": "mixamorig:LeftShoulder",
+                    "padre": "mixamorig:Spine2",
+                    "conectado": false,
+                    "longitud": 26.58329,
+                    "hijos": [
+                      {
+                        "nombre": "mixamorig:LeftArm",
+                        "padre": "mixamorig:LeftShoulder",
+                        "conectado": true,
+                        "longitud": 55.12769,
+                        "hijos": [
+                          {
+                            "nombre": "mixamorig:LeftForeArm",
+                            "padre": "mixamorig:LeftArm",
+                            "conectado": false,
+                            "longitud": 52.77337,
+                            "hijos": [
+                              {
+                                "nombre": "mixamorig:LeftHand",
+                                "padre": "mixamorig:LeftForeArm",
+                                "conectado": true,
+                                "longitud": 23.85178,
+                                "hijos": [
+                                  {
+                                    "nombre": "mixamorig:LeftHandMiddle1",
+                                    "padre": "mixamorig:LeftHand",
+                                    "conectado": false,
+                                    "longitud": 6.93161,
+                                    "hijos": [
+                                      {
+                                        "nombre": "mixamorig:LeftHandMiddle2",
+                                        "padre": "mixamorig:LeftHandMiddle1",
+                                        "conectado": true,
+                                        "longitud": 6.82363,
+                                        "hijos": [
+                                          {
+                                            "nombre": "mixamorig:LeftHandMiddle3",
+                                            "padre": "mixamorig:LeftHandMiddle2",
+                                            "conectado": false,
+                                            "longitud": 7.3927,
+                                            "hijos": [
+                                              {
+                                                "nombre": "mixamorig:LeftHandMiddle4",
+                                                "padre": "mixamorig:LeftHandMiddle3",
+                                                "conectado": false,
+                                                "longitud": 7.3927,
+                                                "hijos": []
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "nombre": "mixamorig:LeftHandThumb1",
+                                    "padre": "mixamorig:LeftHand",
+                                    "conectado": false,
+                                    "longitud": 11.22431,
+                                    "hijos": [
+                                      {
+                                        "nombre": "mixamorig:LeftHandThumb2",
+                                        "padre": "mixamorig:LeftHandThumb1",
+                                        "conectado": false,
+                                        "longitud": 8.95555,
+                                        "hijos": [
+                                          {
+                                            "nombre": "mixamorig:LeftHandThumb3",
+                                            "padre": "mixamorig:LeftHandThumb2",
+                                            "conectado": false,
+                                            "longitud": 5.7945,
+                                            "hijos": [
+                                              {
+                                                "nombre": "mixamorig:LeftHandThumb4",
+                                                "padre": "mixamorig:LeftHandThumb3",
+                                                "conectado": false,
+                                                "longitud": 5.7945,
+                                                "hijos": []
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "nombre": "mixamorig:LeftHandIndex1",
+                                    "padre": "mixamorig:LeftHand",
+                                    "conectado": false,
+                                    "longitud": 7.06287,
+                                    "hijos": [
+                                      {
+                                        "nombre": "mixamorig:LeftHandIndex2",
+                                        "padre": "mixamorig:LeftHandIndex1",
+                                        "conectado": false,
+                                        "longitud": 6.49527,
+                                        "hijos": [
+                                          {
+                                            "nombre": "mixamorig:LeftHandIndex3",
+                                            "padre": "mixamorig:LeftHandIndex2",
+                                            "conectado": false,
+                                            "longitud": 6.59339,
+                                            "hijos": [
+                                              {
+                                                "nombre": "mixamorig:LeftHandIndex4",
+                                                "padre": "mixamorig:LeftHandIndex3",
+                                                "conectado": false,
+                                                "longitud": 6.59339,
+                                                "hijos": []
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "nombre": "mixamorig:LeftHandRing1",
+                                    "padre": "mixamorig:LeftHand",
+                                    "conectado": false,
+                                    "longitud": 6.30982,
+                                    "hijos": [
+                                      {
+                                        "nombre": "mixamorig:LeftHandRing2",
+                                        "padre": "mixamorig:LeftHandRing1",
+                                        "conectado": false,
+                                        "longitud": 6.35956,
+                                        "hijos": [
+                                          {
+                                            "nombre": "mixamorig:LeftHandRing3",
+                                            "padre": "mixamorig:LeftHandRing2",
+                                            "conectado": true,
+                                            "longitud": 7.03781,
+                                            "hijos": [
+                                              {
+                                                "nombre": "mixamorig:LeftHandRing4",
+                                                "padre": "mixamorig:LeftHandRing3",
+                                                "conectado": false,
+                                                "longitud": 7.03781,
+                                                "hijos": []
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "nombre": "mixamorig:LeftHandPinky1",
+                                    "padre": "mixamorig:LeftHand",
+                                    "conectado": false,
+                                    "longitud": 6.53671,
+                                    "hijos": [
+                                      {
+                                        "nombre": "mixamorig:LeftHandPinky2",
+                                        "padre": "mixamorig:LeftHandPinky1",
+                                        "conectado": true,
+                                        "longitud": 4.14906,
+                                        "hijos": [
+                                          {
+                                            "nombre": "mixamorig:LeftHandPinky3",
+                                            "padre": "mixamorig:LeftHandPinky2",
+                                            "conectado": false,
+                                            "longitud": 5.56354,
+                                            "hijos": [
+                                              {
+                                                "nombre": "mixamorig:LeftHandPinky4",
+                                                "padre": "mixamorig:LeftHandPinky3",
+                                                "conectado": false,
+                                                "longitud": 5.56354,
+                                                "hijos": []
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "nombre": "mixamorig:RightShoulder",
+                    "padre": "mixamorig:Spine2",
+                    "conectado": false,
+                    "longitud": 26.89195,
+                    "hijos": [
+                      {
+                        "nombre": "mixamorig:RightArm",
+                        "padre": "mixamorig:RightShoulder",
+                        "conectado": true,
+                        "longitud": 55.8427,
+                        "hijos": [
+                          {
+                            "nombre": "mixamorig:RightForeArm",
+                            "padre": "mixamorig:RightArm",
+                            "conectado": false,
+                            "longitud": 50.3137,
+                            "hijos": [
+                              {
+                                "nombre": "mixamorig:RightHand",
+                                "padre": "mixamorig:RightForeArm",
+                                "conectado": false,
+                                "longitud": 22.44507,
+                                "hijos": [
+                                  {
+                                    "nombre": "mixamorig:RightHandMiddle1",
+                                    "padre": "mixamorig:RightHand",
+                                    "conectado": false,
+                                    "longitud": 6.15997,
+                                    "hijos": [
+                                      {
+                                        "nombre": "mixamorig:RightHandMiddle2",
+                                        "padre": "mixamorig:RightHandMiddle1",
+                                        "conectado": false,
+                                        "longitud": 7.27911,
+                                        "hijos": [
+                                          {
+                                            "nombre": "mixamorig:RightHandMiddle3",
+                                            "padre": "mixamorig:RightHandMiddle2",
+                                            "conectado": false,
+                                            "longitud": 7.45996,
+                                            "hijos": [
+                                              {
+                                                "nombre": "mixamorig:RightHandMiddle4",
+                                                "padre": "mixamorig:RightHandMiddle3",
+                                                "conectado": false,
+                                                "longitud": 7.45996,
+                                                "hijos": []
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "nombre": "mixamorig:RightHandThumb1",
+                                    "padre": "mixamorig:RightHand",
+                                    "conectado": false,
+                                    "longitud": 10.34913,
+                                    "hijos": [
+                                      {
+                                        "nombre": "mixamorig:RightHandThumb2",
+                                        "padre": "mixamorig:RightHandThumb1",
+                                        "conectado": false,
+                                        "longitud": 8.57471,
+                                        "hijos": [
+                                          {
+                                            "nombre": "mixamorig:RightHandThumb3",
+                                            "padre": "mixamorig:RightHandThumb2",
+                                            "conectado": false,
+                                            "longitud": 6.13889,
+                                            "hijos": [
+                                              {
+                                                "nombre": "mixamorig:RightHandThumb4",
+                                                "padre": "mixamorig:RightHandThumb3",
+                                                "conectado": true,
+                                                "longitud": 6.1389,
+                                                "hijos": []
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "nombre": "mixamorig:RightHandIndex1",
+                                    "padre": "mixamorig:RightHand",
+                                    "conectado": false,
+                                    "longitud": 7.09213,
+                                    "hijos": [
+                                      {
+                                        "nombre": "mixamorig:RightHandIndex2",
+                                        "padre": "mixamorig:RightHandIndex1",
+                                        "conectado": false,
+                                        "longitud": 7.41443,
+                                        "hijos": [
+                                          {
+                                            "nombre": "mixamorig:RightHandIndex3",
+                                            "padre": "mixamorig:RightHandIndex2",
+                                            "conectado": false,
+                                            "longitud": 5.52252,
+                                            "hijos": [
+                                              {
+                                                "nombre": "mixamorig:RightHandIndex4",
+                                                "padre": "mixamorig:RightHandIndex3",
+                                                "conectado": false,
+                                                "longitud": 5.52252,
+                                                "hijos": []
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "nombre": "mixamorig:RightHandRing1",
+                                    "padre": "mixamorig:RightHand",
+                                    "conectado": false,
+                                    "longitud": 6.85748,
+                                    "hijos": [
+                                      {
+                                        "nombre": "mixamorig:RightHandRing2",
+                                        "padre": "mixamorig:RightHandRing1",
+                                        "conectado": true,
+                                        "longitud": 6.8355,
+                                        "hijos": [
+                                          {
+                                            "nombre": "mixamorig:RightHandRing3",
+                                            "padre": "mixamorig:RightHandRing2",
+                                            "conectado": false,
+                                            "longitud": 6.01715,
+                                            "hijos": [
+                                              {
+                                                "nombre": "mixamorig:RightHandRing4",
+                                                "padre": "mixamorig:RightHandRing3",
+                                                "conectado": true,
+                                                "longitud": 6.0172,
+                                                "hijos": []
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "nombre": "mixamorig:RightHandPinky1",
+                                    "padre": "mixamorig:RightHand",
+                                    "conectado": false,
+                                    "longitud": 5.93958,
+                                    "hijos": [
+                                      {
+                                        "nombre": "mixamorig:RightHandPinky2",
+                                        "padre": "mixamorig:RightHandPinky1",
+                                        "conectado": false,
+                                        "longitud": 3.76468,
+                                        "hijos": [
+                                          {
+                                            "nombre": "mixamorig:RightHandPinky3",
+                                            "padre": "mixamorig:RightHandPinky2",
+                                            "conectado": false,
+                                            "longitud": 6.37045,
+                                            "hijos": [
+                                              {
+                                                "nombre": "mixamorig:RightHandPinky4",
+                                                "padre": "mixamorig:RightHandPinky3",
+                                                "conectado": true,
+                                                "longitud": 6.37047,
+                                                "hijos": []
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "nombre": "mixamorig:LeftUpLeg",
+        "padre": "mixamorig:Hips",
+        "conectado": false,
+        "longitud": 85.24567,
+        "hijos": [
+          {
+            "nombre": "mixamorig:LeftLeg",
+            "padre": "mixamorig:LeftUpLeg",
+            "conectado": true,
+            "longitud": 85.57111,
+            "hijos": [
+              {
+                "nombre": "mixamorig:LeftFoot",
+                "padre": "mixamorig:LeftLeg",
+                "conectado": true,
+                "longitud": 32.48122,
+                "hijos": [
+                  {
+                    "nombre": "mixamorig:LeftToeBase",
+                    "padre": "mixamorig:LeftFoot",
+                    "conectado": true,
+                    "longitud": 19.06479,
+                    "hijos": [
+                      {
+                        "nombre": "mixamorig:LeftToe_End",
+                        "padre": "mixamorig:LeftToeBase",
+                        "conectado": true,
+                        "longitud": 19.06479,
+                        "hijos": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "nombre": "mixamorig:RightUpLeg",
+        "padre": "mixamorig:Hips",
+        "conectado": false,
+        "longitud": 84.8197,
+        "hijos": [
+          {
+            "nombre": "mixamorig:RightLeg",
+            "padre": "mixamorig:RightUpLeg",
+            "conectado": true,
+            "longitud": 85.41944,
+            "hijos": [
+              {
+                "nombre": "mixamorig:RightFoot",
+                "padre": "mixamorig:RightLeg",
+                "conectado": true,
+                "longitud": 32.98118,
+                "hijos": [
+                  {
+                    "nombre": "mixamorig:RightToeBase",
+                    "padre": "mixamorig:RightFoot",
+                    "conectado": true,
+                    "longitud": 19.70232,
+                    "hijos": [
+                      {
+                        "nombre": "mixamorig:RightToe_End",
+                        "padre": "mixamorig:RightToeBase",
+                        "conectado": true,
+                        "longitud": 19.70232,
+                        "hijos": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "error_cinematica_directa": 4.57763671875e-05,
+  "desplazamiento_raiz": {
+    "recorrido_total": 3.70185,
+    "rango_x": 0.08162,
+    "rango_y": 3.63791,
+    "rango_z": 0.15395
+  }
+}

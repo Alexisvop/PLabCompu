@@ -65,10 +65,54 @@ Para transferir el movimiento de los huesos a los vértices de la malla, en Modo
 Por último, entramos a Modo Pose (\texttt{Ctrl + Tab}) para evaluar la cadena cinemática mediante Cinemática Directa (FK), rotando cada hueso con la tecla \texttt{R}. Esta verificación nos permitió comprobar en la práctica el principio de propagación jerárquica: al mover la cadera se traslada toda la pierna, al girar el fémur se orienta la rodilla y el pie, y al rotar el pie solo se mueven las falanges, confirmando que la acumulación de transformaciones $M_{\text{global}} = M_{\text{padre}} \cdot M_{\text{local}}$ opera exactamente como lo marca la teoría.
 
 \subsection{Actividad 2: Animación y análisis de relaciones padre-hijo de un personaje de Adobe Mixamo en Blender}
-% [Pendiente de desarrollo]
+
+Mientras que en la Actividad 1 construimos la jerarquía nosotros mismos hueso por hueso, en esta segunda actividad el problema es el inverso: recibir una estructura ya armada por una herramienta externa y tener que \textit{deducir} cómo está organizada. Por eso decidimos tratar la actividad como un trabajo de ingeniería inversa y no como un simple ejercicio de importación.
+
+\subsubsection{Obtención del personaje animado}
+Entramos a la plataforma Adobe Mixamo con una cuenta de Adobe y elegimos el personaje \textbf{Remy} del catálogo de la sección \textit{Characters}. Lo seleccionamos deliberadamente por encima de los maniquíes de referencia (\textit{X Bot} y \textit{Y Bot}) porque queríamos un modelo con vestimenta y cabello separados del cuerpo, de modo que la jerarquía no se limitara a huesos sino que incluyera también varios objetos hijos. Después, en la pestaña \textit{Animations}, buscamos y aplicamos el clip \textbf{Walking}: escogimos un ciclo de caminata y no una animación de pose estática porque es el movimiento que ejercita simultáneamente las cinco cadenas cinemáticas del cuerpo (columna, dos brazos y dos piernas) y porque desplaza al personaje en el espacio, algo que más adelante nos permitió estudiar el comportamiento del nodo raíz.
+
+La exportación se realizó con la configuración que se resume en la Tabla \ref{tab:mixamo_export}. El punto crítico fue el campo \textit{Skin}: si se descarga la animación \textit{Without Skin} solo se obtiene el esqueleto, y perderíamos por completo la relación entre los huesos y la geometría, que es precisamente la mitad interesante del problema.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}p{4.5cm}p{5.0cm}p{5.5cm}@{}}
+\toprule
+\textbf{Parámetro} & \textbf{Valor empleado} & \textbf{Motivo de la elección} \\
+\midrule
+Format              & \texttt{FBX Binary (.fbx)} & Formato que Blender importa de forma nativa y que conserva la armadura. \\
+Skin                & \texttt{With Skin}         & Incluye la malla y los pesos; sin ella no hay relación hueso--vértice. \\
+Frames per Second   & \texttt{30}                & Tasa nativa del clip; evita el remuestreo de las curvas. \\
+Keyframe Reduction  & \texttt{none}              & Conserva un fotograma clave por cuadro y permite leer las curvas sin interpolación agregada. \\
+\bottomrule
+\end{tabular}
+\caption{Configuración de exportación empleada en Adobe Mixamo para la Actividad 2.}
+\label{tab:mixamo_export}
+\end{table}
+
+\subsubsection{Importación y análisis en Blender}
+El archivo resultante (\texttt{28\,426\,960} bytes) se importó en Blender con \textit{File} $\to$ \textit{Import} $\to$ \textit{FBX}. Para dejar la escena en condiciones de ser inspeccionada escribimos el guion \texttt{codigo/escena\_act2.py}, que limpia la escena de fábrica, importa el archivo, activa la opción \textit{In Front} de la armadura para que los huesos se vean a través de la piel, ajusta el rango de la línea de tiempo al de la acción importada y guarda el archivo \texttt{.blend} resultante.
+
+Para el análisis de la jerarquía descartamos desde el principio la idea de ir abriendo nodos a mano en el \textit{Outliner} y anotar los nombres en una libreta: con casi setenta huesos el procedimiento es lento y, sobre todo, propenso a que se nos escape una rama. En su lugar escribimos el guion \texttt{codigo/analisis\_jerarquia.py}, que recorre la armadura en profundidad desde el nodo raíz y produce cuatro salidas: el árbol completo en texto, un volcado \texttt{JSON} con los atributos de cada hueso, los diagramas de la Actividad 3 y una verificación numérica de la cadena de transformaciones. Esta última merece explicación aparte.
+
+\subsubsection{Verificación numérica de la cadena de transformaciones}
+No nos pareció suficiente afirmar que Blender aplica cinemática directa: quisimos comprobarlo con números. Blender expone en \texttt{pose\_bone.matrix} la matriz global de cada hueso y en \texttt{pose\_bone.matrix\_basis} la transformación que el animador impone sobre la pose de reposo. Reconstruimos entonces la matriz global de cada hueso a partir únicamente de la de su padre, usando la relación
+\begin{equation}
+    M_{\text{global}}^{(i)} = M_{\text{global}}^{(\text{padre})} \cdot
+    \left(B_{\text{padre}}\right)^{-1} B_i \cdot M_{\text{basis}}^{(i)}
+    \label{eq:reconstruccion}
+\end{equation}
+donde $B_i$ es la matriz de reposo del hueso $i$ (\texttt{bone.matrix\_local}), de modo que $\left(B_{\text{padre}}\right)^{-1} B_i$ es exactamente la transformación local del hijo respecto de su padre. Comparamos término a término la matriz reconstruida contra la que reporta Blender y registramos la discrepancia máxima sobre los sesenta y siete huesos. Si la relación jerárquica fuera otra --- por ejemplo, si cada hueso guardara su posición absoluta de forma independiente --- esta reconstrucción no podría coincidir.
+
+\subsubsection{Experimento de propagación y variación}
+Finalmente planteamos dos pruebas. La primera consiste en rotar en Modo Pose huesos situados a distinta altura del árbol y contar cuántos descendientes arrastra cada uno, para medir el alcance de la propagación jerárquica. La segunda es la variación que pide el manual: descargar el mismo personaje con la misma animación pero activando la casilla \textbf{In Place} de Mixamo, y comparar ambos archivos. Elegimos esta variación porque no modifica la topología del esqueleto en absoluto --- los dos archivos tienen los mismos sesenta y siete huesos y las mismas relaciones padre-hijo --- sino únicamente el contenido de las curvas de animación del nodo raíz, lo que aísla de forma limpia el papel que juega la raíz dentro de una jerarquía.
 
 \subsection{Actividad 3: Diagrama de las relaciones padre-hijo de la estructura jerárquica desde el nodo raíz}
-% [Pendiente de desarrollo]
+
+Para esta actividad tomamos una decisión de método que condicionó todo lo demás: el diagrama no se dibujó a mano en una herramienta de diagramación, sino que se \textit{generó} a partir de los datos reales de la armadura. La razón es que un diagrama dibujado a mano es una interpretación de lo que creemos que hay en el archivo, mientras que uno generado por programa es una lectura directa de lo que efectivamente hay; en una estructura de sesenta y siete nodos la diferencia entre ambas cosas es justamente donde se cuelan los errores.
+
+El mismo guion \texttt{analisis\_jerarquia.py} de la actividad anterior recorre el árbol desde \texttt{mixamorig:Hips} y emite el diagrama en la sintaxis del paquete \texttt{forest} de \LaTeX, que se compila por separado como documento \textit{standalone} y se incorpora al reporte como figura vectorial. Orientamos el árbol de izquierda a derecha (\texttt{grow'=east}) en lugar de la disposición vertical habitual porque la estructura de Mixamo es mucho más profunda que ancha: tiene doce niveles pero apenas cinco nodos que ramifican, de modo que un crecimiento horizontal aprovecha mejor el espacio de la página y permite leer los nombres completos de los huesos sin rotarlos.
+
+El problema real de esta actividad no fue extraer la jerarquía sino conseguir que cupiera de forma legible en una hoja, y lo documentamos en la sección de experimentos. La solución a la que llegamos fue presentar la estructura en dos figuras complementarias en lugar de una sola: un diagrama global en el que las cinco cadenas de falanges de cada mano se condensan en un nodo resumen, y un diagrama de detalle que despliega una mano completa. Entre las dos queda representado el total de los sesenta y siete huesos sin que ninguna figura se vuelva ilegible.
 
 \subsection{Actividad 4: Exploración de software para estructuras humanoides (MakeHuman y DAZ3D)}
 % [Pendiente de desarrollo]

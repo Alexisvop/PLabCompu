@@ -1,0 +1,67 @@
+mixamorig:Hips   [NODO RAIZ]
+|-- mixamorig:Spine   (desconectado)
+|   `-- mixamorig:Spine1
+|       `-- mixamorig:Spine2
+|           |-- mixamorig:Neck   (desconectado)
+|           |   `-- mixamorig:Head   (desconectado)
+|           |       |-- mixamorig:HeadTop_End   (desconectado)
+|           |       |-- mixamorig:RightEye   (desconectado)
+|           |       `-- mixamorig:LeftEye   (desconectado)
+|           |-- mixamorig:LeftShoulder   (desconectado)
+|           |   `-- mixamorig:LeftArm
+|           |       `-- mixamorig:LeftForeArm   (desconectado)
+|           |           `-- mixamorig:LeftHand
+|           |               |-- mixamorig:LeftHandMiddle1   (desconectado)
+|           |               |   `-- mixamorig:LeftHandMiddle2
+|           |               |       `-- mixamorig:LeftHandMiddle3   (desconectado)
+|           |               |           `-- mixamorig:LeftHandMiddle4   (desconectado)
+|           |               |-- mixamorig:LeftHandThumb1   (desconectado)
+|           |               |   `-- mixamorig:LeftHandThumb2   (desconectado)
+|           |               |       `-- mixamorig:LeftHandThumb3   (desconectado)
+|           |               |           `-- mixamorig:LeftHandThumb4   (desconectado)
+|           |               |-- mixamorig:LeftHandIndex1   (desconectado)
+|           |               |   `-- mixamorig:LeftHandIndex2   (desconectado)
+|           |               |       `-- mixamorig:LeftHandIndex3   (desconectado)
+|           |               |           `-- mixamorig:LeftHandIndex4   (desconectado)
+|           |               |-- mixamorig:LeftHandRing1   (desconectado)
+|           |               |   `-- mixamorig:LeftHandRing2   (desconectado)
+|           |               |       `-- mixamorig:LeftHandRing3
+|           |               |           `-- mixamorig:LeftHandRing4   (desconectado)
+|           |               `-- mixamorig:LeftHandPinky1   (desconectado)
+|           |                   `-- mixamorig:LeftHandPinky2
+|           |                       `-- mixamorig:LeftHandPinky3   (desconectado)
+|           |                           `-- mixamorig:LeftHandPinky4   (desconectado)
+|           `-- mixamorig:RightShoulder   (desconectado)
+|               `-- mixamorig:RightArm
+|                   `-- mixamorig:RightForeArm   (desconectado)
+|                       `-- mixamorig:RightHand   (desconectado)
+|                           |-- mixamorig:RightHandMiddle1   (desconectado)
+|                           |   `-- mixamorig:RightHandMiddle2   (desconectado)
+|                           |       `-- mixamorig:RightHandMiddle3   (desconectado)
+|                           |           `-- mixamorig:RightHandMiddle4   (desconectado)
+|                           |-- mixamorig:RightHandThumb1   (desconectado)
+|                           |   `-- mixamorig:RightHandThumb2   (desconectado)
+|                           |       `-- mixamorig:RightHandThumb3   (desconectado)
+|                           |           `-- mixamorig:RightHandThumb4
+|                           |-- mixamorig:RightHandIndex1   (desconectado)
+|                           |   `-- mixamorig:RightHandIndex2   (desconectado)
+|                           |       `-- mixamorig:RightHandIndex3   (desconectado)
+|                           |           `-- mixamorig:RightHandIndex4   (desconectado)
+|                           |-- mixamorig:RightHandRing1   (desconectado)
+|                           |   `-- mixamorig:RightHandRing2
+|                           |       `-- mixamorig:RightHandRing3   (desconectado)
+|                           |           `-- mixamorig:RightHandRing4
+|                           `-- mixamorig:RightHandPinky1   (desconectado)
+|                               `-- mixamorig:RightHandPinky2   (desconectado)
+|                                   `-- mixamorig:RightHandPinky3   (desconectado)
+|                                       `-- mixamorig:RightHandPinky4
+|-- mixamorig:LeftUpLeg   (desconectado)
+|   `-- mixamorig:LeftLeg
+|       `-- mixamorig:LeftFoot
+|           `-- mixamorig:LeftToeBase
+|               `-- mixamorig:LeftToe_End
+`-- mixamorig:RightUpLeg   (desconectado)
+    `-- mixamorig:RightLeg
+        `-- mixamorig:RightFoot
+            `-- mixamorig:RightToeBase
+                `-- mixamorig:RightToe_End

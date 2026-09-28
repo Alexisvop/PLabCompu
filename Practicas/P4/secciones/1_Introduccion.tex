@@ -1,7 +1,36 @@
 % En esta seccion se realiza una investigación formal del tema y lo presenta bien fundamentado, haciendo referencia a las fuentes de información usando las normas APA.
 
 \section{Introducción}
-% Redactar la introducción aquí:
-% - Marco teórico y antecedentes del tema de la práctica
-% - Conceptos clave necesarios para comprender el desarrollo
-% - Citas bibliográficas correspondientes en formato APA
+
+En las prácticas anteriores de este laboratorio los objetos de la escena se comportaron como cuerpos rígidos: un plano, un cubo o una esfera se trasladaban, rotaban y escalaban en bloque mediante una única matriz de modelo, y cada figura era independiente de las demás. Esa representación deja de ser suficiente en cuanto se quiere modelar algo articulado. Un brazo que se dobla, una puerta que gira sobre su bisagra o las manecillas de un reloj comparten una característica que un conjunto de objetos sueltos no puede reproducir: el movimiento de una parte \textit{arrastra} necesariamente a las que dependen de ella, y ninguna cantidad de matrices independientes captura esa dependencia sin que el programador tenga que recalcularla a mano en cada cuadro.
+
+El \textbf{modelado jerárquico} es la respuesta clásica de la computación gráfica a este problema. La idea consiste en organizar la escena no como una lista de objetos sino como un árbol acíclico dirigido en el que cada nodo almacena su transformación \textit{relativa} a la de su nodo padre, de modo que la posición absoluta de cualquier elemento se obtiene recorriendo el camino que lo une con la raíz \cite{foley1996}. Esta representación se conoce también como grafo de escena, y su implementación tradicional en OpenGL se apoyaba en la pila de matrices del modelo-vista, donde descender un nivel del árbol equivale a apilar una transformación y regresar al nodo padre equivale a desapilarla \cite{shreiner2013}.
+
+\subsection{Cadenas cinemáticas y cinemática directa}
+
+Cuando la estructura jerárquica representa un sistema articulado, el árbol recibe el nombre de \textbf{cadena cinemática} y sus nodos se denominan \textit{huesos} o \textit{eslabones}, unidos por \textit{articulaciones}. La formalización matricial de estas cadenas proviene de la robótica: Denavit y Hartenberg \cite{denavit1955} propusieron una notación sistemática para describir mecanismos de pares inferiores mediante matrices homogéneas, y esa misma maquinaria es la que la computación gráfica adoptó posteriormente para animar personajes.
+
+Bajo el modelo de \textbf{cinemática directa} (\textit{Forward Kinematics}, FK), la orientación y posición global de un hueso no se almacenan de forma independiente, sino que se calculan acumulando las transformaciones locales de toda su línea de ascendencia:
+\begin{equation}
+    M_{\text{global}}^{(i)} = M_{\text{global}}^{(\text{padre})} \cdot M_{\text{local}}^{(i)}
+    \label{eq:fk_intro}
+\end{equation}
+donde $M_{\text{local}}^{(i)}$ describe al hueso $i$ respecto del sistema de coordenadas de su padre. La consecuencia práctica de la ecuación \eqref{eq:fk_intro} es exactamente la propiedad que se buscaba: al modificar la transformación local de un nodo, todos sus descendientes se reubican de forma automática sin que haya que tocarlos, porque su matriz global se calcula a partir de la del padre. El enfoque complementario, la \textbf{cinemática inversa} (\textit{Inverse Kinematics}, IK), resuelve el problema opuesto --- dada la posición deseada del extremo de la cadena, determinar las rotaciones intermedias que la producen --- y es el que se emplea cuando se necesita, por ejemplo, que un pie permanezca fijo sobre el suelo mientras el cuerpo avanza \cite{parent2012}.
+
+\subsection{Del esqueleto a la piel: \textit{skinning}}
+
+Una cadena de huesos por sí sola no dibuja nada: hace falta un mecanismo que transfiera su movimiento a la superficie visible del modelo. El método estándar es el \textbf{deformado lineal por combinación de pesos} (\textit{Linear Blend Skinning}, LBS), introducido originalmente por Magnenat-Thalmann et al. \cite{magnenat1988} para la animación de manos. En él, la posición final de cada vértice se obtiene como una combinación convexa de las transformaciones de los huesos que lo influyen:
+\begin{equation}
+    v' = \sum_{j=1}^{m} w_j \, M_{\text{global}}^{(j)} \left(B_j\right)^{-1} v,
+    \qquad \sum_{j=1}^{m} w_j = 1, \quad w_j \ge 0
+    \label{eq:lbs_intro}
+\end{equation}
+donde $v$ es la posición del vértice en pose de reposo, $B_j$ la matriz de reposo del hueso $j$ y $w_j$ el peso con el que ese hueso influye sobre el vértice. La restricción de partición de la unidad garantiza que un vértice sometido a varios huesos no se disperse ni se colapse. El método es rápido y es el que implementan tanto los motores en tiempo real como Blender, aunque tiene una debilidad bien documentada: al interpolar linealmente matrices de rotación, las articulaciones con giros pronunciados sufren pérdida de volumen, el conocido efecto de «envoltorio de caramelo», que técnicas posteriores como el \textit{skinning} con cuaterniones duales corrigen \cite{kavan2007}.
+
+Asignar a mano los pesos $w_j$ de cada vértice es una tarea considerable en modelos de varios miles de vértices, por lo que las herramientas actuales los estiman de forma automática. El algoritmo que emplea Blender bajo el nombre de \textit{Automatic Weights} está basado en el trabajo de Baran y Popović \cite{baran2007}, que plantea la asignación como un problema de difusión de calor: cada hueso se trata como una fuente térmica que irradia influencia sobre el volumen cerrado de la malla, y la temperatura de equilibrio en cada vértice se toma como su peso. Este es precisamente el procedimiento que empleamos en la Actividad 1 de esta práctica.
+
+\subsection{Herramientas de modelado jerárquico}
+
+Blender concentra en un mismo entorno las tres capas anteriores: la definición del árbol de huesos (\textit{armadura}), la evaluación de la cadena cinemática en Modo Pose y el vínculo con la geometría mediante el modificador \textit{Armature} y los grupos de vértices \cite{blender_manual}. Adobe Mixamo, por su parte, resuelve el problema desde el otro extremo: es un servicio en línea que aplica un rigueado automático sobre un personaje y permite componerle animaciones de una biblioteca preexistente, exportando el resultado en formato FBX con el esqueleto y los pesos incluidos \cite{mixamo}. La existencia de estas dos rutas --- construir la jerarquía uno mismo o recibirla ya construida --- es lo que estructura el presente reporte: las actividades permiten contrastar un esqueleto propio de cinco huesos contra uno profesional de sesenta y siete, y comprobar que ambos obedecen exactamente el mismo principio de acumulación de transformaciones.
+
+El desarrollo se llevó a cabo en Blender sobre equipo con Windows 11, complementado con guiones en Python ejecutados desde el propio entorno de Blender para el recorrido de la armadura y la generación de los diagramas. Durante el desarrollo se utilizó además un modelo de lenguaje como apoyo para la automatización del análisis de la jerarquía y para la revisión de redacción del documento \cite{anthropic2026}.
