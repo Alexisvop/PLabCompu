@@ -37,10 +37,151 @@ Con el esqueleto corregido procedimos a vincular la malla con la armadura. En Mo
 Finalmente pasamos a Modo Pose (\texttt{Ctrl + Tab}) para evaluar el movimiento mediante Cinemática Directa (FK), rotando cada articulación de forma individual con la tecla \texttt{R}. Aquí comprobamos la herencia jerárquica en cascada: rotar la cadera mueve toda la pierna, rotar el fémur arrastra la rodilla y el pie, y rotar el pie solo mueve los dedos. En estas pruebas observamos un segundo detalle experimental: al forzar la rodilla a una flexión pronunciada (más de $90^\circ$), la parte posterior de la corva (pliegue poplíteo) se comprimía de más y tendía a perder volumen. Lo resolvimos agregando dos cortes de bucle adicionales con \texttt{Ctrl + R} alrededor de la rótula y el pliegue, lo que reforzó la densidad poligonal en esa zona y permitió que la pierna conservara su masa muscular incluso en ángulos de flexión cerrados.
 
 \subsection{Actividad 2: Animación y análisis de relaciones padre-hijo de un personaje de Adobe Mixamo en Blender}
-% [Pendiente de desarrollo]
+
+\subsubsection{Selección y animación del personaje en Mixamo}
+El experimento comenzó en la plataforma de Adobe Mixamo. Tras entrar con la cuenta de Adobe, del catálogo de \textit{Characters} tomamos a \textbf{Remy} y después, desde la pestaña \textit{Animations}, le aplicamos el ciclo \textbf{Walking}. El visor de la plataforma actualizó de inmediato el título a \textit{Walking on Remy} y comenzó a reproducir la caminata sobre el personaje, como se ve en la Figura \ref{fig:exp_mixamo}. Un dato que anotamos desde este momento, porque después resultó relevante, es que el panel lateral informa que el clip consta de \textbf{32 fotogramas} y ofrece los controles \textit{Overdrive}, \textit{Character Arm-Space}, \textit{Trim}, \textit{Mirror} e \textit{In Place}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.49\textwidth]{Imagenes/E2/01_mixamo_remy_walking.png}
+    \includegraphics[width=0.49\textwidth]{Imagenes/E2/02_mixamo_ajustes_descarga.png}
+    \caption{Actividad 2 en Adobe Mixamo: a la izquierda, el clip \textit{Walking} aplicado sobre el personaje Remy; a la derecha, el cuadro de diálogo \textit{Download Settings} con los parámetros de exportación empleados.}
+    \label{fig:exp_mixamo}
+\end{figure}
+
+La descarga se hizo en formato \texttt{FBX Binary (.fbx)} con la opción \texttt{With Skin}, a 30 fotogramas por segundo y sin reducción de fotogramas clave, produciendo un archivo de \texttt{28\,426\,960} bytes (27.11 MiB).
+
+\subsubsection{Importación en Blender y lectura de la jerarquía}
+Al importar el archivo en Blender apareció el primer detalle que no esperábamos. El personaje no llegó como un único objeto, sino como \textbf{ocho objetos}: una armadura y siete mallas independientes (cuerpo, camiseta, pantalón, tenis, cabello, ojos y pestañas), todas ellas emparentadas al objeto armadura. Es decir, la estructura jerárquica del archivo no ocurre en un solo nivel, sino en tres niveles anidados que conviene distinguir con claridad:
+\begin{enumerate}[noitemsep, topsep=4pt]
+    \item \textbf{Objeto $\to$ objeto}: las siete mallas son hijas del objeto armadura y heredan su transformación completa.
+    \item \textbf{Hueso $\to$ hueso}: dentro de la armadura, los 67 huesos forman el árbol cinemático propiamente dicho.
+    \item \textbf{Hueso $\to$ vértice}: cada malla lleva un modificador \textit{Armature} y un grupo de vértices por hueso deformador, que es donde se guardan los pesos $w_j$ de la ecuación de \textit{skinning}.
+\end{enumerate}
+
+El segundo detalle inesperado fue la transformación con la que llega el objeto armadura: \textbf{escala $0.010$ en los tres ejes y rotación de $90^\circ$ sobre $X$}, visible en el panel de propiedades de la Figura \ref{fig:exp_outliner_huesos}. No se trata de un error de exportación sino de un cambio de convención: Mixamo trabaja en centímetros y con el eje $Y$ apuntando hacia arriba, mientras que Blender usa metros y $Z$ hacia arriba. El importador resuelve la diferencia empujándola al objeto raíz en lugar de reescribir cada vértice, lo cual es coherente con la idea misma de jerarquía --- una sola matriz en la cima corrige a los 67 huesos y a las siete mallas de golpe --- pero obliga a recordar que todas las magnitudes que se lean dentro del esqueleto estarán en centímetros.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{Imagenes/E2/05_blender_outliner_huesos.png}
+    \caption{Jerarquía de la armadura desplegada en el \textit{Outliner} de Blender partiendo de \texttt{mixamorig:Hips}. A la derecha, el panel de propiedades muestra la transformación con la que llega el objeto armadura desde Mixamo (escala $0.010$ y rotación de $90^\circ$ en $X$). Los distintivos numéricos junto a \texttt{LeftArm} y \texttt{RightArm} indican los 22 huesos que cuelgan de cada brazo.}
+    \label{fig:exp_outliner_huesos}
+\end{figure}
+
+Recorriendo la armadura con el guion \texttt{analisis\_jerarquia.py} obtuvimos el censo completo que se resume en la Tabla \ref{tab:censo_armadura}. Lo que más nos llamó la atención al leerlo fue la cifra de huesos \textbf{desconectados}: de los 67 huesos, solo 20 tienen activa la propiedad \texttt{Connected} y 47 no la tienen. Esto contrasta de forma directa con la pierna que construimos en la Actividad 1, donde dejamos los cinco huesos encadenados a propósito. La explicación es anatómica: un hombro no nace en el extremo de la columna ni un muslo en el extremo de la cadera, sino desplazados lateralmente, y la opción \texttt{Connected} obligaría a que la cabeza del hijo coincidiera con la cola del padre. Emparentar sin conectar conserva la herencia de transformaciones --- que es lo que importa --- y libera la posición de origen de cada hueso.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}p{7.6cm}p{3.0cm}p{4.4cm}@{}}
+\toprule
+\textbf{Propiedad medida} & \textbf{Valor} & \textbf{Observación} \\
+\midrule
+Huesos totales de la armadura       & 67 & --- \\
+Nodo raíz                           & \texttt{mixamorig:Hips} & Único hueso sin padre. \\
+Hijos directos de la raíz           & 3  & Columna y dos piernas. \\
+Profundidad máxima del árbol        & 12 niveles & Raíz $\to$ falange distal. \\
+Nodos hoja (sin descendientes)      & 15 & --- \\
+Nodos que ramifican ($>1$ hijo)     & 5  & \texttt{Hips}, \texttt{Spine2}, \texttt{Head}, ambas manos. \\
+Huesos con \texttt{Connected} activo & 20 & Continuaciones de un mismo miembro. \\
+Huesos emparentados sin conectar    & 47 & --- \\
+Mallas hijas del objeto armadura    & 7  & 19\,404 vértices en total. \\
+Huesos que no deforman ninguna malla & 1 & \texttt{mixamorig:HeadTop\_End}. \\
+\bottomrule
+\end{tabular}
+\caption{Censo de la estructura jerárquica del personaje Remy obtenido con \texttt{analisis\_jerarquia.py}.}
+\label{tab:censo_armadura}
+\end{table}
+
+Al revisar qué huesos son los que sí quedaron conectados encontramos un criterio consistente: \texttt{Spine1}, \texttt{Spine2}, \texttt{LeftArm}, \texttt{LeftHand}, \texttt{RightArm} y las dos cadenas completas de pierna (\texttt{Leg}, \texttt{Foot}, \texttt{ToeBase}, \texttt{Toe\_End}). Es decir, se conectan los huesos que son \textit{continuación} directa de su padre dentro del mismo miembro, mientras que los que se desprenden lateralmente --- hombros, muslos, cuello y la mayor parte de las falanges --- se emparentan pero se dejan sueltos. La relación padre-hijo se mantiene en ambos casos; lo único que cambia es si la cabeza del hijo queda anclada a la cola del padre.
+
+La distribución de los pesos entre las siete mallas también resultó reveladora. Contando cuántos grupos de vértices tiene cada una (Tabla \ref{tab:mallas_remy}), se ve que ninguna malla se vincula a los 67 huesos, sino solo al subconjunto que de verdad puede afectarla: el pantalón se liga a 7 huesos de cadera y piernas, los tenis a 8 huesos de pie y pierna, la camiseta a 14 de tronco y brazos, el cabello a 3 de la cabeza, las pestañas a 1 y los ojos a exactamente 2, \texttt{mixamorig:LeftEye} y \texttt{mixamorig:RightEye}. Esos dos huesos de los ojos, de hecho, no aparecen en los 64 grupos del cuerpo: deforman únicamente la malla \texttt{Eyes}. Llevando la cuenta sobre las siete mallas a la vez, el único hueso de toda la armadura que no deforma absolutamente nada es \texttt{mixamorig:HeadTop\_End}, que existe solo para marcar dónde termina la cabeza y darle dirección al hueso padre, ya que un hueso necesita cabeza y cola para quedar definido. Es, en términos del árbol, un nodo puramente geométrico y no cinemático.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lrrp{7.2cm}@{}}
+\toprule
+\textbf{Malla hija} & \textbf{Vértices} & \textbf{Grupos} & \textbf{Región del esqueleto a la que se liga} \\
+\midrule
+\texttt{Body}      & 6\,995 & 64 & Cuerpo completo salvo ojos y coronilla. \\
+\texttt{Hair}      & 3\,772 &  3 & Cabeza y cuello. \\
+\texttt{Shoes}     & 3\,252 &  8 & Pierna baja, pie y dedos. \\
+\texttt{Bottoms}   & 2\,340 &  7 & Cadera y piernas. \\
+\texttt{Tops}      & 2\,183 & 14 & Tronco, hombros y brazos. \\
+\texttt{Eyes}      &    764 &  2 & \texttt{LeftEye} y \texttt{RightEye} únicamente. \\
+\texttt{Eyelashes} &     98 &  1 & Cabeza. \\
+\midrule
+\textbf{Total}     & \textbf{19\,404} & --- & --- \\
+\bottomrule
+\end{tabular}
+\caption{Las siete mallas hijas del objeto armadura y el número de huesos al que se liga cada una mediante grupos de vértices.}
+\label{tab:mallas_remy}
+\end{table}
+
+\subsubsection{Comprobación numérica de la cadena de transformaciones}
+Con la jerarquía ya mapeada quisimos verificar que la cinemática directa se cumple efectivamente y no solo en el discurso. Aplicando la ecuación \eqref{eq:reconstruccion} reconstruimos la matriz global de cada hueso a partir exclusivamente de la de su padre y la comparamos, entrada por entrada, contra la matriz que reporta Blender. Sobre los 67 huesos, la discrepancia máxima resultó de
+\[
+\varepsilon_{\max} = 4.578 \times 10^{-5}, \qquad \text{en el hueso \texttt{mixamorig:RightHandMiddle2}},
+\]
+un valor que corresponde al error de redondeo de la precisión simple con la que el formato FBX almacena las matrices, y no a una diferencia estructural. El hueso donde el error es mayor tampoco es casual: es una falange, es decir, uno de los nodos más profundos del árbol, que acumula el redondeo de los diez padres que lo preceden. La propagación del error numérico sigue la misma cadena que la propagación de la transformación.
+
+\subsubsection{Experimento de propagación jerárquica en Modo Pose}
+Para medir el alcance de la herencia rotamos huesos situados a distinta altura del árbol partiendo siempre de la misma pose de referencia (Figura \ref{fig:exp_pose_ref}). Primero giramos \texttt{mixamorig:Spine} $35^\circ$ sobre su eje de flexión. El resultado, en la Figura \ref{fig:exp_fk} (izquierda), es que el tronco, el cuello, la cabeza, los dos brazos y las diez cadenas de dedos se inclinan en bloque conservando intacta su postura relativa, mientras que las piernas permanecen exactamente donde estaban. Después deshicimos ese giro y rotamos \texttt{mixamorig:LeftFoot} $45^\circ$: esta vez el único cambio visible son los dedos del pie izquierdo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.62\textwidth]{Imagenes/E2/06_blender_pose_referencia.png}
+    \caption{Pose de referencia en el primer fotograma del ciclo, vista lateral ortográfica con la armadura visible a través de la malla (\textit{In Front}).}
+    \label{fig:exp_pose_ref}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.49\textwidth]{Imagenes/E2/07_blender_fk_columna.png}
+    \includegraphics[width=0.49\textwidth]{Imagenes/E2/08_blender_fk_pie.png}
+    \caption{Experimento de propagación jerárquica. Izquierda: al girar \texttt{mixamorig:Spine} $35^\circ$, sus 55 descendientes --- tronco, cabeza, brazos y manos --- se desplazan en bloque y las piernas no se alteran. Derecha: al girar \texttt{mixamorig:LeftFoot} $45^\circ$, únicamente se mueven sus 2 descendientes.}
+    \label{fig:exp_fk}
+\end{figure}
+
+La diferencia es cuantificable: \texttt{mixamorig:Spine} tiene \textbf{55 descendientes} y \texttt{mixamorig:LeftFoot} tiene \textbf{2}. El experimento confirma que el alcance de una transformación no depende de la magnitud del giro sino exclusivamente de la posición del hueso dentro del árbol, y que las piernas no se mueven al girar la columna simplemente porque no son sus descendientes: cuelgan directamente de la cadera.
+
+\subsubsection{Variación de la actividad: exportación con y sin movimiento de raíz}
+La variación que reportamos consiste en descargar de Mixamo el mismo personaje con la misma animación, pero activando la casilla \textbf{In Place} (Figura \ref{fig:exp_inplace}). En el visor de la plataforma el efecto es evidente de inmediato: el personaje sigue caminando con el mismo movimiento de piernas y brazos, pero ya no avanza, se queda sobre el mismo punto del suelo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.62\textwidth]{Imagenes/E2/03_mixamo_in_place.png}
+    \caption{Variación de la Actividad 2: casilla \textit{In Place} activada en el panel del clip \textit{Walking}. El personaje ejecuta el mismo ciclo de caminata sin desplazarse.}
+    \label{fig:exp_inplace}
+\end{figure}
+
+Al comparar los dos archivos resultantes descubrimos primero algo que nos sorprendió: pesan \textbf{exactamente los mismos} \texttt{28\,426\,960} bytes, aunque sus sumas de verificación MD5 son distintas. Esto ya adelanta la conclusión: la malla, los pesos, el número de huesos y el número de fotogramas clave son idénticos, y lo único que cambia son los valores almacenados en unas cuantas curvas.
+
+Para localizar exactamente cuáles, abrimos ambas escenas en el Editor de Gráficas de Blender con el hueso \texttt{mixamorig:Hips} seleccionado. El resultado se muestra en la Figura \ref{fig:exp_curvas}. En la exportación normal, la curva de traslación del nodo raíz sobre su eje de avance crece de forma prácticamente lineal desde $0$ hasta unos $360$ centímetros a lo largo de los 32 fotogramas; en la versión \textit{In Place} esa rampa desaparece por completo y la misma curva se queda oscilando alrededor del cero, con una amplitud de unos $\pm 10$ centímetros que corresponde al balanceo natural de la cadera durante la marcha.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.49\textwidth]{Imagenes/E2/09_curva_raiz_rootmotion.png}
+    \includegraphics[width=0.49\textwidth]{Imagenes/E2/10_curva_raiz_inplace.png}
+    \caption{Curvas de traslación del nodo raíz \texttt{mixamorig:Hips} en el Editor de Gráficas. Izquierda: exportación normal, donde la componente de avance describe una rampa de $0$ a $360$ cm. Derecha: exportación \textit{In Place}, donde esa rampa desaparece y solo quedan las oscilaciones del ciclo de marcha.}
+    \label{fig:exp_curvas}
+\end{figure}
+
+Para no quedarnos en la inspección visual medimos la trayectoria del nodo raíz por programa, acumulando la distancia recorrida por su origen fotograma a fotograma en coordenadas de mundo. Los valores aparecen en la Tabla \ref{tab:variacion_raiz} de la sección de resultados y son inequívocos: el recorrido total cae de $3.7018$ a $0.6944$ unidades, pero el rango de movimiento en los ejes \textit{transversal} y \textit{vertical} se mantiene idéntico hasta la última cifra registrada. La opción \textit{In Place} no reanima nada: se limita a restar la componente de avance de una sola curva, la del único hueso que no tiene padre.
 
 \subsection{Actividad 3: Diagrama de las relaciones padre-hijo de la estructura jerárquica desde el nodo raíz}
-% [Pendiente de desarrollo]
+
+Extraer la jerarquía resultó ser la parte fácil de esta actividad; el experimento real fue conseguir dibujarla de manera que se pudiera leer.
+
+Nuestro primer intento fue el más directo: volcar los 67 huesos en un único árbol horizontal, con un nodo por hueso y una arista por cada relación padre-hijo. El diagrama se generó sin problemas y es estrictamente correcto, pero al medirlo resultó tener una proporción cercana a \textbf{8:1}. Llevado al ancho de la caja de texto de este reporte, esa proporción deja una figura de apenas tres centímetros de alto en la que los nombres de los huesos quedarían impresos a unos 5 puntos: técnicamente presentes, pero ilegibles. Nos encontramos así con un problema que no habíamos anticipado, y que es propio de las estructuras jerárquicas profundas: el ancho de un árbol dibujado de lado crece con la \textit{profundidad} (doce niveles) multiplicada por la longitud de las etiquetas, y los nombres de Mixamo son largos porque arrastran el prefijo \texttt{mixamorig:} y el lado del cuerpo.
+
+Probamos tres correcciones antes de dar con la definitiva:
+\begin{itemize}[noitemsep, topsep=4pt]
+    \item \textbf{Rotar la figura $90^\circ$} y darle una página completa. Mejora la legibilidad pero obliga a girar el documento para leer un diagrama que, además, sigue siendo denso.
+    \item \textbf{Crecimiento vertical} en lugar de horizontal. Empeora el resultado: al apilar hacia abajo, las etiquetas horizontales se traslapan entre columnas hermanas y el ancho no disminuye.
+    \item \textbf{Suprimir el prefijo} \texttt{mixamorig:} de todas las etiquetas. Ayuda y lo conservamos, pero por sí solo no basta.
+\end{itemize}
+
+La solución que finalmente adoptamos parte de una observación sobre la propia estructura: de los 67 huesos, \textbf{40 son falanges} organizadas en diez cadenas idénticas de cuatro huesos cada una. Dibujar diez veces la misma cadena no agrega información, solo ancho. Por eso decidimos partir la representación en dos figuras complementarias: un \textbf{diagrama global} en el que las cinco cadenas de dedos de cada mano se condensan en un único nodo resumen dibujado con línea punteada, y un \textbf{diagrama de detalle} de una mano completa, en el que además sustituimos el prefijo repetido \texttt{LeftHand} por puntos suspensivos. Con ese par de ajustes el diagrama global bajó de una proporción de 8:1 a una de 5:1 y el de la mano quedó en 4:1, lo que permite imprimir ambos con tipografía legible. Los resultados se presentan en la sección siguiente.
 
 \subsection{Actividad 4: Exploración de software para estructuras humanoides (MakeHuman y DAZ3D)}
 % [Pendiente de desarrollo]

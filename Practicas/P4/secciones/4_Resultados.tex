@@ -41,10 +41,100 @@ Al evaluar las ventajas de la metodología que seguimos, la principal fortaleza 
 En cuanto a las desventajas y limitaciones que identificamos, la más evidente es la dificultad que presenta la Cinemática Directa cuando se intenta animar una interacción de contacto fijo con el suelo. Para simular que la planta del pie se queda apoyada mientras el cuerpo avanza, con FK es necesario reajustar manualmente la cadera, el muslo, la pantorrilla y el metatarso en cada fotograma, lo cual se vuelve muy tedioso y poco preciso en comparación con un sistema de Cinemática Inversa (IK), donde bastaría con arrastrar el pie a su posición deseada y dejar que la rodilla se flexione de forma automática. Por otro lado, aunque el modificador de subdivisión deja la superficie impecable para renderizado estático o ilustración, el conteo de polígonos resultante es demasiado alto para una aplicación gráfica interactiva o un motor en tiempo real como OpenGL, lo que en un flujo de trabajo profesional obligaría a realizar una retopología o a hornear las normales sobre una malla de baja resolución. Finalmente, notamos que si bien los pesos automáticos retienen bien el volumen en rangos normales de flexión (hasta unos $90^\circ$), en flexiones muy cerradas que superan los $120^\circ$ se aprecia un leve aplanamiento en el pliegue poplíteo posterior, un detalle que en una producción avanzada requeriría apoyarse en claves de forma correctivas (\textit{Corrective Shape Keys}) para mantener la masa muscular intacta.
 
 \subsection{Actividad 2: Animación y análisis de relaciones padre-hijo de un personaje de Adobe Mixamo en Blender}
-% [Pendiente de desarrollo]
+
+El resultado de esta actividad es el personaje Remy de Adobe Mixamo, animado con el ciclo \textit{Walking}, importado en Blender y con su estructura jerárquica completamente caracterizada: una armadura de \textbf{67 huesos} de \textbf{12 niveles} de profundidad, con nodo raíz \texttt{mixamorig:Hips}, que deforma \textbf{19\,404 vértices} repartidos en siete mallas hijas y cuya cinemática directa quedó verificada numéricamente. En la Figura \ref{fig:res_personaje} se muestra el personaje ya importado y encuadrado en el visor de Blender.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.72\textwidth]{Imagenes/E2/04_blender_personaje_importado.png}
+    \caption{Resultado de la importación en Blender: el personaje Remy con el ciclo \textit{Walking} aplicado, en sombreado sólido y vista frontal ortográfica.}
+    \label{fig:res_personaje}
+\end{figure}
+
+\subsubsection{Alcance de la herencia según la posición en el árbol}
+El resultado más ilustrativo de la actividad es la relación entre la posición de un hueso en la jerarquía y el número de huesos que arrastra al transformarse. La Tabla \ref{tab:alcance_fk} recoge la medición a lo largo de dos cadenas completas del esqueleto.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}lccp{7.4cm}@{}}
+\toprule
+\textbf{Hueso} & \textbf{Nivel} & \textbf{Descendientes} & \textbf{Qué se mueve al rotarlo} \\
+\midrule
+\texttt{Hips}         & 1 & 66 & El personaje completo. \\
+\texttt{Spine}        & 2 & 55 & Tronco, cabeza, brazos y manos; las piernas no. \\
+\texttt{Spine2}       & 4 & 53 & Igual que el anterior, sin el abdomen. \\
+\texttt{LeftShoulder} & 5 & 23 & Brazo izquierdo completo. \\
+\texttt{LeftArm}      & 6 & 22 & Antebrazo, mano y sus cinco dedos. \\
+\texttt{LeftForeArm}  & 7 & 21 & Mano y sus cinco dedos. \\
+\texttt{LeftHand}     & 8 & 20 & Únicamente los cinco dedos. \\
+\midrule
+\texttt{LeftUpLeg}    & 2 &  4 & Pierna izquierda completa. \\
+\texttt{LeftFoot}     & 4 &  2 & Metatarso y punta del pie. \\
+\texttt{LeftToeBase}  & 5 &  1 & Solo la punta del pie. \\
+\texttt{LeftToe\_End} & 6 &  0 & Nada: es un nodo hoja. \\
+\bottomrule
+\end{tabular}
+\caption{Alcance de la propagación jerárquica medido sobre dos cadenas del esqueleto de Remy.}
+\label{tab:alcance_fk}
+\end{table}
+
+La tabla deja ver algo que no es obvio a simple vista: dos huesos que están al \textit{mismo} nivel del árbol pueden tener alcances radicalmente distintos. \texttt{Spine} y \texttt{LeftUpLeg} son ambos hijos directos de la raíz, pero uno arrastra 55 huesos y el otro apenas 4. El nivel no determina la influencia; lo que la determina es el tamaño del subárbol que cuelga de cada nodo. También se aprecia que bajar un solo escalón en la cadena del brazo (de \texttt{LeftShoulder} a \texttt{LeftArm}, o de \texttt{LeftArm} a \texttt{LeftForeArm}) reduce el alcance en exactamente un hueso, porque esa parte del esqueleto es una cadena lineal sin ramificaciones hasta llegar a la mano.
+
+\subsubsection{Resultado de la variación: movimiento de raíz contra \textit{In Place}}
+La Tabla \ref{tab:variacion_raiz} concentra la medición de la variación experimental. Las magnitudes están tomadas sobre el origen del hueso raíz en coordenadas de mundo, acumuladas a lo largo de los 32 fotogramas del ciclo.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}p{7.0cm}rrc@{}}
+\toprule
+\textbf{Magnitud medida} & \textbf{Normal} & \textbf{\textit{In Place}} & \textbf{¿Cambia?} \\
+\midrule
+Recorrido total del nodo raíz [u]      & 3.7018 & 0.6944 & Sí \\
+Rango sobre el eje de avance [u]       & 3.6379 & 0.0618 & Sí \\
+Rango sobre el eje transversal [u]     & 0.0816 & 0.0816 & No \\
+Rango sobre el eje vertical [u]        & 0.1540 & 0.1540 & No \\
+\midrule
+Huesos de la armadura                  & 67 & 67 & No \\
+Relaciones padre-hijo                  & 66 & 66 & No \\
+Fotogramas de la acción                & 32 & 32 & No \\
+Tamaño del archivo FBX [bytes]         & 28\,426\,960 & 28\,426\,960 & No \\
+\bottomrule
+\end{tabular}
+\caption{Comparación entre la exportación normal y la exportación \textit{In Place} del mismo clip. Solo cambia el desplazamiento del nodo raíz sobre el eje de avance.}
+\label{tab:variacion_raiz}
+\end{table}
+
+El resultado es más contundente de lo que esperábamos. Dos de los cuatro renglones de movimiento permanecen \textbf{idénticos hasta la última cifra registrada}: el balanceo transversal de la cadera ($0.0816$) y su oscilación vertical ($0.1540$) son exactamente los mismos en ambas exportaciones. Lo único que cambia es el avance, que pasa de $3.6379$ a $0.0618$ unidades. Y como la escala del objeto armadura es $0.01$, ese $3.6379$ en unidades de Blender corresponde a los $\approx 360$ centímetros que se leen directamente en la curva del Editor de Gráficas de la Figura \ref{fig:exp_curvas}, lo que cierra la medición desde dos caminos independientes.
+
+La interpretación jerárquica es directa: la opción \textit{In Place} no toca ni un solo hueso de los 66 que tienen padre. Actúa exclusivamente sobre la traslación del único nodo que \textit{no} tiene padre, que es por definición el que carga con el desplazamiento del personaje en el mundo. Todo lo demás --- el ciclo de piernas, el balanceo de brazos, la rotación de la pelvis --- está descrito en coordenadas relativas al padre y por lo tanto es completamente indiferente a dónde se encuentre la raíz. Esto explica por qué en los motores de videojuegos se prefiere la versión \textit{In Place}: el programa puede mover al personaje con su propia lógica de física o de control, y la animación se acopla encima sin pelearse con ella.
+
+\subsubsection{Ventajas y desventajas de la metodología empleada}
+La principal ventaja de haber resuelto el análisis con un guion en lugar de a mano fue la confiabilidad. Con 67 huesos y 66 relaciones padre-hijo, abrir nodos uno por uno en el \textit{Outliner} y transcribirlos habría tomado bastante tiempo y, sobre todo, habría dejado abierta la posibilidad de omitir una rama sin darnos cuenta; el recorrido en profundidad, en cambio, no puede saltarse un nodo. Una segunda ventaja, que no habíamos previsto al empezar, es que tener los datos en memoria permitió responder preguntas que en la interfaz gráfica no son triviales de contestar, como cuántos huesos están conectados, cuántos descendientes tiene cada nodo o qué hueso no deforma ninguna malla. La tercera ventaja es la verificación numérica: comprobar la ecuación \eqref{eq:reconstruccion} sobre los 67 huesos convirtió una afirmación teórica en una medición con un error máximo de $4.578 \times 10^{-5}$.
+
+En cuanto a las desventajas, la más clara es que el enfoque automatizado \textbf{esconde el aprendizaje manual}. Al no tener que abrir la jerarquía a mano, uno puede terminar con un reporte correcto sin haber desarrollado la intuición de cómo se navega un rig en la interfaz, que es una habilidad práctica que sí hace falta en un flujo de trabajo real; por eso complementamos el análisis automático con los experimentos en Modo Pose, que sí se hicieron sobre la interfaz. Una segunda limitación es que trabajar con un esqueleto ajeno implica aceptar decisiones de diseño que no controlamos: el prefijo \texttt{mixamorig:} que alarga todas las etiquetas, la convención de centímetros que obliga a llevar mentalmente un factor de $100$, o la ausencia de huesos de control y de cinemática inversa, que hacen que este rig sea cómodo para reproducir animaciones prefabricadas pero incómodo para animar a mano. Finalmente, el propio formato FBX introduce la limitación numérica que ya medimos: al almacenar las matrices en precisión simple, el error se acumula a lo largo de la cadena y es mayor en los nodos más profundos, algo irrelevante para una animación pero que habría que considerar si sobre esta jerarquía se montara, por ejemplo, un sistema de detección de colisiones a nivel de dedos.
 
 \subsection{Actividad 3: Diagrama de las relaciones padre-hijo de la estructura jerárquica desde el nodo raíz}
-% [Pendiente de desarrollo]
+
+El resultado de esta actividad es el par de diagramas de las Figuras \ref{fig:res_diagrama_global} y \ref{fig:res_diagrama_mano}, generados directamente a partir de la armadura importada y que entre ambos representan las 66 relaciones padre-hijo del esqueleto completo, comenzando desde el nodo raíz \texttt{mixamorig:Hips}, tal como pide el manual.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{Imagenes/E3/diagrama_jerarquia_global.png}
+    \caption{Diagrama global de las relaciones padre-hijo del esqueleto de Remy, comenzando desde el nodo raíz \texttt{mixamorig:Hips} (recuadro sombreado). Por legibilidad se omite el prefijo \texttt{mixamorig:} de cada nombre y las cinco cadenas de falanges de cada mano se condensan en el nodo punteado correspondiente, que se despliega en la Figura \ref{fig:res_diagrama_mano}.}
+    \label{fig:res_diagrama_global}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{Imagenes/E3/diagrama_jerarquia_mano.png}
+    \caption{Detalle de la jerarquía de una mano: las cinco cadenas de falanges que cuelgan de \texttt{mixamorig:LeftHand}, con cuatro huesos cada una. Los puntos suspensivos sustituyen el prefijo repetido \texttt{LeftHand} de cada etiqueta. La mano derecha es idéntica en estructura.}
+    \label{fig:res_diagrama_mano}
+\end{figure}
+
+Leídos en conjunto, los dos diagramas revelan que el esqueleto de Mixamo es, en esencia, un árbol con muy pocas decisiones y mucha repetición. Del nodo raíz salen apenas \textbf{tres} ramas: la columna y las dos piernas. En todo el esqueleto solo hay \textbf{cinco nodos que ramifican}: la cadera (3 hijos), \texttt{Spine2} (cuello y los dos hombros), la cabeza (coronilla y los dos ojos) y cada una de las manos (5 dedos). Los 62 nodos restantes son o bien eslabones de una cadena lineal o bien hojas. Esta estructura --- pocas bifurcaciones, cadenas largas --- es lo que hace que la cinemática directa se comporte de manera tan predecible en este modelo, y es también la razón de que el diagrama crezca tanto a lo ancho: su profundidad de 12 niveles es grande comparada con sus 15 hojas.
+
+La comparación con la Actividad 1 resulta instructiva. La pierna que modelamos nosotros tenía 5 huesos en una sola cadena, sin una sola bifurcación y con todos los eslabones conectados. El esqueleto de Mixamo tiene 67 huesos, 5 bifurcaciones y la mayoría de sus uniones sin conectar. Sin embargo, el principio que los gobierna es exactamente el mismo: cada hueso guarda su transformación relativa a su padre, y la posición en el mundo se obtiene multiplicando la cadena completa desde la raíz. La diferencia entre un ejercicio de cinco huesos y un personaje profesional de sesenta y siete no es conceptual, es únicamente de escala.
 
 \subsection{Actividad 4: Exploración de software para estructuras humanoides (MakeHuman y DAZ3D)}
 % [Pendiente de desarrollo]

@@ -2,16 +2,14 @@
 
 \section{Resumen}
 \begin{abstract}
-% Redactar el resumen en español aquí:
-% - Objetivo principal de la práctica
-% - Metodología empleada y herramientas utilizadas
-% - Principales resultados y aprendizajes obtenidos
+El objetivo de esta práctica fue comprender el modelado jerárquico como mecanismo para representar estructuras articuladas complejas a partir de relaciones padre-hijo y cadenas de transformaciones. El trabajo se desarrolló en dos frentes complementarios. En el primero construimos desde cero, en Blender, una pierna humana como malla continua y la dotamos de una armadura de cinco huesos encadenados, vinculando la geometría mediante pesos automáticos calculados por difusión de calor. En el segundo tomamos un esqueleto ajeno y profesional: descargamos de Adobe Mixamo el personaje Remy animado con un ciclo de caminata, lo importamos en Blender y caracterizamos su estructura mediante un guion en Python que recorre la armadura en profundidad desde el nodo raíz. El análisis reveló un árbol de 67 huesos y 12 niveles de profundidad, con un único nodo raíz y apenas cinco nodos de bifurcación, que deforma 19\,404 vértices repartidos en siete mallas hijas. Verificamos numéricamente la ecuación de cinemática directa $M_{\text{global}} = M_{\text{padre}} \cdot M_{\text{local}}$ sobre los 67 huesos, obteniendo un error máximo de $4.578 \times 10^{-5}$ atribuible a la precisión simple del formato FBX. Como variación experimental comparamos la misma animación exportada con y sin la opción \textit{In Place}, comprobando que únicamente se altera la traslación del nodo raíz sobre el eje de avance (de $3.6379$ a $0.0618$ unidades) mientras que el balanceo transversal y vertical permanecen idénticos, lo que demuestra que el desplazamiento global de un personaje reside por completo en el único hueso que carece de padre. Finalmente generamos, a partir de los datos reales de la armadura, los diagramas de las relaciones padre-hijo del esqueleto completo.
+
+\textbf{Palabras clave:} modelado jerárquico, cinemática directa, armadura, relación padre-hijo, cadena de transformaciones.
 \end{abstract}
 
 \renewcommand{\abstractname}{Abstract}
 \begin{abstract}
-% Write the abstract in English here:
-% - Main objective of the laboratory practice
-% - Methodology and tools used
-% - Main results and learnings achieved
+The goal of this laboratory practice was to understand hierarchical modelling as a mechanism for representing complex articulated structures through parent-child relationships and chains of transformations. The work followed two complementary approaches. In the first one we built a human leg from scratch in Blender as a single continuous mesh and rigged it with an armature of five connected bones, binding the geometry through automatic weights computed by heat diffusion. In the second one we examined an external, production-grade skeleton: we downloaded the character Remy from Adobe Mixamo animated with a walking cycle, imported it into Blender and characterised its structure with a Python script that traverses the armature depth-first from the root node. The analysis revealed a tree of 67 bones and 12 levels of depth, with a single root node and only five branching nodes, deforming 19\,404 vertices distributed across seven child meshes. We numerically verified the forward kinematics equation $M_{\text{global}} = M_{\text{parent}} \cdot M_{\text{local}}$ across all 67 bones, obtaining a maximum error of $4.578 \times 10^{-5}$, attributable to the single-precision storage of the FBX format. As an experimental variation we compared the same animation exported with and without the \textit{In Place} option, confirming that only the root node translation along the travel axis is altered (from $3.6379$ to $0.0618$ units) while lateral and vertical sway remain identical, which shows that the global displacement of a character resides entirely in the one bone that has no parent. Finally, we generated the parent-child relationship diagrams of the complete skeleton directly from the armature data.
+
+\textbf{Keywords:} hierarchical modelling, forward kinematics, armature, parent-child relationship, transformation chain.
 \end{abstract}
