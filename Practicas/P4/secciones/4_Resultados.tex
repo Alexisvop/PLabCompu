@@ -36,6 +36,34 @@ En la Figura \ref{fig:resultado_pierna} se compara el estado final de la pierna 
     \label{fig:resultado_pierna}
 \end{figure}
 
+\subsubsection{Resultado de la variación: estabilidad cinemática y definición del plano articular}
+
+Al comparar numéricamente y en pantalla la configuración colineal frente a la variación con pre-flexión articular, los resultados demostraron que una alteración geométrica milimétrica en la etapa de armado condiciona por completo el éxito cinemático de la extremidad. Los hallazgos se concentran en la Tabla \ref{tab:variacion_act1}.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}p{4.2cm}p{5.4cm}p{5.4cm}@{}}
+\toprule
+\textbf{Criterio evaluado} & \textbf{Configuración base ($180^\circ$)} & \textbf{Variación con pre-flexión ($+Y$)} \\
+\midrule
+Ángulo de reposo articular & $180.0^\circ$ (vector vertical estricto) & $\approx 172.5^\circ$ (desfase anterior en $+Y$) \\
+Vector normal del plano ($\hat{n}$) & Indeterminado ($\vec{v}_1 \times \vec{v}_2 = \vec{0}$) & Definido unívocamente sobre el eje $X$ local \\
+Comportamiento en Modo Pose & Desviación lateral e hiperextensión & Flexión sagital uniaxal estable ($0^\circ$ a $130^\circ$) \\
+Respuesta de la malla & Torsión irregular en la rótula & Deformación orgánica limpia y sin torsión \\
+Compatibilidad con solvers IK & Inestable (falla de bisagra) & Óptima (vector director para IK de 2 huesos) \\
+\bottomrule
+\end{tabular}
+\caption{Comparación experimental entre la configuración colineal base y la variación con pre-flexión articular en la rodilla.}
+\label{tab:variacion_act1}
+\end{table}
+
+La razón matemática de este comportamiento radica en el cálculo del plano de rotación: cuando dos segmentos articulados se disponen en una línea perfectamente colineal ($180^\circ$), los vectores de ambos huesos resultan paralelos ($\vec{v}_{\text{fémur}} \parallel \vec{v}_{\text{tibia}}$), anulando su producto cruz ($\vec{v}_{\text{fémur}} \times \vec{v}_{\text{tibia}} = \vec{0}$) y generando una singularidad donde el plano sagital de flexión carece de una normal definida. En estas condiciones, cualquier rotación en Modo Pose o interpolación de animación produce componentes espurias en los ejes secundarios, manifestándose visualmente como rotaciones torcidas fuera del plano o como una hiperextensión anterior anatómicamente absurda. 
+
+En contraste, la variación implementada con el leve offset en $+Y$ fija un ángulo inicial de $\approx 172.5^\circ$, proporcionando un vector bisectriz que define de manera unívoca la normal unitaria $\hat{n}$. Como resultado práctico, la rodilla queda restringida a comportarse mecánicamente como una bisagra pura de un solo grado de libertad sobre su eje local $X$, doblando estrictamente hacia atrás y manteniendo la integridad de la piel en el cuádriceps y la corva. Esta propiedad no solo beneficia a la Cinemática Directa (FK), sino que representa un requisito indispensable para la estabilidad de algoritmos de Cinemática Inversa (IK de dos huesos), los cuales dependen de esta curvatura para resolver la dirección de plegado de la extremidad.
+
+\subsubsection{Ventajas y desventajas de la metodología empleada}
+
 Al evaluar las ventajas de la metodología que seguimos, la principal fortaleza estuvo en haber modelado la pierna como una sola pieza continua en lugar de ensamblar cilindros y cajas independientes. Esto no solo le da un acabado mucho más realista a la piel, sino que permitió que el algoritmo de difusión de calor de Blender (\textit{Automatic Weights}) calculara degradados de peso continuos y suaves, ahorrándonos el trabajo de tener que pintar la influencia de cada vértice de forma manual. Igualmente, configurar los huesos con la propiedad \texttt{Connected} nos garantizó que las articulaciones mantuvieran siempre el contacto en los pivotes, evitando cualquier desprendimiento accidental de las extremidades al rotarlas. Desde el punto de vista didáctico, trabajar con Cinemática Directa (FK) nos resultó muy formativo para entender en la práctica cómo opera la propagación jerárquica de matrices ($M_{\text{global}} = M_{\text{padre}} \cdot M_{\text{local}}$), ya que pudimos inspeccionar de primera mano cómo cada transformación local afecta en cascada a todos sus descendientes.
 
 En cuanto a las desventajas y limitaciones que identificamos, la más evidente es la dificultad que presenta la Cinemática Directa cuando se intenta animar una interacción de contacto fijo con el suelo. Para simular que la planta del pie se queda apoyada mientras el cuerpo avanza, con FK es necesario reajustar manualmente la cadera, el muslo, la pantorrilla y el metatarso en cada fotograma, lo cual se vuelve muy tedioso y poco preciso en comparación con un sistema de Cinemática Inversa (IK), donde bastaría con arrastrar el pie a su posición deseada y dejar que la rodilla se flexione de forma automática. Por otro lado, aunque el modificador de subdivisión deja la superficie impecable para renderizado estático o ilustración, el conteo de polígonos resultante es demasiado alto para una aplicación gráfica interactiva o un motor en tiempo real como OpenGL, lo que en un flujo de trabajo profesional obligaría a realizar una retopología o a hornear las normales sobre una malla de baja resolución. Finalmente, notamos que si bien los pesos automáticos retienen bien el volumen en rangos normales de flexión (hasta unos $90^\circ$), en flexiones muy cerradas que superan los $120^\circ$ se aprecia un leve aplanamiento en el pliegue poplíteo posterior, un detalle que en una producción avanzada requeriría apoyarse en claves de forma correctivas (\textit{Corrective Shape Keys}) para mantener la masa muscular intacta.

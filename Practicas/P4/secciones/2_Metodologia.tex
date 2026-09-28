@@ -22,28 +22,6 @@ Hardware & Equipo de cómputo con procesador multinúcleo y GPU compatible con O
 \label{tab:requerimientos}
 \end{table}
 
-\subsection{Fundamentos teóricos: estructuras jerárquicas y cinemática directa}
-En computación gráfica, una estructura jerárquica (o esqueleto de animación) se modela formalmente como una cadena cinemática o árbol acíclico dirigido, compuesto por un conjunto de cuerpos rígidos denominados \textit{huesos} conectados mediante \textit{articulaciones}. 
-
-Cada hueso $i$ posee su propio sistema de coordenadas local y una matriz de transformación relativa $M_{\text{local}}^{(i)}$ respecto a su nodo padre, definida comúnmente a partir de traslaciones, rotaciones y escalamientos locales:
-\begin{equation}
-    M_{\text{local}}^{(i)} = T(\mathbf{t}_i) \cdot R(\mathbf{r}_i) \cdot S(\mathbf{s}_i)
-\end{equation}
-
-Bajo el modelo de \textbf{Cinemática Directa} (\textit{Forward Kinematics}, FK), la posición y orientación global de una articulación hija no se calculan de manera aislada, sino a través de la multiplicación acumulativa de las transformaciones de toda su línea de ascendencia a partir del nodo raíz (\textit{Root}):
-\begin{equation}
-    M_{\text{global}}^{(i)} = M_{\text{global}}^{(\text{padre})} \cdot M_{\text{local}}^{(i)} = \prod_{k \in \text{ancestros}(i)} M_{\text{local}}^{(k)}
-\end{equation}
-
-Posteriormente, para transferir el movimiento del esqueleto a la superficie de la geometría, se emplea el algoritmo de deformación lineal por combinación de pesos (\textit{Linear Blend Skinning}, LBS). La posición final deformada de cualquier vértice $v'$ se obtiene como una combinación convexa de las transformaciones de los huesos que lo influyen:
-\begin{equation}
-    v' = \sum_{j=1}^{m} w_j \cdot M_{\text{global}}^{(j)} \cdot \left(B_j\right)^{-1} \cdot v
-\end{equation}
-donde $v$ es la posición original del vértice en pose de reposo, $B_j$ es la matriz de pose de reposo del hueso $j$ (\textit{Bind Pose Matrix}), $M_{\text{global}}^{(j)}$ es la matriz de transformación del hueso en la pose actual, y $w_j$ es el factor de peso asignado al vértice por el hueso $j$, sujeto a la restricción de partición de la unidad:
-\begin{equation}
-    \sum_{j=1}^{m} w_j = 1, \quad \text{con } w_j \ge 0
-\end{equation}
-
 \subsection{Actividad 1: Modelado de una pierna con articulaciones jerarquizadas en Blender}
 
 Para el desarrollo de esta primera actividad decidimos construir la pierna como una sola malla continua en lugar de ensamblar figuras rígidas independientes. La razón principal de esta decisión fue asegurar que la piel se deformara de forma natural y elástica en las articulaciones sin que se abrieran huecos o costuras visibles al momento de flexionar la extremidad.
@@ -58,7 +36,9 @@ Con la malla lista, procedimos a diseñar el esqueleto creando una armadura bás
 \end{center}
 Además, activamos las casillas \textit{In Front} (Rayos X) y \textit{Names} en las propiedades de la armadura para poder monitorear la jerarquía y la orientación de los huesos a través de la malla en todo momento.
 
-En esta fase consideramos un detalle crucial para el comportamiento cinemático: si alineábamos el fémur y la espinilla en una línea recta vertical de $180^\circ$, el cálculo de rotación no tenía un eje de referencia claro y la rodilla tendía a flexionarse en direcciones impredecibles. Para resolver esto, en la vista lateral ortogonal (\textit{Numpad 3}) desplazamos la articulación de la rodilla ligeramente hacia adelante en el eje $+Y$, introduciendo una pre-flexión anatómica natural que obliga a la pierna a doblarse siempre hacia atrás.
+En esta fase consideramos un detalle crucial para el comportamiento cinemático: si alineábamos el fémur y la espinilla en una línea recta vertical de $180^\circ$, el cálculo de rotación no tenía un plano de flexión preferente y la articulación tendía a sufrir ambigüedad geométrica. Para resolver esto, en la vista lateral ortogonal (\textit{Numpad 3}) desplazamos la articulación de la rodilla ligeramente hacia adelante en el eje $+Y$, introduciendo una pre-flexión anatómica natural que obliga a la pierna a doblarse siempre hacia atrás.
+
+Como variación experimental formal de esta actividad, decidimos contrastar sistemáticamente el comportamiento biomecánico de estas dos configuraciones: la cadena colineal original ($180^\circ$, fémur y espinilla sobre una vertical pura sin offset) frente a la variación con pre-flexión angular ortogonal ($+Y$), evaluando cómo la presencia o ausencia de un plano de curvatura inicial condiciona la estabilidad del eje de rotación y la respuesta de deformación de la superficie.
 
 Para transferir el movimiento de los huesos a los vértices de la malla, en Modo Objeto seleccionamos la pierna y la armadura y aplicamos el emparentado automático mediante \texttt{Ctrl + P} $\to$ \textit{With Automatic Weights}. Este paso vincula el modificador \textit{Armature} y utiliza el algoritmo de difusión de calor de Blender (\textit{bone heat weighting}), el cual interpreta los huesos como fuentes térmicas que irradian influencia sobre el volumen cerrado de la pierna. Como habíamos planificado bucles de soporte limpios en las articulaciones, los pesos se distribuyeron con degradados suaves y normalizados ($\sum w_j = 1$), lo que comprobamos inspeccionando la rodilla en Modo Pintura de Pesos (\textit{Weight Paint}) sin necesidad de tener que pintar vértices a mano de forma pesada.
 
