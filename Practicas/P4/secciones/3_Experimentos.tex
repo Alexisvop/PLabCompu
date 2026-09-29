@@ -191,4 +191,66 @@ Probamos tres correcciones antes de dar con la definitiva:
 La solución que finalmente adoptamos parte de una observación sobre la propia estructura: de los 67 huesos, \textbf{40 son falanges} organizadas en diez cadenas idénticas de cuatro huesos cada una. Dibujar diez veces la misma cadena no agrega información, solo ancho. Por eso decidimos partir la representación en dos figuras complementarias: un \textbf{diagrama global} en el que las cinco cadenas de dedos de cada mano se condensan en un único nodo resumen dibujado con línea punteada, y un \textbf{diagrama de detalle} de una mano completa, en el que además sustituimos el prefijo repetido \texttt{LeftHand} por puntos suspensivos. Con ese par de ajustes el diagrama global bajó de una proporción de 8:1 a una de 5:1 y el de la mano quedó en 4:1, lo que permite imprimir ambos con tipografía legible. Los resultados se presentan en la sección siguiente.
 
 \subsection{Actividad 4: Exploración de software para estructuras humanoides (MakeHuman y DAZ3D)}
-% [Pendiente de desarrollo]
+\subsubsection{Ejemplo con DAZ Studio}
+
+El primer intento de cargar la figura no salió como esperábamos. Al dar doble clic sobre Genesis 9, en el visor apareció un personaje formado por bloques rectangulares, uno por cada segmento del cuerpo (cabeza, torso, brazos, antebrazos, manos, muslos, piernas y pies), pero sin la malla del cuerpo (Figura \ref{fig:exp_daz_bloques}). Al abrir de nuevo el gestor de instalación encontramos la causa: la instalación, que habíamos dejado corriendo durante la noche, no había terminado, y las partes 1 y 2 de \textit{Genesis 9 Starter Essentials} seguían pendientes. Instalamos solamente esas dos partes, volvimos a abrir el programa y esta vez la figura se cargó completa (Figura \ref{fig:exp_daz_cargada}). Lo interesante de este error es que, aun sin la malla, los bloques ya aparecían acomodados en la posición correcta de cada parte del cuerpo, lo que interpretamos como que la estructura de la figura se carga de forma independiente de su geometría.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.58\textwidth]{Imagenes/E4/01_daz_figura_incompleta_bloques.png}
+    \includegraphics[width=0.32\textwidth]{Imagenes/E4/02_daz_install_manager.png}
+    \caption{Primer intento en Daz Studio. Izquierda: la figura cargada como bloques por segmento, sin malla. Derecha: el gestor de instalación mostrando pendientes las partes 1 y 2 de \textit{Genesis 9 Starter Essentials}.}
+    \label{fig:exp_daz_bloques}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.72\textwidth]{Imagenes/E4/03_daz_figura_cargada.png}
+    \caption{Figura base Genesis 9 cargada correctamente en Daz Studio 6 tras completar la instalación.}
+    \label{fig:exp_daz_cargada}
+\end{figure}
+
+Con la figura completa activamos el \textit{Joint Editor} y cambiamos el visor a modo de alambre. Como se ve en la Figura \ref{fig:exp_daz_joint}, el programa dibuja los huesos dentro del cuerpo y, al seleccionar los muslos y las espinillas, los resalta tanto en el visor como en el panel Scene. En ese mismo panel notamos desde el principio algo que no tenía el esqueleto de Mixamo: debajo de \texttt{Left Thigh} no cuelga un solo hijo, sino tres, \texttt{Left Shin}, \texttt{Left Thigh Twist 1} y \texttt{Left Thigh Twist 2}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{Imagenes/E4/04_daz_joint_editor_esqueleto.png}
+    \caption{Esqueleto de Genesis 9 visualizado con el \textit{Joint Editor} sobre la malla en alambre. A la derecha, el panel Scene con los huesos de ambas piernas seleccionados, incluyendo los huesos de torsión del muslo.}
+    \label{fig:exp_daz_joint}
+\end{figure}
+
+Después expandimos el árbol completo en el panel Scene (Figura \ref{fig:exp_daz_scene}). El nodo raíz es \texttt{Genesis 9}, que no aparece con el ícono de hueso sino con el de figura, y el primer hueso que cuelga de él es \texttt{Hip}. De \texttt{Hip} salen dos ramas: \texttt{Pelvis}, de la que cuelgan las dos piernas, y \texttt{Spine 1}, que inicia la columna. La columna tiene cuatro segmentos y de \texttt{Spine 3} se desprenden, además de \texttt{Spine 4}, los huesos \texttt{Left Pectoral} y \texttt{Right Pectoral}. De \texttt{Spine 4} salen tres ramas: los dos hombros y el cuello, que llega a \texttt{Head}. De la cabeza cuelgan siete nodos: los dientes superiores, la mandíbula, el rig de la parte superior de la cara, los dos ojos y las dos orejas. Al final de la lista aparecen también, como hijos directos de \texttt{Genesis 9}, cinco figuras separadas: pestañas, lágrima, ojos, boca y cejas.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=10cm]{Imagenes/E4/05_daz_scene_jerarquia_1.png}
+    \hspace{0.8cm}
+    \includegraphics[height=4.29cm]{Imagenes/E4/06_daz_scene_jerarquia_2.png}
+    \caption{Jerarquía de Genesis 9 en el panel Scene. Izquierda: desde el nodo raíz \texttt{Genesis 9} hasta el cuello. Derecha: continuación desde \texttt{Neck 2}, con los hijos de la cabeza, los pectorales y las figuras ajustadas que cuelgan de la raíz.}
+    \label{fig:exp_daz_scene}
+\end{figure}
+
+Para las pruebas de propagación seleccionamos primero \texttt{Left Shoulder} y le dimos un valor de \textit{Bend} de $55^\circ$. Como se aprecia en la Figura \ref{fig:exp_daz_rotaciones} (izquierda), el brazo completo se levantó en bloque: brazo superior, antebrazo y mano conservaron su postura relativa y solo cambió su orientación. Después regresamos el hombro a su posición original y seleccionamos \texttt{Left Forearm}, al que le dimos un \textit{Bend} de $-122.08^\circ$. Esta vez el antebrazo se dobló hacia el pecho llevándose la mano, pero el brazo superior y el hombro no se movieron (Figura \ref{fig:exp_daz_rotaciones}, derecha).
+
+En esta prueba notamos otra diferencia con Blender. Al seleccionar \texttt{Left Shoulder} el panel Parameters muestra tres rotaciones (\textit{Twist}, \textit{Front-Back} y \textit{Bend}), pero al seleccionar \texttt{Left Forearm} solo aparecen dos, \textit{Twist} y \textit{Bend}. Es decir, Daz Studio ya limita desde el rig los grados de libertad de cada articulación: el codo se comporta como una bisagra y no deja rotar el antebrazo hacia los lados.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.49\textwidth]{Imagenes/E4/07_daz_rotacion_hombro.png}
+    \includegraphics[width=0.49\textwidth]{Imagenes/E4/08_daz_rotacion_antebrazo.png}
+    \caption{Pruebas de propagación en Daz Studio. Izquierda: \texttt{Left Shoulder} con \textit{Bend} de $55^\circ$, el brazo completo sigue la rotación. Derecha: \texttt{Left Forearm} con \textit{Bend} de $-122.08^\circ$, solo se mueven el antebrazo y la mano.}
+    \label{fig:exp_daz_rotaciones}
+\end{figure}
+
+\subsubsection{Variación de la actividad: agregar un nodo hijo a la jerarquía}
+
+Para la variación creamos una esfera primitiva de tamaño pequeño y la movimos hasta la mano izquierda. En ese momento la esfera era un objeto independiente dentro de la escena, al mismo nivel que la figura. Luego, en el panel Scene, arrastramos el nodo \texttt{Sphere} y lo soltamos sobre \texttt{Left Hand}. Al volver a expandir el árbol, la esfera ya aparecía dentro de la mano, al mismo nivel que \texttt{Left Hand Anchor}, \texttt{Left Thumb 1} y los metacarpianos de los otros cuatro dedos (Figura \ref{fig:exp_daz_esfera}).
+
+Para comprobar que la relación funcionaba rotamos de nuevo la cadena del brazo. La esfera siguió a la mano en todo momento y se mantuvo junto a la mano en la misma posición relativa, aunque nunca la movimos directamente: toda su transformación la heredó de la cadena \texttt{Spine 4} $\to$ \texttt{Left Shoulder} $\to$ \texttt{Left Upper Arm} $\to$ \texttt{Left Forearm} $\to$ \texttt{Left Hand}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{Imagenes/E4/09_daz_variacion_esfera.png}
+    \caption{Variación de la Actividad 4: la esfera emparentada como hija de \texttt{Left Hand}. En el panel Scene aparece al mismo nivel que los dedos, y en el visor sigue a la mano al rotar el brazo.}
+    \label{fig:exp_daz_esfera}
+\end{figure}
