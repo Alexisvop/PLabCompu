@@ -1,0 +1,36 @@
+% ==============================================================================
+% EXPERIMENTOS
+% ==============================================================================
+% Instrucciones de la plantilla:
+% - Detallar de manera clara y estructurada las pruebas realizadas.
+% - Incluir tanto los resultados exitosos como los fallidos.
+% - Detallar las variaciones exploradas en cada actividad.
+% - Describir los experimentos base: objetivo, metodología empleada y resultados obtenidos, respaldados con imágenes, gráficos o datos numéricos.
+% ==============================================================================
+
+\section{Experimentos}
+
+En esta sección se presentan las pruebas experimentales desarrolladas para validar el comportamiento del sistema gráfico bajo distintas configuraciones y parámetros.
+
+\subsection{Experimento 1: [Título o variación probada]}
+\subsubsection{Objetivo del experimento}
+Evaluar el comportamiento del renderizado al variar los parámetros de...
+
+\subsubsection{Pruebas exitosas}
+% Describir casos en los que la prueba funcionó como se esperaba:
+Se observó que al configurar... la salida gráfica generó la geometría esperada con una tasa de cuadros estable.
+
+\subsubsection{Pruebas fallidas y análisis de errores}
+% Describir fallos encontrados durante el desarrollo, errores de compilación/enlace/shaders:
+Durante la primera ejecución ocurrió un fallo debido a una discrepancia en el formato de los atributos del vértice (layout del shader), provocando una pantalla en negro (\textit{black screen}). Dicho error se corrigió ajustando el paso (\textit{stride}) en \texttt{glVertexAttribPointer}.
+
+%\begin{figure}[H]
+%    \centering
+%    \includegraphics[width=0.7\textwidth]{Imagenes/experimento_error.png}
+%    \caption{Captura del comportamiento erróneo observado antes de la corrección.}
+%    \label{fig:error_exp1}
+%\end{figure}
+
+\subsection{Experimento 2: [Título o variación probada]}
+% Detallar los experimentos para la siguiente actividad o variante explorada.
+\textit{Describir aquí el segundo experimento realizado, sus variaciones y contrastes...}

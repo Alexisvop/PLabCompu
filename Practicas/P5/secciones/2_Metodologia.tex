@@ -1,0 +1,66 @@
+% ==============================================================================
+% METODOLOGÍA
+% ==============================================================================
+% Instrucciones de la plantilla:
+% - Presentar de manera clara y estructurada el proceso seguido durante la práctica de laboratorio.
+% - Comenzar con la configuración del entorno de trabajo (herramientas, lenguajes, bibliotecas: OpenGL, GLU, Assimp, GLEW, GLFW, GLM, etc.).
+% - Detallar los algoritmos gráficos implementados explicando su fundamento teórico y su adaptación práctica (dibujo de formas, transformaciones geométricas, etc.).
+% - Incluir imágenes con títulos y descripciones de los pasos ejecutados.
+% - Suficientemente detallado para que cualquier lector pueda replicar el programa.
+% - REGLA: "Una metodología por actividad".
+% ==============================================================================
+
+\section{Metodología}
+
+\subsection{Configuración del entorno de trabajo}
+Para el desarrollo de la práctica se utilizó un entorno de desarrollo estructurado en C++ configurado con soporte para OpenGL moderno. En la Tabla \ref{tab:requerimientos} se detallan las herramientas, bibliotecas y componentes del sistema empleados.
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|p{4.2cm}|p{10.5cm}|}
+\hline
+\textbf{Elemento} & \textbf{Especificación / Versión empleada} \\ \hline
+Sistema operativo & Linux / Windows 11 (64 bits) \\ \hline
+Entorno de desarrollo & Visual Studio Code / Microsoft Visual Studio \\ \hline
+Compilador y estándar & GCC / MSVC (soporte para \texttt{C++20}) \\ \hline
+API gráfica & OpenGL 3.3 (Perfil Core) \\ \hline
+Bibliotecas principales & GLFW (manejo de ventanas y eventos), GLAD (cargador de funciones), GLM (matemáticas vectoriales y matriciales), Assimp (carga de modelos 3D) \\ \hline
+Hardware de prueba & Tarjeta gráfica compatible con OpenGL 3.3 Core \\ \hline
+\end{tabular}
+\caption{Requerimientos de hardware, software y bibliotecas utilizadas.}
+\label{tab:requerimientos}
+\end{table}
+
+\subsection{Actividad 1: [Nombre de la Actividad 1]}
+Describir detalladamente el procedimiento implementado para la primera actividad: arquitectura del programa, flujo de ejecución y algoritmos gráficos desarrollados.
+
+\subsubsection{Algoritmo y fundamento matemático}
+Explicar el fundamento teórico del algoritmo (por ejemplo, el algoritmo de rasterización de líneas de Bresenham o cálculo de transformaciones afines):
+\begin{equation}
+    P' = M_{proyecci\acute{o}n} \cdot M_{vista} \cdot M_{modelo} \cdot P
+    \label{eq:transformacion}
+\end{equation}
+
+\subsubsection{Implementación del código}
+A continuación se muestra el segmento clave de código que implementa la solución:
+
+\begin{lstlisting}[language=C++, caption={Configuración de buffers (VAO, VBO) y dibujo de geometrías.}, label={lst:actividad1}]
+// Generación y enlace del Vertex Array Object (VAO) y Vertex Buffer Object (VBO)
+unsigned int VAO, VBO;
+glGenVertexArrays(1, &VAO);
+glGenBuffers(1, &VBO);
+
+glBindVertexArray(VAO);
+glBindBuffer(GL_ARRAY_BUFFER, VBO);
+glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+// Definición de atributos de vértices (posición xyz)
+glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+glEnableVertexAttribArray(0);
+\end{lstlisting}
+
+\subsection{Actividad 2: [Nombre de la Actividad 2]}
+% Describir aquí la metodología correspondiente a la Actividad 2.
+% Recordar: "Una metodología por actividad".
+\textit{Describir aquí el proceso metodológico de la segunda actividad...}
