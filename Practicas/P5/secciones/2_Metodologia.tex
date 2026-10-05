@@ -32,8 +32,9 @@ Hardware de prueba & Tarjeta gráfica compatible con OpenGL 3.3 Core \\ \hline
 \label{tab:requerimientos}
 \end{table}
 
-\subsection{Actividad 1: [Nombre de la Actividad 1]}
-Describir detalladamente el procedimiento implementado para la primera actividad: arquitectura del programa, flujo de ejecución y algoritmos gráficos desarrollados.
+\subsection{Actividad 1: Construcción e Integración del Escenario Completo 3D}
+
+En esta actividad se diseñó un entorno tridimensional mediante el modelado de un edificio y elementos complementarios en Blender, para posteriormente exportarlo al formato FBX e integrarlo en una aplicación gráfica desarrollada en C++ utilizando la API de OpenGL y la biblioteca Assimp.
 
 \subsubsection{Algoritmo y fundamento matemático}
 Explicar el fundamento teórico del algoritmo (por ejemplo, el algoritmo de rasterización de líneas de Bresenham o cálculo de transformaciones afines):
@@ -60,10 +61,10 @@ glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 glEnableVertexAttribArray(0);
 \end{lstlisting}
 
-\subsection{Actividad 2: [Nombre de la Actividad 2]}
+\subsection{Actividad 2: Variación del Escenario 3D}
 % Describir aquí la metodología correspondiente a la Actividad 2.
 % Recordar: "Una metodología por actividad".
-\textit{Describir aquí el proceso metodológico de la segunda actividad...}
+Esta actividad consistió en implementar una variación al escenario original agregando más elementos geométricos en sus alrededores desde Blender, modificando la estructura del modelo e integrando un personaje navegable.
 
 \subsection{Actividad 3: Personaje humanoide controlado con las flechas del teclado}
 
