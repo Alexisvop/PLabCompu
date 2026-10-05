@@ -15,17 +15,7 @@ Iniciamos el experimento modelando la pierna como una sola malla continua a part
 
 Una vez que la geometría estuvo lista, creamos una armadura básica insertando un solo hueso (\texttt{Shift + A} $\to$ \textit{Armature} $\to$ \textit{Single Bone}) para comenzar el sistema esquelético. Colocamos el primer hueso como raíz en la cadera (\texttt{1\_Cadera\_Pelvis}) y a partir de su extremo (\textit{tail}) fuimos extruyendo consecutivamente con la tecla \texttt{E} los cuatro huesos restantes: el fémur (\texttt{2\_Muslo\_Femur}), la espinilla (\texttt{3\_Espinilla\_Tibia}), el metatarso (\texttt{4\_Pie\_Metatarso}) y los dedos (\texttt{5\_Dedos\_Pie}), manteniendo siempre la opción \texttt{Connected} activa para que las articulaciones no se desfasaran ni se separaran al rotar. Para poder supervisar con claridad la armadura dentro del cuerpo, activamos las casillas \textit{In Front} (Rayos X) y \textit{Names} en las propiedades de visualización de Blender, tal como se muestra en la Figura \ref{fig:exp_armadura_rayosx} (izquierda).
 
-Fue justo al colocar estos huesos donde nos topamos con nuestro primer problema importante. Al inicio habíamos colocado el fémur y la espinilla formando una línea vertical perfectamente recta ($180^\circ$). Sin embargo, al pasar a hacer las primeras pruebas de flexión, el cálculo de rotación no tenía un plano preferente y la rodilla tendía a doblarse hacia cualquier dirección indeterminada o de manera inversa. Para solucionar esto regresamos a Modo Edición y, mirando la pierna desde la vista lateral ortogonal (\textit{Numpad 3}), desplazamos la cabeza de la rodilla ligeramente hacia adelante sobre el eje $+Y$, tal como se ilustra en la Figura \ref{fig:exp_armadura_rayosx} (derecha). Este pequeño ajuste le dio una pre-flexión anatómica natural a la cadena ósea que eliminó la ambigüedad matemática y forzó a que la rodilla siempre se flexionara correctamente hacia atrás.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.45\textwidth]{Imagenes/E1/01_armadura_modo_edicion_rayosX.png}
-    \includegraphics[width=0.45\textwidth]{Imagenes/E1/05_preflexion_rodilla_vista_lateral.png}
-    \caption{Configuración de la armadura en Modo Edición: a la izquierda, cadena de 5 huesos con visualización de nombres y Rayos X (\textit{In Front}); a la derecha, vista lateral ortogonal mostrando la pre-flexión anterior ($+Y$) en la rodilla para definir el eje de rotación.}
-    \label{fig:exp_armadura_rayosx}
-\end{figure}
-
-Con el esqueleto corregido procedimos a vincular la malla con la armadura. En Modo Objeto seleccionamos primero la pierna, luego la armadura con \texttt{Shift}, y aplicamos el atajo \texttt{Ctrl + P} seleccionando \textit{With Automatic Weights}. Esta operación asoció el modificador \textit{Armature} y generó los grupos de vértices de cada hueso mediante el algoritmo de difusión de calor de Blender. Para comprobar si los pesos se habían calculado de manera adecuada entramos a Modo Pintura de Pesos (\textit{Weight Paint}) y seleccionamos el fémur y la espinilla. Como se observa en la Figura \ref{fig:exp_weightpaint}, los bucles de soporte que habíamos previsto en el modelado permitieron que la influencia se distribuyera con un degradado térmico muy suave y progresivo en la rodilla, pasando gradualmente del rojo al azul sin transiciones bruscas, por lo que no fue necesario retocar pesos a mano.
+Con el esqueleto ensamblado procedimos a vincular la malla con la armadura. En Modo Objeto seleccionamos primero la pierna, luego la armadura con \texttt{Shift}, y aplicamos el atajo \texttt{Ctrl + P} seleccionando \textit{With Automatic Weights}. Esta operación asoció el modificador \textit{Armature} y generó los grupos de vértices de cada hueso mediante el algoritmo de difusión de calor de Blender. Para comprobar si los pesos se habían calculado de manera adecuada entramos a Modo Pintura de Pesos (\textit{Weight Paint}) y seleccionamos el fémur y la espinilla. Como se observa en la Figura \ref{fig:exp_weightpaint}, los bucles de soporte que habíamos previsto en el modelado permitieron que la influencia se distribuyera con un degradado térmico muy suave y progresivo en la rodilla, pasando gradualmente del rojo al azul sin transiciones bruscas, por lo que no fue necesario retocar pesos a mano.
 
 \begin{figure}[H]
     \centering
@@ -34,7 +24,24 @@ Con el esqueleto corregido procedimos a vincular la malla con la armadura. En Mo
     \label{fig:exp_weightpaint}
 \end{figure}
 
-Finalmente pasamos a Modo Pose (\texttt{Ctrl + Tab}) para evaluar el movimiento mediante Cinemática Directa (FK), rotando cada articulación de forma individual con la tecla \texttt{R}. Aquí comprobamos la herencia jerárquica en cascada: rotar la cadera mueve toda la pierna, rotar el fémur arrastra la rodilla y el pie, y rotar el pie solo mueve los dedos. En estas pruebas observamos un segundo detalle experimental: al forzar la rodilla a una flexión pronunciada (más de $90^\circ$), la parte posterior de la corva (pliegue poplíteo) se comprimía de más y tendía a perder volumen. Lo resolvimos agregando dos cortes de bucle adicionales con \texttt{Ctrl + R} alrededor de la rótula y el pliegue, lo que reforzó la densidad poligonal en esa zona y permitió que la pierna conservara su masa muscular incluso en ángulos de flexión cerrados.
+Finalmente pasamos a Modo Pose (\texttt{Ctrl + Tab}) para evaluar el movimiento mediante Cinemática Directa (FK), rotando cada articulación de forma individual con la tecla \texttt{R}. Aquí comprobamos la herencia jerárquica en cascada: rotar la cadera mueve toda la pierna, rotar el fémur arrastra la rodilla y el pie, y rotar el pie solo mueve los dedos. En estas pruebas observamos también la deformación muscular: al forzar la rodilla a una flexión pronunciada (más de $90^\circ$), la parte posterior de la corva (pliegue poplíteo) se comprimía de más y tendía a perder volumen. Lo resolvimos agregando dos cortes de bucle adicionales con \texttt{Ctrl + R} alrededor de la rótula y el pliegue, lo que reforzó la densidad poligonal en esa zona y permitió que la pierna conservara su masa muscular incluso en ángulos de flexión cerrados.
+
+\subsubsection{Variación de la actividad: alineación articular colineal (\texorpdfstring{$180^\circ$}{180 grados}) frente a pre-flexión ortogonal (\texorpdfstring{$+Y$}{+Y})}
+
+Para dar cumplimiento formal al requisito del manual de reportar una variación experimental por cada actividad, decidimos investigar a fondo un problema geométrico y biomecánico clásico en animación por computadora: la alineación articular de las extremidades inferiores. En lugar de limitarnos a la configuración final corregida, sometimos a prueba comparativa dos armaduras con orientaciones iniciales distintas:
+
+\begin{enumerate}[noitemsep, topsep=4pt]
+    \item \textbf{Configuración base colineal ($180^\circ$):} En el primer montaje experimental colocamos los huesos \texttt{2\_Muslo\_Femur} y \texttt{3\_Espinilla\_Tibia} compartiendo exactamente el mismo eje vertical, de modo que la articulación de la rodilla formaba un ángulo llano de $180^\circ$. Al pasar a Modo Pose e intentar rotar la espinilla respecto al fémur, observamos una fuerte ambigüedad: al no existir un plano preferente previo, cualquier manipulación manual producía ligeras torsiones parásitas fuera del plano sagital anatómico e incluso permitía que la rodilla se flexionara hacia adelante en hiperextensión inversa. Desde la perspectiva matemática, los dos vectores directores eran colineales, provocando que su producto vectorial fuera nulo ($\vec{v}_{\text{fémur}} \times \vec{v}_{\text{tibia}} = \vec{0}$) y dejando el vector normal del plano de rotación totalmente indeterminado.
+    \item \textbf{Variación con pre-flexión ortogonal ($+Y$):} En la variación experimental modificamos la posición de la articulación en Modo Edición. Mirando la pierna desde la vista lateral ortogonal (\textit{Numpad 3}), desplazamos la cabeza de la rodilla ligeramente hacia el frente en el eje $+Y$, tal como se ilustra en la Figura \ref{fig:exp_armadura_rayosx} (derecha). Este pequeño desplazamiento rompe intencionalmente la colinealidad, fijando un ángulo de reposo de aproximadamente $172^\circ$. Al repetir las pruebas en Modo Pose, la flexión quedó perfectamente acoplada al plano sagital anatómico: la rodilla se dobló exclusivamente hacia atrás de forma estable, sin torceduras laterales ni posibilidad de inversión antinatural.
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Imagenes/E1/01_armadura_modo_edicion_rayosX.png}
+    \includegraphics[width=0.45\textwidth]{Imagenes/E1/05_preflexion_rodilla_vista_lateral.png}
+    \caption{Configuración de la armadura en Modo Edición: a la izquierda, cadena de 5 huesos con visualización de nombres y Rayos X (\textit{In Front}); a la derecha, vista lateral ortogonal mostrando la variación experimental con pre-flexión anterior ($+Y$) en la rodilla para romper la colinealidad y fijar el plano de flexión.}
+    \label{fig:exp_armadura_rayosx}
+\end{figure}
 
 \subsection{Actividad 2: Animación y análisis de relaciones padre-hijo de un personaje de Adobe Mixamo en Blender}
 
@@ -184,4 +191,66 @@ Probamos tres correcciones antes de dar con la definitiva:
 La solución que finalmente adoptamos parte de una observación sobre la propia estructura: de los 67 huesos, \textbf{40 son falanges} organizadas en diez cadenas idénticas de cuatro huesos cada una. Dibujar diez veces la misma cadena no agrega información, solo ancho. Por eso decidimos partir la representación en dos figuras complementarias: un \textbf{diagrama global} en el que las cinco cadenas de dedos de cada mano se condensan en un único nodo resumen dibujado con línea punteada, y un \textbf{diagrama de detalle} de una mano completa, en el que además sustituimos el prefijo repetido \texttt{LeftHand} por puntos suspensivos. Con ese par de ajustes el diagrama global bajó de una proporción de 8:1 a una de 5:1 y el de la mano quedó en 4:1, lo que permite imprimir ambos con tipografía legible. Los resultados se presentan en la sección siguiente.
 
 \subsection{Actividad 4: Exploración de software para estructuras humanoides (MakeHuman y DAZ3D)}
-% [Pendiente de desarrollo]
+\subsubsection{Ejemplo con DAZ Studio}
+
+El primer intento de cargar la figura no salió como esperábamos. Al dar doble clic sobre Genesis 9, en el visor apareció un personaje formado por bloques rectangulares, uno por cada segmento del cuerpo (cabeza, torso, brazos, antebrazos, manos, muslos, piernas y pies), pero sin la malla del cuerpo (Figura \ref{fig:exp_daz_bloques}). Al abrir de nuevo el gestor de instalación encontramos la causa: la instalación, que habíamos dejado corriendo durante la noche, no había terminado, y las partes 1 y 2 de \textit{Genesis 9 Starter Essentials} seguían pendientes. Instalamos solamente esas dos partes, volvimos a abrir el programa y esta vez la figura se cargó completa (Figura \ref{fig:exp_daz_cargada}). Lo interesante de este error es que, aun sin la malla, los bloques ya aparecían acomodados en la posición correcta de cada parte del cuerpo, lo que interpretamos como que la estructura de la figura se carga de forma independiente de su geometría.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.58\textwidth]{Imagenes/E4/01_daz_figura_incompleta_bloques.png}
+    \includegraphics[width=0.32\textwidth]{Imagenes/E4/02_daz_install_manager.png}
+    \caption{Primer intento en Daz Studio. Izquierda: la figura cargada como bloques por segmento, sin malla. Derecha: el gestor de instalación mostrando pendientes las partes 1 y 2 de \textit{Genesis 9 Starter Essentials}.}
+    \label{fig:exp_daz_bloques}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.72\textwidth]{Imagenes/E4/03_daz_figura_cargada.png}
+    \caption{Figura base Genesis 9 cargada correctamente en Daz Studio 6 tras completar la instalación.}
+    \label{fig:exp_daz_cargada}
+\end{figure}
+
+Con la figura completa activamos el \textit{Joint Editor} y cambiamos el visor a modo de alambre. Como se ve en la Figura \ref{fig:exp_daz_joint}, el programa dibuja los huesos dentro del cuerpo y, al seleccionar los muslos y las espinillas, los resalta tanto en el visor como en el panel Scene. En ese mismo panel notamos desde el principio algo que no tenía el esqueleto de Mixamo: debajo de \texttt{Left Thigh} no cuelga un solo hijo, sino tres, \texttt{Left Shin}, \texttt{Left Thigh Twist 1} y \texttt{Left Thigh Twist 2}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{Imagenes/E4/04_daz_joint_editor_esqueleto.png}
+    \caption{Esqueleto de Genesis 9 visualizado con el \textit{Joint Editor} sobre la malla en alambre. A la derecha, el panel Scene con los huesos de ambas piernas seleccionados, incluyendo los huesos de torsión del muslo.}
+    \label{fig:exp_daz_joint}
+\end{figure}
+
+Después expandimos el árbol completo en el panel Scene (Figura \ref{fig:exp_daz_scene}). El nodo raíz es \texttt{Genesis 9}, que no aparece con el ícono de hueso sino con el de figura, y el primer hueso que cuelga de él es \texttt{Hip}. De \texttt{Hip} salen dos ramas: \texttt{Pelvis}, de la que cuelgan las dos piernas, y \texttt{Spine 1}, que inicia la columna. La columna tiene cuatro segmentos y de \texttt{Spine 3} se desprenden, además de \texttt{Spine 4}, los huesos \texttt{Left Pectoral} y \texttt{Right Pectoral}. De \texttt{Spine 4} salen tres ramas: los dos hombros y el cuello, que llega a \texttt{Head}. De la cabeza cuelgan siete nodos: los dientes superiores, la mandíbula, el rig de la parte superior de la cara, los dos ojos y las dos orejas. Al final de la lista aparecen también, como hijos directos de \texttt{Genesis 9}, cinco figuras separadas: pestañas, lágrima, ojos, boca y cejas.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=10cm]{Imagenes/E4/05_daz_scene_jerarquia_1.png}
+    \hspace{0.8cm}
+    \includegraphics[height=4.29cm]{Imagenes/E4/06_daz_scene_jerarquia_2.png}
+    \caption{Jerarquía de Genesis 9 en el panel Scene. Izquierda: desde el nodo raíz \texttt{Genesis 9} hasta el cuello. Derecha: continuación desde \texttt{Neck 2}, con los hijos de la cabeza, los pectorales y las figuras ajustadas que cuelgan de la raíz.}
+    \label{fig:exp_daz_scene}
+\end{figure}
+
+Para las pruebas de propagación seleccionamos primero \texttt{Left Shoulder} y le dimos un valor de \textit{Bend} de $55^\circ$. Como se aprecia en la Figura \ref{fig:exp_daz_rotaciones} (izquierda), el brazo completo se levantó en bloque: brazo superior, antebrazo y mano conservaron su postura relativa y solo cambió su orientación. Después regresamos el hombro a su posición original y seleccionamos \texttt{Left Forearm}, al que le dimos un \textit{Bend} de $-122.08^\circ$. Esta vez el antebrazo se dobló hacia el pecho llevándose la mano, pero el brazo superior y el hombro no se movieron (Figura \ref{fig:exp_daz_rotaciones}, derecha).
+
+En esta prueba notamos otra diferencia con Blender. Al seleccionar \texttt{Left Shoulder} el panel Parameters muestra tres rotaciones (\textit{Twist}, \textit{Front-Back} y \textit{Bend}), pero al seleccionar \texttt{Left Forearm} solo aparecen dos, \textit{Twist} y \textit{Bend}. Es decir, Daz Studio ya limita desde el rig los grados de libertad de cada articulación: el codo se comporta como una bisagra y no deja rotar el antebrazo hacia los lados.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.49\textwidth]{Imagenes/E4/07_daz_rotacion_hombro.png}
+    \includegraphics[width=0.49\textwidth]{Imagenes/E4/08_daz_rotacion_antebrazo.png}
+    \caption{Pruebas de propagación en Daz Studio. Izquierda: \texttt{Left Shoulder} con \textit{Bend} de $55^\circ$, el brazo completo sigue la rotación. Derecha: \texttt{Left Forearm} con \textit{Bend} de $-122.08^\circ$, solo se mueven el antebrazo y la mano.}
+    \label{fig:exp_daz_rotaciones}
+\end{figure}
+
+\subsubsection{Variación de la actividad: agregar un nodo hijo a la jerarquía}
+
+Para la variación creamos una esfera primitiva de tamaño pequeño y la movimos hasta la mano izquierda. En ese momento la esfera era un objeto independiente dentro de la escena, al mismo nivel que la figura. Luego, en el panel Scene, arrastramos el nodo \texttt{Sphere} y lo soltamos sobre \texttt{Left Hand}. Al volver a expandir el árbol, la esfera ya aparecía dentro de la mano, al mismo nivel que \texttt{Left Hand Anchor}, \texttt{Left Thumb 1} y los metacarpianos de los otros cuatro dedos (Figura \ref{fig:exp_daz_esfera}).
+
+Para comprobar que la relación funcionaba rotamos de nuevo la cadena del brazo. La esfera siguió a la mano en todo momento y se mantuvo junto a la mano en la misma posición relativa, aunque nunca la movimos directamente: toda su transformación la heredó de la cadena \texttt{Spine 4} $\to$ \texttt{Left Shoulder} $\to$ \texttt{Left Upper Arm} $\to$ \texttt{Left Forearm} $\to$ \texttt{Left Hand}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{Imagenes/E4/09_daz_variacion_esfera.png}
+    \caption{Variación de la Actividad 4: la esfera emparentada como hija de \texttt{Left Hand}. En el panel Scene aparece al mismo nivel que los dedos, y en el visor sigue a la mano al rotar el brazo.}
+    \label{fig:exp_daz_esfera}
+\end{figure}
