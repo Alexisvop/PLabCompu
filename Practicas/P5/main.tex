@@ -1,78 +1,86 @@
-\documentclass[letterpaper, 11pt]{article}
+\documentclass[a4paper, 11pt]{article}
 
-% ==============================================================================
-% CARGA DE PAQUETES Y CONFIGURACIONES GLOBALES
-% ==============================================================================
 \input{Paquetes/paquetes}
-
-% ==============================================================================
-% DATOS CONFIGURABLES DE LA PRÁCTICA
-% Modifica estos valores según la práctica correspondiente:
-% ==============================================================================
-\newcommand{\numPractica}{05}
-\newcommand{\tituloPractica}{Adaptación y Carga de Modelos}
-\newcommand{\grupoLaboratorio}{06}
-\newcommand{\nombreProfesor}{Dr. Sergio Teodoro Vite}
-\newcommand{\fechaEntrega}{06 de octubre de 2026}
-\newcommand{\enlaceVideo}{https://youtu.be/ejemplo-video-practica}
-
-% Números de cuenta para el encabezado de la Hoja de Evidencias (exclusivamente números):
-\newcommand{\cuentasEvidencias}{
-    321137135 \\ 
-    424065465 \\ 
-    321258173 \\ 
-    321150503 \\ 
-    320224159 \\ 
-}
-
-% Filas de la tabla de integrantes en la carátula:
-% Formato: Número de cuenta & Nombre completo & Grupo de teoría \\ \hline
-\newcommand{\tablaIntegrantes}{%
-    321137135 & Basilio Illescas Andrés & 04 \\ \hline
-    424065465 & Cruz Macedo Samuel Santiago & 04 \\ \hline
-    321258173 & Medel Piña Ángel de Jesús & 0 \\ \hline
-    321150503 & Pérez Olvera Alexis Abraham & 04 \\ \hline
-    320224159 & Segura Cedeño Luisa María & 0 \\ \hline
-    % Para dejar filas vacías como en la plantilla en blanco:
-    % & & \\ \hline
-}
-
-% ==============================================================================
-% CONFIGURACIÓN DE ENCABEZADOS Y PIES DE PÁGINA
-% ==============================================================================
-\pagestyle{fancy}
-\fancyhf{}
-\fancyhead[L]{\footnotesize\textit{Lab. Computación Gráfica e IHC}}
-\fancyhead[R]{\footnotesize\textit{Práctica \numPractica: \tituloPractica}}
-\fancyfoot[L]{\footnotesize\textit{Facultad de Ingeniería, UNAM}}
-\fancyfoot[R]{\thepage}
-\renewcommand{\headrulewidth}{0.4pt}
-\renewcommand{\footrulewidth}{0.4pt}
 
 \begin{document}
 
-% ------------------------------------------------------------------------------
-% 1. CARÁTULA OFICIAL
-% ------------------------------------------------------------------------------
-\input{secciones/caratula}
+\newgeometry{left=2cm,top=2cm}
+\begin{titlepage}
+    \thispagestyle{empty}
+    \begin{minipage}[c][0.17\textheight][c]{0.25\textwidth}
+        \begin{center}
+            \includegraphics[width=3.5cm, height=3.5cm]{ImagenesUNAM/unamLogo_png.png}
+        \end{center}
+    \end{minipage}
+    \begin{minipage}[c][0.195\textheight][t]{0.75\textwidth}
+        \begin{center}
+            \vspace{0.3cm}
+            \textsc{\Large Universidad Nacional Aut\'onoma de M\'exico}\\[0.5cm]
+            \vspace{.2cm}
+            \hrule height1pt
+            \vspace{.4cm}
+            \textsc{\Large Facultad de Ingenier\'ia}\\[0.5cm]
+            \vspace{.1cm}
+            \textsc{\Large Laboratorio de Computación Gráfica e Interacción Humano Computadora}\\[0.5cm]
+        \end{center}
+    \end{minipage}
 
-% ------------------------------------------------------------------------------
-% 2. HOJA DE EVIDENCIAS Y DESARROLLO DEL REPORTE
-% ------------------------------------------------------------------------------
+    \begin{minipage}[c][0.81\textheight][t]{0.25\textwidth}
+        \vspace*{5mm}
+        \begin{center}
+            \hskip2.0mm
+            \vrule width1pt height15cm
+            \vspace{5mm}
+            \hskip2pt
+            \vrule width1pt height15cm \\
+            \vspace{5mm}
+            \includegraphics[height=4.0cm]{ImagenesUNAM/FILogo_jpeg.jpeg}
+        \end{center}
+    \end{minipage}
+    \begin{minipage}[c][0.81\textheight][t]{0.75\textwidth}
+        \large
+        \begin{center}
+            \vspace{1cm}
+            {\Large\scshape\textbf{Práctica 05}}\\[0.35cm]
+            {\large\scshape\textbf{Adaptación y Carga de Modelos}}\\[.4in]
+        \end{center}
+        \Large
+        \textbf{Grupo de laboratorio}: 06  \\[0.5cm]
+        \textbf{Profesor}: Dr. Sergio Teodoro Vite \\[0.5cm]
+        \textbf{Integrantes}: \\[0.5cm]
+        \begin{tabular}[t]{l}
+            - Basilio Illescas Andrés \\[0.5cm]
+            - Cruz Macedo Samuel Santiago \\[0.5cm]
+            - Medel Piña Ángel de Jesús\\[0.5cm]
+            - Pérez Olvera Alexis Abraham \\[0.5cm]
+            - Segura Cedeño Luisa María\\[0.5cm]
+        \end{tabular}
+
+        \vfill
+        \raggedleft \textbf{Fecha de entrega:} 06 de octubre de 2026 \\[0.3cm]
+        \raggedleft \textbf{Semestre:} 2027-1 \\[0.5cm]
+        \vspace{0.7cm}
+    \end{minipage}
+\end{titlepage}
+\restoregeometry
+
 \newpage
-\pagenumbering{arabic}
-\setcounter{page}{2}
 
 \begin{center}
-    {\Large\bfseries HOJA DE EVIDENCIAS}\\[0.35cm]
-    {\large\bfseries PRÁCTICA \numPractica: \MakeUppercase{\tituloPractica}}\\[0.35cm]
-    \textbf{Lista de números de cuenta exclusivamente:}\\
-    \cuentasEvidencias
+    \vspace{50cm}
+    {\Large\scshape\textbf{Adaptación y Carga de Modelos}}\\[.5in]
 \end{center}
-\vspace{0.6cm}
+
+\begin{tabular}[t]{l}
+    - 321137135 andres.basilio@ingenieria.unam.edu \\[0.5cm]
+    - 424065465 santi.sam120@gmail.com \\[0.5cm]
+    - 321258173 angelmedel130105@gmail.com\\[0.5cm]
+    - 321150503 ralexisabrahamr@gmail.com \\[0.5cm]
+    - 320224159 segura.cedeno.luisa@gmail.com \\[0.5cm]
+\end{tabular}
+
 \newpage
 
-% Inclusión modular de secciones
 \input{secciones/0_ResumenIE.tex}
 \input{secciones/1_Introduccion.tex}
 \input{secciones/2_Metodologia.tex}
@@ -81,5 +89,13 @@
 \input{secciones/5_Conclusiones.tex}
 \input{secciones/6_Video.tex}
 \input{secciones/7_Referencias.tex}
+
+\vspace{1.5cm}
+\begin{center}
+    \Large\textbf{Video Demostrativo} \\[0.5cm]
+    \normalsize
+    Enlace al funcionamiento de las actividades de la práctica: \\[0.3cm]
+    \url{PENDIENTE-COLOCAR-ENLACE-DEL-VIDEO}
+\end{center}
 
 \end{document}

@@ -10,9 +10,23 @@
 
 \section{Introducción}
 
-El cómputo gráfico moderno se fundamenta en la manipulación y visualización eficiente de datos bidimensionales y tridimensionales mediante el cauce de renderizado (pipeline gráfico) acelerado por hardware \cite{hearn_baker}. En este contexto, librerías como OpenGL proporcionan una interfaz estándar y robusta para la comunicación directa con la unidad de procesamiento gráfico (GPU) \cite{khronos_opengl}.
+El cómputo gráfico moderno se fundamenta en la manipulación y visualización eficiente de datos bidimensionales y tridimensionales mediante el cauce de renderizado (\textit{pipeline} gráfico) acelerado por hardware \cite{hearn_baker}. En este contexto, librerías como OpenGL proporcionan una interfaz estándar y robusta para la comunicación directa con la unidad de procesamiento gráfico (GPU) \cite{khronos_opengl}.
 
-De acuerdo con \cite{teodoro_vite}, el dominio de los fundamentos matemáticos y las técnicas de transformación geométrica resulta indispensable para la construcción de escenas interactivas y fotorrealistas. A lo largo de esta práctica, se exploran los principios de...
+De acuerdo con \cite{teodoro_vite}, el dominio de los fundamentos matemáticos y las técnicas de transformación geométrica resulta indispensable para la construcción de escenas interactivas y fotorrealistas. A lo largo de esta práctica, se exploran los principios de carga, adaptación y renderizado de mallas tridimensionales complejas generadas en herramientas de modelado externas como Blender. La integración de estos modelos en entornos gráficos interactivos requiere una comprensión profunda tanto del procesamiento de geometrías como de la gestión eficiente de recursos dentro de la arquitectura de la GPU.
+
+Para lograr una representación precisa de objetos en un espacio tridimensional, el \textit{pipeline} gráfico moderno abandona la funcionalidad fija a favor de etapas programables estructuradas mediante \textit{shaders} \cite{shreiner_opengl}. La geometría cargada desde un archivo de modelo (por ejemplo, en formato FBX u OBJ) se descompone en vértices, normales, coordenadas de textura y caras. Estos datos son transferidos a la GPU mediante objetos de búfer de vértices (VBO, \textit{Vertex Buffer Objects}) y organizados lógicamente a través de objetos de arreglos de vértices (VAO, \textit{Vertex Array Objects}), los cuales almacenan el estado de los atributos necesarios para el renderizado.
+
+Durante la fase del \textit{Vertex Shader}, cada vértice es transformado desde su espacio local hasta el espacio de recorte mediante la concatenación de matrices de transformación geométrica, conocidas comúnmente como el producto Modelo-Vista-Proyección (MVP) \cite{lengyel_mathematics}:
+
+\begin{equation}
+v_{\text{clip}} = P \cdot V \cdot M \cdot v_{\text{local}}
+\end{equation}
+
+Donde la matriz de modelo ($M$) posiciona, escala y orienta la malla en la escena; la matriz de vista ($V$) simula las propiedades y ubicación de la cámara en el espacio; y la matriz de proyección ($P$) aplica la perspectiva adecuada al volumen de visión.
+
+Posteriormente, la etapa de rasterización convierte las primitivas geométricas proyectadas en fragmentos continuos que corresponden a los píxeles de la pantalla. El \textit{Fragment Shader} se encarga de determinar el color final de cada fragmento aplicando mapas de textura, materiales e iluminación básica \cite{akeley_realtime}.
+
+Finalmente, para el manejo de mallas complejas se recurre a librerías de importación especializadas como Assimp (\textit{Open Asset Import Library}), la cual permite parsear estructuras jerárquicas de nodos, extraer submallas (*submeshes*) y asociar materiales o texturas externas. De esta manera, el sistema logra desacoplar el diseño artístico de la lógica del motor gráfico, optimizando el tiempo de procesamiento y garantizando un rendimiento fluido en aplicaciones en tiempo real.
 
 % Continuar la redacción integrando:
 % 1. Contexto y motivación del tema.
