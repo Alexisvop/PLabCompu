@@ -64,3 +64,88 @@ glEnableVertexAttribArray(0);
 % Describir aquí la metodología correspondiente a la Actividad 2.
 % Recordar: "Una metodología por actividad".
 \textit{Describir aquí el proceso metodológico de la segunda actividad...}
+
+\subsection{Actividad 3: Personaje humanoide controlado con las flechas del teclado}
+
+El manual pide incorporar a la escena un personaje humanoide que avance y retroceda con las flechas \texttt{Arriba} y \texttt{Abajo} y que gire sobre el plano horizontal con \texttt{Izquierda} y \texttt{Derecha}. El proyecto base del laboratorio ya trae un personaje de ejemplo (\texttt{models/character.fbx}); para que la actividad no se limitara a volver a cargar ese mismo archivo, decidimos traer un personaje distinto desde Adobe Mixamo y adaptarlo nosotros a lo que el cargador del laboratorio es capaz de animar.
+
+\subsubsection{Selección y descarga del personaje en Mixamo}
+Elegimos al personaje \textbf{Exo Gray} y le aplicamos el clip \textbf{Walking}. Lo escogimos por encima del resto del catálogo porque es un humanoide sin armas ni accesorios separados del cuerpo, y porque su traje y su cara usan texturas distintas, lo que nos obligaba a resolver la adaptación completa y no solo el caso fácil. La animación se descargó con la casilla \textbf{In Place} activada: en la Práctica 04 comprobamos que, sin ella, toda la traslación del personaje vive en el nodo raíz, y aquí el desplazamiento lo tiene que controlar el programa con las flechas; si la animación también avanzara, el personaje se movería solo y regresaría a su punto de partida cada vez que el ciclo se reinicia. El resto de la configuración de descarga fue la misma de la práctica anterior: \texttt{FBX Binary (.fbx)}, \textit{With Skin}, 30 cuadros por segundo y sin reducción de \textit{keyframes}.
+
+\subsubsection{Lo que el cargador del laboratorio puede animar}
+Antes de cargar el archivo revisamos cómo funciona la clase \texttt{AnimatedModel} (\texttt{animatedmodel.h}) y encontramos tres restricciones que determinaron todo lo demás:
+\begin{itemize}
+    \item La lista de huesos (\texttt{bones}) se vacía y se vuelve a llenar en cada \texttt{aiMesh} que procesa, y todas las mallas comparten el mismo arreglo \texttt{gBones}. Es decir, solo la última malla del archivo queda bien animada.
+    \item Assimp separa en varias \texttt{aiMesh} una malla que tenga más de un material, así que dos materiales equivalen, para efectos del cargador, a dos mallas.
+    \item El \textit{shader} de \textit{skinning} declara \texttt{uniform mat4 gBones[100]}, de modo que ningún índice de hueso puede pasar de 99.
+\end{itemize}
+El FBX de Exo Gray tal como sale de Mixamo incumple las tres: trae 8 mallas, 6 materiales y 112 huesos. El personaje de ejemplo, en cambio, es una sola malla de 2\,456 vértices con 68 huesos, lo que explica por qué con él nunca se había notado ninguna de estas limitaciones.
+
+\subsubsection{Adaptación del personaje en Blender}
+En lugar de modificar la clase del laboratorio, que comparten todas las prácticas del curso, preferimos adaptar el modelo a ella, y lo hicimos con el guion \texttt{codigo/personaje\_act3.py}, que corre en Blender sin interfaz:
+\begin{enumerate}
+    \item Importa el FBX de Mixamo y elimina las tres mallas que no aportan forma: \texttt{EXO\_Body} (24 vértices, un marcador del cuerpo), \texttt{EXO\_HeadMask} (28 vértices) y \texttt{EXO\_EyesSpec}, que es solo una capa de brillo sobre los ojos.
+    \item Las cinco mallas restantes usan dos texturas de color de $2048 \times 2048$ píxeles. Las pega lado a lado en un \textit{atlas} de $4096 \times 2048$ y recorre las coordenadas UV de cada malla a la mitad que le corresponde, $u' = (u + k)/2$, con $k = 0$ para el traje y $k = 1$ para la cara y el cuerpo.
+    \item Deja un solo material con el atlas y une todas las mallas en una (\textit{Ctrl+J}). El resultado es una malla de 16\,738 vértices deformada por 94 huesos.
+    \item Borra de la armadura los 18 huesos que no tienen ningún peso en la malla, de modo que la armadura queda también con 94 huesos. Los 18 resultaron ser hojas del árbol (las puntas de los dedos, los párpados, \texttt{HeadTop\_End}, \texttt{Throat} y las puntas de los pies), así que quitarlos no altera el movimiento de ningún otro hueso. El motivo de este paso se explica en la sección de experimentos.
+    \item Ajusta el rango de cuadros de la escena al de la acción (1 a 32) y exporta \texttt{Blender/ExoGray.fbx} con la animación horneada, sin huesos hoja adicionales y con la ruta de la textura reducida al nombre del archivo, que el cargador busca en la misma carpeta que el FBX.
+\end{enumerate}
+
+\begin{lstlisting}[language=Python, caption={Eliminación de los huesos sin pesos en personaje\_act3.py.}, label={lst:huesos_exogray}]
+bpy.context.view_layer.objects.active = arm
+bpy.ops.object.mode_set(mode='EDIT')
+for eb in list(arm.data.edit_bones):
+    if eb.name not in usados:          # huesos sin ningun peso en la malla
+        for hijo in eb.children:
+            hijo.parent = eb.parent
+        arm.data.edit_bones.remove(eb)
+bpy.ops.object.mode_set(mode='OBJECT')
+assert len(arm.data.bones) <= MAX_HUESOS     # gBones[100] del shader
+\end{lstlisting}
+
+\subsubsection{Integración en OpenGL}
+En \texttt{codigo/05\_ModelLoading.cpp} el personaje se carga con la misma clase y la misma escala de $0.01$ que el de ejemplo, ya que ambos vienen de Mixamo con las unidades en centímetros. Conservamos los dos personajes y agregamos la tecla \texttt{G} para alternar entre ellos, porque así la variación queda a la vista dentro del mismo programa. También cambiamos el movimiento del código base, que avanzaba $0.005$ unidades y giraba $0.5^\circ$ \textit{por cuadro}: con esos valores la velocidad depende de los cuadros por segundo de cada computadora y, además, cruzar una ciudad de cien unidades tomaba varios minutos. Ahora ambas cantidades se multiplican por \texttt{deltaTime}, con 6 unidades por segundo de avance y $90^\circ$ por segundo de giro.
+
+\begin{lstlisting}[language=C++, caption={Carga de los dos personajes y avance independiente de los cuadros por segundo.}, label={lst:personaje_cpp}]
+character = new AnimatedModel("models/character.fbx");
+exoGray   = new AnimatedModel("models/ExoGray.fbx");
+// ...
+AnimatedModel* personaje = usarExo ? exoGray : character;
+personaje->UpdateAnimation(deltaTime);
+// ...
+if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+    position = position + scaleV * deltaTime * forwardView;
+if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+    rotateCharacter += giroV * deltaTime;
+\end{lstlisting}
+
+\subsection{Actividad 4: Elementos geométricos alrededor del edificio}
+
+Para esta actividad partimos de la ciudad que se exportó en la Actividad 1 (\texttt{Blender/Edificio.fbx}), que es una sola malla de 191\,880 vértices, y la rodeamos de calles, banquetas y casas modeladas también con primitivas y modificadores. Todo el procedimiento quedó escrito en el guion \texttt{codigo/alrededores\_act4.py}, que corre dentro de la interfaz de Blender y va mostrando cada operación con su atajo de teclado; así cada paso se puede seguir en pantalla y quedó registrado en las capturas de la carpeta \texttt{Imagenes/E4}.
+
+\subsubsection{Trazo de la zona}
+Tomamos una decisión desde el inicio: las medidas de las manzanas no se escribieron a mano, sino que se calculan a partir de la caja que envuelve a la ciudad importada. La ciudad ocupa $x \in [-2.0,\ 63.1]$ y $y \in [-22.2,\ 15.8]$, y a partir de ahí el guion deja:
+\begin{itemize}
+    \item Una banqueta de 6 unidades de margen alrededor de los edificios, que resulta en una manzana central de $79 \times 51$ unidades.
+    \item Dos avenidas de 12 unidades de ancho, una enfrente y otra atrás de la manzana central, más dos calles laterales del mismo ancho.
+    \item Una manzana de casas de 14 unidades de fondo del otro lado de cada avenida.
+\end{itemize}
+Las banquetas son cubos aplanados de 0.3 unidades de alto cuya cara superior queda en $z = 0$, a la misma altura que la base de los edificios, y el asfalto es un plano 0.3 unidades por debajo; ese escalón es lo que distingue la calle de la banqueta sin necesidad de usar colores. Las líneas centrales de las avenidas son un cubo delgado de $3 \times 0.5 \times 0.08$ unidades repetido con dos modificadores \textit{Array}: uno con desplazamiento constante de 6 unidades en $X$ (17 copias) y otro de 63 unidades en $Y$ que lleva la misma fila a la avenida de atrás.
+
+\subsubsection{Modelado de la casa}
+La casa se construyó con el mismo procedimiento que la planta baja de la Actividad 1, para que toda la ciudad quedara hecha con la misma técnica:
+\begin{enumerate}
+    \item \textbf{Cuerpo:} un cubo escalado a $6 \times 5 \times 3.5$ unidades.
+    \item \textbf{Retícula:} en Modo Edición se seleccionan los muros de enfrente y de atrás y se subdividen en tres columnas.
+    \item \textbf{Puertas:} a la columna central de cada uno de esos muros se le aplica un \textit{Inset}, su cara interior se lleva a un hueco de $1.2 \times 2.2$ unidades a ras de piso y después se extruye 0.2 unidades hacia adentro.
+    \item \textbf{Ventanas:} el mismo \textit{Inset} y \textit{Extrude} sobre las dos columnas laterales y sobre los dos costados, con huecos de $1.2 \times 1.2$ unidades que empiezan a 1.2 unidades del piso.
+    \item \textbf{Techo:} un segundo cubo encima del cuerpo, con 0.3 y 0.4 unidades de alero, al que se le selecciona la cara superior y se escala a cero en $Y$ (\textit{S Y 0}). La cara se reduce a una arista y el cubo se convierte en un techo de dos aguas; los vértices que quedan encimados se funden con \textit{Merge by Distance}.
+    \item \textbf{Unión:} cuerpo y techo se unen en un solo objeto (\textit{Ctrl+J}).
+\end{enumerate}
+Pusimos puerta en los dos muros largos por una razón práctica: la segunda fila de casas es una copia por \textit{Array} de la primera, así que mira en la misma dirección; con puerta en ambos lados, cada fila queda con una puerta hacia su avenida sin tener que rotar ninguna copia.
+
+\subsubsection{Multiplicación y exportación}
+La casa se repite con dos \textit{Array}: uno de 11.5 unidades en $X$ que coloca 6 casas a lo largo de la manzana, y otro de 89 unidades en $Y$ que repite la fila en la manzana de atrás; el número de casas también se calcula a partir del largo de la manzana. Al final se aplican todos los modificadores y las transformaciones (\textit{Ctrl+A}), porque \texttt{model.h} ignora las transformaciones de los nodos del FBX, y se exporta \texttt{Blender/Ciudad.fbx} con la misma configuración que pide el manual para la Actividad 2: \textit{Path Mode} en \textit{Copy}, \textit{Limit to Selected Objects} y \textit{Triangulate Faces}.
+
+\subsubsection{Carga en OpenGL}
+El programa carga \texttt{Ciudad.fbx} en lugar del modelo de ejemplo, con la rotación de $-90^\circ$ en $X$ que ya traía el código base para pasar de $Z$ hacia arriba (Blender) a $Y$ hacia arriba (OpenGL). El \textit{shader} estático del laboratorio dibuja únicamente el color de la textura, y como la ciudad no trae textura escribimos un \textit{shader} mínimo (\texttt{codigo/shaders/05\_gris.vs} y \texttt{.fs}) que pinta el modelo de gris con una luz direccional; sin esa luz todas las caras tendrían el mismo tono y la ciudad se vería como una silueta plana. El personaje y la cámara arrancan sobre la avenida de enfrente, mirando hacia los edificios.
