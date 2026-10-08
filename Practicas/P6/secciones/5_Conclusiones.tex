@@ -1,0 +1,35 @@
+% ==============================================================================
+% CONCLUSIONES INDIVIDUALES
+% ==============================================================================
+% Instrucciones de la plantilla:
+% Formato: #CUENTA: CONCLUSIÓN
+% Cada integrante del equipo debe redactar de forma personal, concreta y coherente sus conclusiones individuales sobre la práctica y los conceptos gráficos aprendidos.
+% ==============================================================================
+
+\section{Conclusiones Individuales}
+
+\subsection*{\#321137135: Basilio Illescas Andrés}
+Los objetivos de la práctica se cumplieron: las cuatro primitivas quedaron texturizadas como una hoja, una caja, un barril y un planeta, cada una con su variación, y las ocho se cargan en OpenGL sobre un mapa de entorno nuevo. Lo que me llevo es que texturizar no consiste en «poner una imagen» sobre un objeto, sino en decidir, para cada punto de la superficie, qué punto de la imagen le corresponde. Esa decisión es distinta para cada primitiva: en el plano es directa, en el cubo hay que repartir seis caras en un atlas y orientar cada una para que la cinta de la tapa coincida con la del costado, en el cilindro aparece una costura que, si no se corrige, deja una franja con toda la textura comprimida, y en la esfera la proyección equirrectangular resulta ser exactamente la que ya trae la esfera UV de Blender. Una vez visto así, el balón de fútbol fue el mismo problema al revés: en lugar de buscar una imagen para la esfera, calculamos la imagen a partir de la geometría del icosaedro truncado.
+
+La práctica también me dejó una lección sobre la verificación misma. El primer guion con el que revisé la hoja me dijo que el canal alfa valía 1 en todos los píxeles, y estuve a punto de reescribir la máscara, que estaba bien; el error estaba en el guion que la revisaba. Algo parecido pasó con el balón: la imagen equirrectangular deforma tanto los polos que, a simple vista, no se podía saber si el patrón era correcto, y lo que reveló la falla fue dibujarlo de frente y medir el producto punto entre los centros vecinos. Por eso, para comprobar que las texturas medían potencias de dos, leímos el ancho y el alto directamente del encabezado de cada archivo en lugar de confiar en lo que reportaba Blender.
+
+Si en la Práctica 03 me quedé con que «se ve bien» no equivale a «está bien», en la 04 con que dos cosas que se ven iguales no necesariamente lo son, y en la 05 con que algo funcione con un ejemplo no demuestra que funcione en general, aquí me queda una cuarta versión: también hay que verificar al verificador, y todo cargador da algo por sentado. El de este laboratorio daba por hecho que cada nodo del FBX estaba en el origen y que toda malla traía normales; mientras usamos sus modelos de ejemplo esas suposiciones nunca se notaron, y al traer los nuestros aparecieron como una caja en el lugar equivocado y una violación de acceso. En los dos casos el síntoma no apuntaba a la causa, y lo que la encontró fue el depurador: la pila de llamadas, la línea 173 y un apuntador en \texttt{NULL}.
+
+\subsection*{\#424065465: Cruz Macedo Samuel Santiago}
+Entrando a esta práctica pensé que texturizar era la parte sencilla del modelado: elegir una foto bonita y aplicarla. Fue al revés. La foto casi nunca venía como la necesitábamos: la de la hoja no tenía canal alfa y hubo que fabricarlo, la del cartón era solo una superficie lisa a la que le tuvimos que dibujar la pestaña y la cinta, y para el barril ninguna imagen servía sola, así que lo armamos con tres: las tablas para las duelas, otra madera para las tapas y una foto de acero oxidado para los aros. Lo que me hizo cambiar de idea fue entender que el trabajo de verdad no está en la imagen sino en las coordenadas UV, en decidir qué pedazo de la textura va en qué parte del objeto.
+
+Lo que más me sorprendió fue la caja que apareció en el lugar equivocado. En Blender estaba a la derecha de la hoja y en OpenGL salía en el centro, tapándola. Ya en la Práctica 05 habíamos visto que \texttt{model.h} ignora las transformaciones de los nodos del FBX, pero ahí la solución fue aplicar todas las transformaciones antes de exportar; aquí preferimos exportar copias con la posición ya aplicada, para que en Blender cada objeto conservara su origen. Fue la misma limitación vista dos veces, y la segunda vez la reconocimos por el síntoma antes de buscar en el código.
+
+De la Actividad 6 me quedo con lo mucho que cambia una escena el fondo. Con el lago original las figuras parecían flotar frente a un paisaje que no tenía nada que ver con ellas, y con la cancha de Humus el pasto del fondo continúa el piso donde están, de modo que el balón y la reja parecen estar en su lugar. También aprendí que un cubemap son solo seis fotos con una convención de nombres, y que gracias a esa convención pudimos cambiar el fondo sin tocar el modelo del cubo. Considero que los objetivos se cumplieron, y me queda claro que en el proyecto final gran parte del realismo va a depender de las texturas más que de la cantidad de polígonos.
+
+\subsection*{\#321258173: Medel Piña Ángel de Jesús}
+% Redactar la conclusión individual del alumno aquí:
+\textit{(Pendiente de redactar por el integrante.)}
+
+\subsection*{\#321150503: Pérez Olvera Alexis Abraham}
+% Redactar la conclusión individual del alumno aquí:
+\textit{(Pendiente de redactar por el integrante.)}
+
+\subsection*{\#320224159: Segura Cedeño Luisa María}
+% Redactar la conclusión individual del alumno aquí:
+\textit{(Pendiente de redactar por el integrante.)}

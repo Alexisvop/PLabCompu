@@ -1,0 +1,85 @@
+\documentclass[letterpaper, 11pt]{article}
+
+% ==============================================================================
+% CARGA DE PAQUETES Y CONFIGURACIONES GLOBALES
+% ==============================================================================
+\input{Paquetes/paquetes}
+
+% ==============================================================================
+% DATOS CONFIGURABLES DE LA PRÁCTICA
+% Modifica estos valores según la práctica correspondiente:
+% ==============================================================================
+\newcommand{\numPractica}{06}
+\newcommand{\tituloPractica}{Texturizado}
+\newcommand{\grupoLaboratorio}{06}
+\newcommand{\nombreProfesor}{Dr. Sergio Teodoro Vite}
+\newcommand{\fechaEntrega}{13 de octubre de 2026}
+\newcommand{\enlaceVideo}{https://youtu.be/ejemplo-video-practica}
+
+% Números de cuenta para el encabezado de la Hoja de Evidencias (exclusivamente números):
+\newcommand{\cuentasEvidencias}{
+    321137135 \\ 
+    424065465 \\ 
+    321258173 \\ 
+    321150503 \\ 
+    320224159 \\ 
+}
+
+% Filas de la tabla de integrantes en la carátula:
+% Formato: Número de cuenta & Nombre completo & Grupo de teoría \\ \hline
+\newcommand{\tablaIntegrantes}{%
+    321137135 & Basilio Illescas Andrés & 04 \\ \hline
+    424065465 & Cruz Macedo Samuel Santiago & 04 \\ \hline
+    321258173 & Medel Piña Ángel de Jesús & 02 \\ \hline
+    321150503 & Pérez Olvera Alexis Abraham & 04 \\ \hline
+    320224159 & Segura Cedeño Luisa María & 02 \\ \hline
+    % Para dejar filas vacías como en la plantilla en blanco:
+    % & & \\ \hline
+}
+
+% ==============================================================================
+% CONFIGURACIÓN DE ENCABEZADOS Y PIES DE PÁGINA
+% ==============================================================================
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\footnotesize\textit{Lab. Computación Gráfica e IHC}}
+\fancyhead[R]{\footnotesize\textit{Práctica \numPractica: \tituloPractica}}
+\fancyfoot[L]{\footnotesize\textit{Facultad de Ingeniería, UNAM}}
+\fancyfoot[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\begin{document}
+
+% ------------------------------------------------------------------------------
+% 1. CARÁTULA OFICIAL
+% ------------------------------------------------------------------------------
+\input{secciones/caratula}
+
+% ------------------------------------------------------------------------------
+% 2. HOJA DE EVIDENCIAS Y DESARROLLO DEL REPORTE
+% ------------------------------------------------------------------------------
+\newpage
+\pagenumbering{arabic}
+\setcounter{page}{2}
+
+\begin{center}
+    {\Large\bfseries HOJA DE EVIDENCIAS}\\[0.35cm]
+    {\large\bfseries PRÁCTICA \numPractica: \MakeUppercase{\tituloPractica}}\\[0.35cm]
+    \textbf{Lista de números de cuenta exclusivamente:}\\
+    \cuentasEvidencias
+\end{center}
+\vspace{0.6cm}
+\newpage
+
+% Inclusión modular de secciones
+\input{secciones/0_ResumenIE.tex}
+\input{secciones/1_Introduccion.tex}
+\input{secciones/2_Metodologia.tex}
+\input{secciones/3_Experimentos.tex}
+\input{secciones/4_Resultados.tex}
+\input{secciones/5_Conclusiones.tex}
+\input{secciones/6_Video.tex}
+\input{secciones/7_Referencias.tex}
+
+\end{document}

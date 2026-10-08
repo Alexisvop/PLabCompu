@@ -1,0 +1,51 @@
+% ==============================================================================
+% INTRODUCCIÓN
+% ==============================================================================
+% Instrucciones de la plantilla:
+% - Proporcionar un contexto claro sobre los objetivos, fundamentos teóricos y relevancia de la práctica realizada.
+% - Incluir explicación de los conceptos gráficos abordados en la práctica.
+% - ES OBLIGATORIO incluir citas a fuentes bibliográficas en formato APA.
+% ==============================================================================
+
+\section{Introducción}
+
+En las prácticas anteriores las figuras de la escena se distinguían únicamente por su geometría: el color de cada cara era uniforme, o bien lo daba una textura que ya venía incluida en el modelo. Representar con esa estrategia un objeto real, como una caja de cartón o un barril, exigiría modelar cada veta, cada cinta y cada remache con polígonos. El texturizado resuelve el problema de otra manera: la geometría se queda simple y el detalle se toma de una imagen que se «pega» sobre la superficie. La idea se remonta a la tesis de Catmull \cite{catmull1974}, que propuso subdividir cada parche de superficie hasta el tamaño de un píxel y tomar su color de una imagen, y fue generalizada por Blinn y Newell \cite{blinn1976}, quienes además introdujeron el uso de una imagen del entorno para simular reflejos. Desde entonces el mapeo de texturas es una de las etapas básicas del cauce de renderizado \cite{hearn_baker, akenine2018}.
+
+\subsection*{Coordenadas de textura}
+Para asociar una imagen a una malla, a cada vértice se le asigna, además de su posición, un par de coordenadas $(u, v) \in [0, 1]^2$ que indica qué punto de la imagen le corresponde. Durante la rasterización estas coordenadas se interpolan en el interior de cada triángulo y el \textit{fragment shader} consulta la imagen con ellas \cite{learnopengl}:
+\begin{equation}
+    \mathbf{c}(x, y) = T\big(u(x, y),\ v(x, y)\big),
+\end{equation}
+donde $T$ es la textura y $(u, v)$ las coordenadas interpoladas en el fragmento $(x, y)$. Cuando una coordenada sale del intervalo $[0, 1]$, el modo de repetición (\texttt{GL\_REPEAT}) hace que la imagen se repita, lo que permite cubrir superficies grandes con una sola imagen continua en sus bordes \cite{khronos_opengl}.
+
+El problema central del texturizado es, por lo tanto, encontrar la función que lleva cada punto de la superficie a un punto del plano $(u, v)$, lo que en Blender se llama \textit{despliegue} o \textit{UV unwrapping} \cite{blender_manual}. Para las cuatro primitivas de esta práctica existe una proyección natural:
+\begin{itemize}
+    \item \textbf{Plano:} la proyección es directa, $u = (x - x_{\min})/a$ y $v = (z - z_{\min})/h$, con $a$ y $h$ el ancho y el alto del plano.
+    \item \textbf{Cubo:} cada cara se proyecta sobre el plano de sus dos ejes y se coloca en una región distinta de la imagen. A la imagen que reúne varias regiones independientes se le llama \textit{atlas} de texturas.
+    \item \textbf{Cilindro:} el costado se «desenrolla» usando el ángulo alrededor del eje y la altura, $u = \theta/2\pi$ con $\theta = \operatorname{atan2}(y, x)$, y $v = z/h$; las tapas se proyectan en planta.
+    \item \textbf{Esfera:} se usa la proyección equirrectangular, en la que $u$ es la longitud y $v$ la latitud:
+    \begin{equation}
+        u = \frac{\lambda}{2\pi}, \qquad v = \frac{\varphi + \pi/2}{\pi},
+        \qquad \mathbf{d} = (\cos\varphi\cos\lambda,\ \cos\varphi\sin\lambda,\ \sin\varphi).
+    \end{equation}
+    Es la misma proyección con la que se distribuyen los mapas de planetas, por lo que una esfera UV de Blender acepta esas imágenes sin deformarlas.
+\end{itemize}
+En el cilindro y en la esfera aparece una costura donde $u$ salta de 1 a 0; si un triángulo cruza esa línea y no se corrige, la interpolación recorre toda la imagen en sentido inverso dentro de ese triángulo y aparece una franja con la textura completa comprimida.
+
+\subsection*{Canal alfa y transparencia}
+Una imagen RGBA guarda, además del color, un valor de opacidad $\alpha$ por píxel. Porter y Duff \cite{porter1984} formalizaron cómo combinar un color que se dibuja (fuente) con el que ya está en pantalla (destino); el operador \textit{over} que usa el código del laboratorio es
+\begin{equation}
+    \mathbf{c} = \alpha_s\,\mathbf{c}_s + (1 - \alpha_s)\,\mathbf{c}_d,
+\end{equation}
+que en OpenGL corresponde a \texttt{glBlendFunc(GL\_SRC\_ALPHA, GL\_ONE\_MINUS\_SRC\_ALPHA)}. La mezcla, sin embargo, no impide que un fragmento totalmente transparente escriba su profundidad en el \textit{z-buffer}, y si eso ocurre, lo que se dibuje después detrás de él queda oculto. Por eso los objetos transparentes se dibujan al final o se descartan sus fragmentos con $\alpha$ pequeña \cite{akenine2018}.
+
+\subsection*{Dimensiones en potencias de dos}
+Las imágenes cuyas dimensiones son potencias de dos ($512$, $1024$, $2048$, \dots) permiten construir la pirámide de \textit{mipmaps} reduciendo cada nivel exactamente a la mitad, técnica propuesta por Williams \cite{williams1983} para evitar el parpadeo de las texturas lejanas. Aunque OpenGL 3.3 ya acepta otras dimensiones, decidimos que todas las texturas de esta práctica midieran potencias de dos, porque así se conserva la compatibilidad con hardware antiguo y con las rutinas que generan \textit{mipmaps}.
+
+\subsection*{Mapas de entorno}
+Un mapa de entorno representa todo lo que rodea a la escena como si estuviera infinitamente lejos. Greene \cite{greene1986} propuso guardarlo en las seis caras de un cubo (\textit{cubemap}), cada una con un campo de visión de $90^\circ$, de modo que juntas cubren todas las direcciones sin las deformaciones que tiene una sola imagen esférica. Las caras se nombran por el eje hacia el que miran (\texttt{posx}, \texttt{negx}, \texttt{posy}, \texttt{negy}, \texttt{posz}, \texttt{negz}), y es la convención que siguen los mapas de Humus \cite{humus} que pide usar el manual.
+
+\subsection*{Desarrollo de la práctica}
+Siguiendo el manual \cite{teodoro_vite}, en esta práctica texturizamos un plano, un cubo, un cilindro y una esfera para representar respectivamente una hoja con fondo transparente, una caja de cartón, un barril y un planeta; los exportamos a FBX y los cargamos en OpenGL con Assimp \cite{assimp}, y cambiamos el mapa de entorno del escenario. Además, el equipo decidió hacer una variación por cada primitiva (una reja, un edificio con su tinaco y un balón), y en todas las texturas combinamos al menos dos imágenes. Las fotografías provienen de bibliotecas con licencias libres: ambientCG \cite{ambientcg}, Solar System Scope \cite{solarsystemscope}, Wikimedia Commons \cite{hoja_commons, carton_commons} y Humus \cite{humus}.
+
+El desarrollo se llevó a cabo en Blender 5.2 y Visual Studio sobre Windows 11, con guiones en Python ejecutados dentro de Blender para construir las texturas, asignar las coordenadas UV y exportar los modelos. Durante el desarrollo se utilizó además un modelo de lenguaje como apoyo para la automatización de esos guiones, la depuración del cargador y la revisión de redacción del documento \cite{anthropic2026}.
