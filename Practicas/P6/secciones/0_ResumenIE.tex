@@ -1,0 +1,27 @@
+% ==============================================================================
+% RESUMEN / ABSTRACT
+% ==============================================================================
+% Instrucciones de la plantilla:
+% - Redactar en español e inglés (exactamente 1 párrafo para cada idioma).
+% - Contenido sugerido:
+%   * Objetivo principal de la práctica de laboratorio.
+%   * Metodología empleada y herramientas/bibliotecas utilizadas.
+%   * Principales resultados alcanzados y aprendizajes obtenidos.
+% ==============================================================================
+
+\begin{abstract}
+En esta práctica se asoció información de textura a modelos tridimensionales para representar objetos reales a partir de primitivas: un plano con una hoja recortada sobre fondo transparente, un cubo convertido en caja de cartón, un cilindro convertido en barril y una esfera convertida en la Tierra, además de una variación de cada uno (reja de malla ciclónica, edificio de ladrillo con tinaco y balón de fútbol). Las texturas se construyeron en Blender 5.2 con guiones de Python que combinan fotografías libres (ambientCG, Solar System Scope, Wikimedia Commons) en atlas cuyas dimensiones son potencias de dos, y en cada caso se asignaron las coordenadas UV adecuadas a la primitiva: planas, por cara, cilíndricas y equirrectangulares; el barril recibió además su forma abombada con edición proporcional. Los modelos se exportaron a FBX y se cargaron en OpenGL 3.3 con Assimp, y el mapa de entorno del escenario se sustituyó por el cubemap \textit{Footballfield} de Humus. Como resultado, las ocho figuras se visualizan correctamente en OpenGL con su transparencia, y en el camino resolvimos tres fallas del cargador: la omisión de las transformaciones de los nodos del FBX, la ausencia de normales en las mallas suaves y la escritura de profundidad de los fragmentos transparentes.
+
+\vspace{0.3cm}
+\noindent\textbf{Palabras clave:} Texturizado, coordenadas UV, atlas de texturas, canal alfa, mapeo cilíndrico y esférico, cubemap, Blender, OpenGL, Assimp.
+\end{abstract}
+
+\vspace{0.5cm}
+
+\renewcommand{\abstractname}{Abstract}
+\begin{abstract}
+In this laboratory session, texture information was associated with three-dimensional models in order to represent real objects starting from primitives: a plane carrying a leaf cut out over a transparent background, a cube turned into a cardboard box, a cylinder turned into a barrel and a sphere turned into the Earth, plus one variation of each (a chain-link fence, a brick building with a water tank and a football). Textures were built in Blender 5.2 through Python scripts that combine freely licensed photographs (ambientCG, Solar System Scope, Wikimedia Commons) into atlases whose dimensions are powers of two, and each primitive received the UV coordinates that suit it: planar, per face, cylindrical and equirectangular; the barrel was additionally given its bulging shape with proportional editing. The models were exported to FBX and loaded in OpenGL 3.3 through Assimp, and the scene environment map was replaced with Humus' \textit{Footballfield} cubemap. As a result, all eight figures are displayed correctly in OpenGL, including their transparency, and along the way we solved three loader issues: FBX node transforms being ignored, smooth meshes arriving without normals, and transparent fragments writing to the depth buffer.
+
+\vspace{0.3cm}
+\noindent\textbf{Keywords:} Texturing, UV coordinates, texture atlas, alpha channel, cylindrical and spherical mapping, cubemap, Blender, OpenGL, Assimp.
+\end{abstract}
