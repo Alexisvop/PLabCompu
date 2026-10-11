@@ -254,7 +254,7 @@ cubeenv = new Model("models/cubemap_football/mycube.fbx");
 
 % ------------------------------------------------------------------------------
 \subsection{Variaciones: una por cada primitiva}
-Además de las actividades del manual, el equipo hizo una variación de cada primitiva, colocadas en una segunda fila detrás de las originales. Todas se generan con el guion \texttt{variaciones.py}.
+Además de las actividades del manual, hicimos una variación de cada primitiva, colocadas en una segunda fila detrás de las originales. Todas se generan con el guion \texttt{variaciones.py}.
 
 \subsubsection{Plano: reja de malla ciclónica}
 Es un plano de $6 \times 2$ unidades de pie, en $(2, 4.5, 1)$. Su textura RGBA de $1024 \times 1024$ se calcula: el canal alfa vale 1 sobre dos familias de líneas diagonales, $x + y$ y $x - y$ múltiplos de 64 píxeles con un grosor de 3 píxeles, que forman los rombos de la malla; el color es la foto de acero galvanizado \texttt{Metal011}, sombreada con la misma función que el alfa. Un poste vertical al centro y un tubo horizontal arriba, ambos opacos y con sombreado cilíndrico, completan cada tramo. La coordenada $u$ va de 0 a 3 a lo ancho del plano, así que la textura se repite tres veces y la reja tiene tres tramos sin necesidad de una imagen más ancha.
