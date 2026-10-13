@@ -26,7 +26,8 @@ Entorno de desarrollo & Microsoft Visual Studio Community (conjunto de herramien
 Compilador y estándar & MSVC, \texttt{C++20}, configuración \texttt{Debug|x64} \\ \hline
 API gráfica & OpenGL 3.3 (perfil núcleo) \\ \hline
 Bibliotecas & GLFW, GLAD, GLM, Assimp (\texttt{assimp-vc143-mtd}) y \texttt{stb\_image} \\ \hline
-Modelado y texturas & Blender 5.2.2 LTS con guiones en Python (\texttt{bpy}, \texttt{bmesh}, NumPy) \\ \hline
+Edición de imágenes & GIMP 2.10 (recorte y generación del canal alfa) \\ \hline
+Modelado y texturas & Blender 5.2.2 LTS \\ \hline
 \end{tabular}
 \caption{Herramientas, bibliotecas y versiones utilizadas.}
 \label{tab:requerimientos}
@@ -42,7 +43,7 @@ Como en las prácticas anteriores, dentro de la carpeta \texttt{06\_Texturing} s
 \hline
 \textbf{Propiedad} & \textbf{Valor} \\ \hline
 Directorio de salida y de trabajo & \texttt{\$(ProjectDir)..\textbackslash..\textbackslash bin\textbackslash} \\ \hline
-Directorios de inclusión adicionales & \texttt{deps\textbackslash glm}, \texttt{deps\textbackslash glad}, \texttt{deps\textbackslash glfw}, \texttt{deps\textbackslash assimp} e \texttt{include} del proyecto \\ \hline
+Directorio de inclusión adicionales & \texttt{deps\textbackslash glm}, \texttt{deps\textbackslash glad}, \texttt{deps\textbackslash glfw}, \texttt{deps\textbackslash assimp} e \texttt{include} del proyecto \\ \hline
 Directorios de bibliotecas adicionales & \texttt{deps\textbackslash glad}, \texttt{deps\textbackslash glfw} y \texttt{deps\textbackslash assimp} (\texttt{lib\textbackslash x64\textbackslash Debug}) \\ \hline
 Dependencias adicionales & \texttt{opengl32.lib; glad.lib; glfw3.lib; assimp-vc143-mtd.lib} \\ \hline
 Definiciones del preprocesador & \texttt{\_CRT\_SECURE\_NO\_WARNINGS} (por \texttt{stb\_image}) \\ \hline
@@ -52,7 +53,7 @@ Definiciones del preprocesador & \texttt{\_CRT\_SECURE\_NO\_WARNINGS} (por \text
 \end{table}
 
 \subsubsection{Procedimiento común en Blender}
-Todo el trabajo en Blender quedó escrito en guiones de Python, uno por actividad y guardados en la carpeta \texttt{codigo} (\texttt{plano\_act1.py}, \texttt{caja\_act2.py}, \texttt{barril\_act3.py}, \texttt{planeta\_act4.py} y \texttt{variaciones.py}), que se ejecutan sobre el mismo archivo \texttt{.blend} con Blender abierto, de manera que cada objeto nuevo se agrega a la escena sin borrar los anteriores. Las texturas se construyen como arreglos de NumPy a partir de las fotografías, se escriben en una imagen de Blender y se guardan en PNG. Todas miden potencias de dos, y la Tabla \ref{tab:texturas} resume de qué imágenes se forma cada una.
+El modelado de las primitivas, el desenvolvimiento de sus coordenadas UV y la configuración de los materiales se realizaron directamente en la interfaz interactiva de Blender (modo edición, editor de sombreado y editor UV), organizando todos los objetos dentro de la misma escena. A excepción de la textura de la hoja (cuyo canal alfa se preparó en GIMP), las texturas se prepararon a partir de fotografías y mapas libres, guardándose en formato PNG con dimensiones en potencias de dos. La Tabla \ref{tab:texturas} resume las imágenes empleadas en cada caso.
 
 \begin{table}[H]
 \centering
@@ -60,7 +61,7 @@ Todo el trabajo en Blender quedó escrito en guiones de Python, uno por activida
 \begin{tabular}{|p{2.6cm}|p{2.3cm}|p{9.6cm}|}
 \hline
 \textbf{Textura} & \textbf{Tamaño} & \textbf{Imágenes que combina} \\ \hline
-Hoja & $1024^2$ RGBA & Foto de una hoja \cite{hoja_commons} + canal alfa calculado \\ \hline
+Hoja & $1024^2$ RGBA & Foto de una hoja \cite{hoja_commons} + canal alfa generado en GIMP \\ \hline
 Caja & $2048^2$ & Cartón kraft \cite{carton_commons} + pestaña y cinta \\ \hline
 Barril & $2048^2$ & Duelas \texttt{Planks005} + aros \texttt{Metal021} + tapas \texttt{Planks012} \cite{ambientcg} \\ \hline
 Planeta & $2048 \times 1024$ & Mapa diurno de la Tierra \cite{solarsystemscope} \\ \hline
@@ -86,33 +87,17 @@ Para que el plano mostrara algo más que una imagen rectangular decidimos usar u
     \label{fig:hoja_original}
 \end{figure}
 
-\subsubsection{Generación del canal alfa}
-El guion \texttt{plano\_act1.py} recorta la foto a $717 \times 717$ para hacerla cuadrada y calcula el alfa con los pasos siguientes:
+\subsubsection{Generación del canal alfa en GIMP}
+Para dotar a la fotografía de transparencia y aislar con precisión la silueta de la hoja, se procesó la imagen original mediante la aplicación de edición gráfica GIMP a través de los siguientes pasos:
 \begin{enumerate}
-    \item \textbf{Umbral de color.} La hoja es un naranja muy saturado, así que se marcan los píxeles con $R > 0.55$, $G < 0.62R$ y $B < 0.30R$.
-    \item \textbf{Apertura morfológica.} Tres erosiones seguidas de tres dilataciones cortan los puentes delgados que unen la hoja con manchas del fondo del mismo color.
-    \item \textbf{Región conexa.} Se conserva solo la región conectada a un píxel del centro de la hoja, $(371, 360)$, mediante dilataciones repetidas.
-    \item \textbf{Límite elíptico.} Se descarta todo lo que queda fuera de una elipse un 4\,\% más grande que la hoja (centro $(371, 364)$ y semiejes $223 \times 242$).
-    \item \textbf{Relleno por filas.} Cada fila se llena entre su primer y su último píxel marcado, lo que recupera la vena central, los brillos y la punta, que no pasan el umbral.
-    \item \textbf{Piel.} Se quitan los píxeles con $B > 0.6R$, que corresponden al pulgar que sostiene la hoja.
-    \item \textbf{Orilla suave.} Dos pasadas de un promedio de $3 \times 3$ convierten la orilla en una transición de unos dos píxeles.
+    \item \textbf{Adición del canal alfa a la capa.} Dado que la imagen original se encontraba en formato RGB estándar (tipo de color 2, sin soporte de opacidad), al abrirla en GIMP se añadió explícitamente un canal alfa a la capa activa desde el menú \textit{Capa $\rightarrow$ Transparencia $\rightarrow$ Añadir canal alfa}, habilitando la estructura de 4 canales (RGBA).
+    \item \textbf{Selección y delimitación de la silueta.} Se empleó la \textit{Herramienta de selección difusa} (varita mágica) junto con la \textit{Herramienta de rutas} para perfilar con fidelidad el contorno irregular de la hoja de arce y aislarla del fondo, delimitando y excluyendo la zona inferior donde aparecía el pulgar que sujetaba la hoja en la fotografía original.
+    \item \textbf{Eliminación del fondo.} Se invirtió la selección (\textit{Seleccionar $\rightarrow$ Invertir}) y se suprimió el contenido del fondo mediante la tecla \texttt{Supr}, asignando un valor de alfa nulo ($\alpha = 0$) a todos los píxeles externos a la hoja.
+    \item \textbf{Suavizado de bordes (\textit{antialiasing}).} Para evitar cortes abruptos y bordes dentados al momento de renderizar en OpenGL, se aplicó un calado ligero (\textit{Seleccionar $\rightarrow$ Difuminar...} con un radio de 2 a 3 píxeles), generando una transición suave en el perímetro de la hoja.
+    \item \textbf{Recorte y escalado a potencia de dos.} La imagen se recortó a proporción cuadrada y se reescaló a una resolución de $1024 \times 1024$ píxeles (\textit{Imagen $\rightarrow$ Escalar la imagen...}) para garantizar dimensiones en potencias de dos, facilitando el muestreo eficiente por parte del hardware gráfico.
+    \item \textbf{Exportación en formato PNG RGBA.} Finalmente, la textura se exportó como archivo PNG de 32 bits (\texttt{hoja\_rgba.png}) preservando íntegro el canal de opacidad.
 \end{enumerate}
-Finalmente la imagen se escala a $1024 \times 1024$ y se guarda como PNG RGBA. La Figura \ref{fig:hoja_rgba} muestra el resultado compuesto sobre un fondo magenta para hacer visible la transparencia: el 33\,\% de los píxeles quedó opaco.
-
-\begin{lstlisting}[language=Python, caption={Núcleo del cálculo del canal alfa en plano\_act1.py.}, label={lst:mascara_hoja}]
-m = (R > 0.55) & (G < 0.62 * R) & (B < 0.30 * R)      # naranja saturado
-for _ in range(APERTURA):                               # apertura: separa del fondo
-    m = _vecinos(m, np.logical_and)
-m = _inundar(semilla, m)                                # region conectada al centro
-for _ in range(APERTURA):
-    m = _vecinos(m, np.logical_or)
-m &= d < LIMITE                                         # elipse 4 % mayor que la hoja
-for f in range(LADO):                                   # relleno de orilla a orilla
-    xs = np.flatnonzero(m[f])
-    if xs.size:
-        m[f, xs[0]:xs[-1] + 1] = True
-m &= ~((B > 0.6 * R) & (R > 0.6))                       # piel del pulgar
-\end{lstlisting}
+La Figura \ref{fig:hoja_rgba} muestra el resultado obtenido compuesto sobre un fondo magenta de contraste para hacer visible la transparencia: la hoja conserva su forma y textura opaca (33\,\% de los píxeles), mientras que el área circundante es completamente transparente.
 
 \begin{figure}[H]
     \centering
@@ -122,7 +107,7 @@ m &= ~((B > 0.6 * R) & (R > 0.6))                       # piel del pulgar
 \end{figure}
 
 \subsubsection{Plano y material}
-El plano es un \textit{Plane} de 2 unidades por lado en el origen, cuyas coordenadas UV ya cubren el cuadrado $[0, 1]^2$. Su material conecta un nodo \textit{Image Texture} con la hoja a las entradas \textit{Base Color} y \textit{Alpha} del \textit{Principled BSDF}, y usa el método de \textit{render} \textit{Blended} para que la vista de Blender muestre la transparencia. El plano se exportó a \texttt{Blender/plano\_hoja.fbx}.
+La creación de la geometría, la configuración del material y la asignación de la textura se realizaron directamente dentro de la interfaz de Blender. Se creó una primitiva de plano (\textit{Plane}) de 2 unidades por lado centrada en el origen, cuyas coordenadas UV por defecto ya cubren en su totalidad el espacio $[0, 1]^2$. En el editor de sombreado (\textit{Shader Editor}), se configuró el material conectando un nodo \textit{Image Texture} con la imagen \texttt{hoja\_rgba.png} a las entradas \textit{Base Color} y \textit{Alpha} del nodo \textit{Principled BSDF}, asignando en los ajustes del material el modo de mezcla (\textit{Blend Mode}) a \textit{Alpha Blend} para que el visor 3D represente la transparencia en tiempo real. Finalmente, el plano se exportó desde Blender a \texttt{Blender/plano\_hoja.fbx}.
 
 % ------------------------------------------------------------------------------
 \subsection{Actividad 2: Cubo como caja de cartón}
@@ -130,30 +115,8 @@ El plano es un \textit{Plane} de 2 unidades por lado en el origen, cuyas coorden
 \subsubsection{Atlas de la caja}
 Partimos de una fotografía de cartón kraft liso \cite{carton_commons}, recortada a cuadrado y reducida a $512 \times 512$. Con ella se arma un atlas de $2048 \times 2048$ dividido en una cuadrícula de $4 \times 4$ celdas de 512 píxeles, de las que se usan seis, una por cara (Figura \ref{fig:atlas_caja}). A cada celda se le oscurecen las orillas un 25\,\% para marcar las aristas de la caja; la tapa y el fondo llevan la línea donde se juntan las pestañas y encima una cinta canela que ocupa el 20\,\% de la celda, y en las dos caras laterales $\pm X$ la cinta baja un 28\,\% de la altura, justo donde termina la de la tapa.
 
-\subsubsection{Coordenadas UV por cara}
-El cubo es de 2 unidades por lado y está apoyado en el piso en $(3, 0, 1)$. El guion \texttt{caja\_act2.py} recorre las caras con \texttt{bmesh} y, según la normal de cada una, proyecta sus vértices sobre los dos ejes de la cara con la orientación que deja el «arriba» de los costados hacia $+Z$; después lleva el resultado a su celda dejando un margen de 4 píxeles para que el filtrado no tome color de la celda vecina:
-\begin{equation}
-    u = \frac{c + m + \frac{a+1}{2}(1 - 2m)}{4}, \qquad v = \frac{f + m + \frac{b+1}{2}(1 - 2m)}{4},
-\end{equation}
-donde $(a, b) \in [-1, 1]^2$ es la proyección del vértice sobre la cara, $(c, f)$ la columna y fila de la celda y $m = 4/512$ el margen.
-
-\begin{lstlisting}[language=Python, caption={Asignación de las coordenadas UV de cada cara en caja\_act2.py.}, label={lst:uv_caja}]
-CARAS = {
-    (0, -1, 0): ((0, 0), lambda x, y, z: (x, z)),     # frente
-    (1, 0, 0):  ((1, 0), lambda x, y, z: (y, z)),     # derecha
-    (0, 1, 0):  ((2, 0), lambda x, y, z: (-x, z)),    # atras
-    (-1, 0, 0): ((0, 1), lambda x, y, z: (-y, z)),    # izquierda
-    (0, 0, 1):  ((1, 1), lambda x, y, z: (x, y)),     # tapa
-    (0, 0, -1): ((2, 1), lambda x, y, z: (x, -y)),    # fondo
-}
-for f in bm.faces:
-    (col, fila), proy = CARAS[tuple(int(round(c)) for c in f.normal)]
-    for loop in f.loops:
-        a, b = proy(*loop.vert.co)
-        a = margen + (a + 1) / 2 * (1 - 2 * margen)
-        b = margen + (b + 1) / 2 * (1 - 2 * margen)
-        loop[uv].uv = ((col + a) / GRID, (fila + b) / GRID)
-\end{lstlisting}
+\subsubsection{Modelado y coordenadas UV por cara}
+En Blender se creó una primitiva de cubo (\textit{Cube}) de 2 unidades por lado y se colocó sobre el plano en $(3, 0, 1)$. En modo edición, el mapeo de coordenadas UV se configuró manualmente utilizando el editor UV de Blender (\textit{UV Editor}). Cada una de las seis caras del cubo se proyectó y ajustó sobre su celda correspondiente del atlas, cuidando la orientación para que la parte superior de las caras laterales coincida con el eje $+Z$ y las cintas de la tapa continúen de manera uniforme hacia los costados. Se dejó un margen de 4 píxeles respecto a los bordes de cada celda para evitar artefactos en el filtrado bilineal en OpenGL. En el editor de sombreado (\textit{Shader Editor}), se configuró el material conectando la textura del atlas a la entrada \textit{Base Color} del nodo \textit{Principled BSDF}.
 
 % ------------------------------------------------------------------------------
 \subsection{Actividad 3: Cilindro como barril}
@@ -162,27 +125,16 @@ for f in bm.faces:
 El atlas del barril mide $2048 \times 2048$ y combina tres imágenes de ambientCG \cite{ambientcg}. La mitad superior es el costado: la textura de tablas \texttt{Planks005}, girada $90^\circ$ para que las tablas queden verticales como duelas y llevada a un tono roble, con cuatro aros recortados de la foto de acero oxidado \texttt{Metal021} al 10, 31, 69 y 90\,\% de la altura. Cada aro tiene un sombreado en coseno que simula su volumen, una sombra sobre la madera y 16 remaches. La mitad inferior contiene las dos tapas: la madera más oscura \texttt{Planks012} dentro de un círculo, con un borde de acero del 10\,\% del radio. Escogimos \texttt{Planks005} entre tres candidatas porque sus tablas son largas y continuas; las otras dos son de piso y tienen juntas a tope que en un barril se verían como cortes en las duelas.
 
 \subsubsection{Cilindro y coordenadas UV}
-El barril parte de un cilindro de 32 lados, radio 1 y altura 2.4, apoyado en el piso en $(6, 0, 1.2)$. En el costado, $u$ es el ángulo alrededor del eje y $v$ la altura llevada a la mitad superior del atlas. Para la costura, si los valores de $u$ de una cara difieren en más de 0.5, a los menores se les suma 1: la cara queda con un intervalo de $u$ de ancho $1/32$ que termina en 1 o un poco más allá, y gracias a \texttt{GL\_REPEAT} la textura continúa sin la franja invertida. Las tapas se proyectan en planta dentro de su círculo, con el fondo espejeado porque se ve desde abajo.
-
-\begin{lstlisting}[language=Python, caption={Coordenadas UV del costado del barril con la costura resuelta (barril\_act3.py).}, label={lst:uv_barril}]
-if abs(f.normal.z) < 0.5:             # costado: u = angulo, v = altura
-    us = [(math.atan2(l.vert.co.y, l.vert.co.x) / (2 * math.pi)) % 1.0
-          for l in f.loops]
-    if max(us) - min(us) > 0.5:       # la cara cruza la costura
-        us = [x + 1.0 if x < 0.5 else x for x in us]
-    for l, x in zip(f.loops, us):
-        h = (l.vert.co.z + ALTO / 2) / ALTO
-        l[uv].uv = (x, 0.5 + pad + h * (0.5 - 2 * pad))
-\end{lstlisting}
+Se creó una primitiva de cilindro de 32 lados, radio 1 y altura 2.4, posicionada en $(6, 0, 1.2)$. En el modo edición de Blender, se marcó una costura vertical (\textit{Mark Seam}) a lo largo de una arista lateral para permitir el desenvolvimiento cilíndrico ordenado sin cruces de textura en la unión. En el editor UV de Blender, la malla rectangular del costado se ajustó sobre la mitad superior del atlas. Para las tapas, se aplicó una proyección planar ortogonal en planta, posicionando cada círculo en su respectiva región de la mitad inferior del atlas (invirtiendo horizontalmente la tapa inferior).
 
 \subsubsection{Forma de barril con edición proporcional}
-Un cilindro recto no se ve como barril, así que, ya texturizado, le dimos su forma abombada:
+Para dar al cilindro la silueta curva característica de un barril, se emplearon las herramientas de modelado de Blender:
 \begin{enumerate}
-    \item En Modo Edición se subdividieron las aristas verticales del costado en 9 cortes, lo que agrega anillos horizontales que se pueden curvar.
-    \item Se seleccionó el anillo central (los 32 vértices con $z = 0$).
-    \item Se escaló ese anillo a 1.18 solo en $X$ y $Y$ con la \textit{edición proporcional} activada, caída \textit{Suave} y radio de influencia 1.2, que es media altura del barril.
+    \item En Modo Edición, se utilizó la herramienta de cortes en bucle (\textit{Loop Cut}) para subdividir las aristas verticales del costado en 9 cortes, creando anillos horizontales intermedios.
+    \item Se seleccionó el anillo central de 32 vértices en la altura media ($z = 0$).
+    \item Se escaló dicho anillo a un factor de 1.18 en los ejes $X$ e $Y$ con la \textit{edición proporcional} (\textit{Proportional Editing}) activada, utilizando caída \textit{Suave} (\textit{Smooth}) y un radio de influencia de 1.2 unidades (media altura del barril).
 \end{enumerate}
-Con ese radio, la influencia vale 1 en el centro y se anula justo en las tapas, de modo que el radio crece suavemente de 1.0 en los bordes a 1.18 en el centro. Como la subdivisión interpola las coordenadas UV, las duelas y los aros siguen la curva sin tener que volver a asignarlas.
+Con esta configuración, la deformación alcanza su valor máximo en el centro y se desvanece suavemente hacia las tapas. Dado que la interpolación de coordenadas UV se gestiona de forma automática en Blender, las duelas y los aros de la textura acompañan la curvatura del barril sin distorsión.
 
 % ------------------------------------------------------------------------------
 \subsection{Actividad 4: Esfera como planeta}
@@ -196,46 +148,7 @@ Para el planeta usamos el mapa diurno de la Tierra de Solar System Scope \cite{s
 \end{figure}
 
 % ------------------------------------------------------------------------------
-\subsection{Actividad 5: Exportación a FBX y carga en OpenGL}
-
-\subsubsection{Exportación}
-Las figuras se exportan juntas a \texttt{Blender/escena\_p6.fbx} con \textit{Path Mode} en \textit{Relative}, y las texturas se copian a \texttt{bin/models} junto al FBX, que es donde el cargador las busca. Como \texttt{model.h} ignora la matriz de transformación de cada nodo del FBX (lo comprobamos en la Actividad 2, véase la sección de experimentos), la exportación se hace sobre copias temporales de las mallas con la transformación ya aplicada a los vértices, que se borran al terminar; así el \texttt{.blend} conserva cada objeto con su origen y su posición.
-
-\begin{lstlisting}[language=Python, caption={Exportación con las transformaciones aplicadas a copias temporales (caja\_act2.py).}, label={lst:exportar}]
-for ob in originales:
-    me = ob.data.copy()
-    me.transform(ob.matrix_world)            # posicion final en los vertices
-    cp = bpy.data.objects.new(ob.name + "_export", me)
-    bpy.context.scene.collection.objects.link(cp)
-    copias.append(cp)
-...
-bpy.ops.export_scene.fbx(filepath=FBX_ESCENA, use_selection=True,
-                         path_mode="RELATIVE", object_types={"MESH"})
-\end{lstlisting}
-
-\subsubsection{Cambios en el programa}
-En \texttt{06\_Texturing.cpp} hicimos cuatro cambios, y uno más en \texttt{model.h}:
-\begin{itemize}
-    \item El modelo que se carga es \texttt{models/escena\_p6.fbx}, con la rotación de $-90^\circ$ en $X$ que ya traía el código para pasar de $Z$ hacia arriba (Blender) a $Y$ hacia arriba (OpenGL).
-    \item El cubo de entorno se dibuja \emph{antes} que el modelo, para que las zonas transparentes de la hoja y de la reja se mezclen con el fondo y no con el color de limpieza.
-    \item El \textit{shader} de fragmentos es una copia del original, \texttt{10\_fragment\_alpha.fs}, que además descarta los fragmentos con $\alpha < 0.1$ para que no escriban profundidad (Listado \ref{lst:shader_alpha}). Se dejó como un archivo nuevo para no alterar las demás prácticas, que usan el \textit{shader} original.
-    \item La cámara arranca en $(1.5,\ 2.5,\ 14)$ en lugar de $(0,\ 2,\ 10)$, para que al abrir el programa se vean todas las figuras.
-    \item En \texttt{model.h} se agregó la bandera \texttt{aiProcess\_GenSmoothNormals} a la lectura del archivo, por la falla que se describe en el experimento de la Actividad 4.
-\end{itemize}
-
-\begin{lstlisting}[language=C++, caption={Fragment shader con descarte de fragmentos transparentes (10\_fragment\_alpha.fs).}, label={lst:shader_alpha}]
-void main()
-{
-    vec4 texel = texture(texture_diffuse1, TexCoords);
-    if (texel.a < 0.1)
-        discard;                    // no escribe color ni profundidad
-    vec4 ambientColor = vec4(1.0, 1.0, 1.0, 1.0);
-    FragColor = ambientColor * texel;
-}
-\end{lstlisting}
-
-% ------------------------------------------------------------------------------
-\subsection{Actividad 6: Cambio del mapa de entorno}
+\subsection{Actividad 5: Cambio del mapa de entorno}
 El manual pide sustituir el fondo por imágenes de Humus \cite{humus}. Al momento de hacer la práctica el sitio \texttt{humus.name} no estaba disponible (el servidor respondía con una página de «sitio no disponible»), así que descargamos el archivo \texttt{Footballfield.zip} desde la copia que guarda el Internet Archive. Escogimos este mapa, una cancha de pasto con cielo nublado, porque combina con las variaciones de la práctica, en particular con el balón y la reja. Sus seis caras miden $2048 \times 2048$ y se distribuyen con licencia CC BY 3.0. La Figura \ref{fig:cruz_football} muestra las seis caras acomodadas en cruz.
 
 \begin{figure}[H]
@@ -248,38 +161,24 @@ El manual pide sustituir el fondo por imágenes de Humus \cite{humus}. Al moment
 El cubo de entorno del laboratorio (\texttt{mycube.fbx}) tiene seis materiales que buscan sus imágenes con la ruta relativa \texttt{mycube.fbm\textbackslash posx.jpg} y equivalentes. En lugar de sobrescribir esas imágenes, que usan otras prácticas, creamos la carpeta \texttt{bin/models/cubemap\_football} con una copia de \texttt{mycube.fbx} y su propia carpeta \texttt{mycube.fbm} con las seis caras de Humus. Como los dos mapas siguen la misma convención de nombres, cada imagen cae en su cara sin modificar el modelo, y en el código solo cambia la ruta:
 
 \begin{lstlisting}[language=C++, caption={Carga del nuevo mapa de entorno en 06\_Texturing.cpp.}, label={lst:cubemap}]
-// Actividad 5.6: cubemap "Footballfield" de Humus (CC BY 3.0)
+// Actividad 5: cubemap "Footballfield" de Humus (CC BY 3.0)
 cubeenv = new Model("models/cubemap_football/mycube.fbx");
 \end{lstlisting}
 
 % ------------------------------------------------------------------------------
 \subsection{Variaciones: una por cada primitiva}
-Además de las actividades del manual, hicimos una variación de cada primitiva, colocadas en una segunda fila detrás de las originales. Todas se generan con el guion \texttt{variaciones.py}.
+Además de las actividades del manual, realizamos una variación de cada primitiva geométrica, colocadas en una segunda fila detrás de las figuras base. Todo el modelado, despliegue de coordenadas UV, preparación de materiales y asignación de texturas de estas variantes se llevó a cabo íntegramente dentro de la interfaz interactiva de Blender.
 
 \subsubsection{Plano: reja de malla ciclónica}
-Es un plano de $6 \times 2$ unidades de pie, en $(2, 4.5, 1)$. Su textura RGBA de $1024 \times 1024$ se calcula: el canal alfa vale 1 sobre dos familias de líneas diagonales, $x + y$ y $x - y$ múltiplos de 64 píxeles con un grosor de 3 píxeles, que forman los rombos de la malla; el color es la foto de acero galvanizado \texttt{Metal011}, sombreada con la misma función que el alfa. Un poste vertical al centro y un tubo horizontal arriba, ambos opacos y con sombreado cilíndrico, completan cada tramo. La coordenada $u$ va de 0 a 3 a lo ancho del plano, así que la textura se repite tres veces y la reja tiene tres tramos sin necesidad de una imagen más ancha.
+En Blender se creó un plano vertical de $6 \times 2$ unidades ubicado en $(2, 4.5, 1)$ para modelar un tramo de cerca perimetral. En el editor de sombreado (\textit{Shader Editor}), se configuró un material con el nodo \textit{Principled BSDF} utilizando una textura RGBA de $1024 \times 1024$ con patrón de rombos semitransparente, compuesta con el acabado metálico galvanizado \texttt{Metal011} \cite{ambientcg}. Se conectó el color a \textit{Base Color} y el mapa de opacidad a \textit{Alpha}, activando el modo \textit{Alpha Blend} para permitir ver a través de los orificios. En el editor UV de Blender, las coordenadas $u$ del plano se escalaron de $0$ a $3$, logrando que el patrón de malla ciclónica se repita tres veces a lo ancho gracias al modo \texttt{GL\_REPEAT}. Adicionalmente, se modelaron dentro de Blender dos primitivas de cilindro para incorporar el poste vertical de soporte y el travesaño horizontal superior con material metálico opaco.
 
 \subsubsection{Cubo: edificio de ladrillo}
-Es un cubo escalado a $3 \times 3 \times 6$ unidades con tres pisos de 2 unidades. Su atlas de $2048 \times 2048$ reparte la mitad superior en cuatro fachadas de $512 \times 1024$ (la proporción $1{:}2$ de cada muro) y la mitad inferior en la azotea y la base. Cada fachada combina el ladrillo \texttt{Bricks005} con concreto \texttt{Concrete006} en el zócalo, las losas de cada piso, la cornisa y los marcos de las ventanas, que miden $0.8 \times 1.0$ unidades. Para el vidrio de cada ventana se toma un recorte distinto del cielo del cubemap de Humus, entintado de azul, de modo que las ventanas «reflejan» el mismo cielo del escenario. En la planta baja del frente va una puerta de madera \texttt{Planks012} con su jaladera. La azotea es de concreto con un pretil y un registro.
+Se modeló a partir de una primitiva de cubo escalada a $3 \times 3 \times 6$ unidades en modo edición, conformando una estructura de tres plantas. El despliegue de sus coordenadas UV se realizó de forma interactiva en la vista de edición UV de Blender, vinculando sus caras a un atlas de texturas de $2048 \times 2048$: la mitad superior se repartió en cuatro cuadrantes para las fachadas (proporción $1{:}2$), integrando el ladrillo \texttt{Bricks005} con detalles de concreto \texttt{Concrete006} \cite{ambientcg} en zócalos, cornisas y molduras de ventanas, las cuales incorporan fragmentos del cielo del cubemap de Humus para simular reflejos en los vidrios. La mitad inferior del atlas se asignó a la azotea y la base, incorporando una puerta de madera \texttt{Planks012} en la planta baja y un pretil de concreto en el techo.
 
 \subsubsection{Cilindro: tinaco}
-Es un cilindro de radio 0.55 y altura 1.1 colocado sobre la azotea del edificio. Su atlas de $1024 \times 1024$ sigue la misma distribución que el del barril: en el costado, el plástico negro \texttt{Plastic006} aclarado para que se noten sus rayones y modulado con $\cos^8$ para formar 7 estrías horizontales, y en la tapa unos anillos concéntricos y la rosca central con 24 crestas.
+Se creó una primitiva de cilindro de radio 0.55 y altura 1.1 colocada en la azotea del edificio. En Blender se aplicó un desenrollado UV cilíndrico en el cuerpo lateral y una proyección planar circular para las tapas. En el \textit{Shader Editor} se asignó una textura de $1024 \times 1024$ basada en el plástico negro \texttt{Plastic006} \cite{ambientcg}, configurando el material para reproducir las estrías horizontales a lo largo del cuerpo cilíndrico y la rosca concéntrica en la tapa superior. Se aplicó sombreado suave a las caras laterales para garantizar una silueta curva continua.
 
 \subsubsection{Esfera: balón de fútbol}
-El patrón de un balón de fútbol es un icosaedro truncado: 12 pentágonos centrados en los vértices de un icosaedro y 20 hexágonos centrados en los vértices del dodecaedro dual. En lugar de dibujarlo a mano, el guion lo calcula para cada píxel de la textura equirrectangular de $2048 \times 1024$: convierte el píxel en la dirección $\mathbf{d}$ con la ecuación de la introducción y busca qué cara toca primero un rayo que sale del centro en esa dirección,
-\begin{equation}
-    \text{cara}(\mathbf{d}) = \arg\max_i \frac{\mathbf{d} \cdot \mathbf{n}_i}{r_i},
-\end{equation}
-donde $\mathbf{n}_i$ es el centro unitario de la cara y $r_i$ su distancia al centro del poliedro: $r_p = 2.32744$ para los pentágonos y $r_h = 2.26728$ para los hexágonos, con arista unitaria. Los píxeles en los que las dos mejores caras quedan a menos de 0.0045 se pintan como costura. Los hexágonos llevan el cuero claro \texttt{Leather012} y los pentágonos el mismo cuero oscurecido al 12\,\%. La esfera es de radio 0.6, en $(-5.5, 3, 0.6)$.
+El modelado, despliegue UV y la asignación de materiales del balón de fútbol se realizaron íntegramente en la interfaz interactiva de Blender. Para recrear la estructura geométrica clásica de un balón se partió de un icosaedro truncado (compuesto por 12 caras pentagonales y 20 hexagonales) proyectado a una forma esférica de radio 0.6 ubicada en $(-5.5, 3, 0.6)$.
 
-\begin{lstlisting}[language=Python, caption={Clasificación de cada píxel del balón en su cara del icosaedro truncado (variaciones.py).}, label={lst:balon}]
-normales = np.concatenate([pent / D_PENT, hexa / D_HEX])   # 32 x 3
-for f0 in range(0, H, 64):                                  # por bloques de filas
-    ...
-    d = np.stack([np.cos(lat) * np.cos(lon),
-                  np.cos(lat) * np.sin(lon), np.sin(lat)], -1)
-    s = d @ normales.T                                      # d . n_i / r_i
-    dos = np.partition(s, -2, axis=-1)[..., -2:]
-    es_pent[f0:f0 + 64] = s.argmax(-1) < len(pent)
-    costura[f0:f0 + 64] = (dos[..., 1] - dos[..., 0]) < 0.0045
-\end{lstlisting}
+En el modo edición de Blender, se configuró el mapeo de coordenadas UV para cada uno de los parches. Se crearon dos materiales basados en la textura de cuero \texttt{Leather012} \cite{ambientcg}: un material de cuero claro asignado a las caras hexagonales y una variante de cuero oscuro (con base entintada al 12\,\%) asignada a las caras pentagonales. Las costuras entre los paneles se definieron marcando aristas biseladas para brindar relieve visual a las uniones. Finalmente, se aplicó sombreado suave (\textit{Shade Smooth}) para lograr una curvatura esférica continua y uniforme en la superficie del balón.

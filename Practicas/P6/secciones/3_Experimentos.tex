@@ -57,7 +57,7 @@ Al exportar la hoja y la caja juntas, la caja apareció en el centro de la escen
     \label{fig:caja_centrada}
 \end{figure}
 
-Había dos soluciones: aplicar las transformaciones en Blender (\textit{Ctrl+A}) o hacerlo solo en el archivo exportado. Elegimos la segunda, con las copias temporales del Listado \ref{lst:exportar}, porque la primera mueve el origen de cada objeto al origen del mundo y ya no se puede reacomodar la escena con comodidad.
+Había dos soluciones: aplicar las transformaciones en Blender (\textit{Ctrl+A}) o hacerlo solo en el archivo exportado. Elegimos la segunda, exportando copias temporales con la transformación ya aplicada a los vértices, porque la primera mueve el origen de cada objeto al origen del mundo y ya no se puede reacomodar la escena con comodidad.
 
 \subsubsection{Pruebas exitosas}
 Con la exportación corregida, la caja aparece a la derecha de la hoja y las dos se ven completas (Figura \ref{fig:caja_hoja}).
@@ -120,16 +120,7 @@ La corrección fue agregar \texttt{aiProcess\_GenSmoothNormals} a las banderas d
 Con la corrección, la Tierra se ve con los continentes en su posición y sin deformaciones cerca del ecuador ni de los polos, y América no aparece espejeada, lo que confirma que la orientación del $u$ de la esfera UV de Blender coincide con la del mapa.
 
 % ------------------------------------------------------------------------------
-\subsection{Experimentos de la Actividad 5: dimensiones de las texturas}
-
-\subsubsection{Objetivo del experimento}
-Asegurar que todas las texturas que carga OpenGL midan potencias de dos.
-
-\subsubsection{Pruebas fallidas y análisis de errores}
-Las dos primeras texturas no cumplían: la hoja medía $717 \times 717$, por el recorte cuadrado de la foto, y el atlas de la caja $1536 \times 1536$, porque estaba organizado en una cuadrícula de $3 \times 3$ celdas de 512. La hoja se escaló a $1024 \times 1024$ después de calcular su alfa y el atlas pasó a una cuadrícula de $4 \times 4$, que con las mismas celdas de 512 da $2048 \times 2048$; las coordenadas UV se dividen ahora entre 4 en lugar de entre 3. Para comprobarlo no confiamos en Blender: leímos el ancho y el alto directamente del encabezado de cada PNG y JPG que quedó en \texttt{bin/models}.
-
-% ------------------------------------------------------------------------------
-\subsection{Experimentos de la Actividad 6: origen del mapa de entorno}
+\subsection{Experimentos de la Actividad 5: origen del mapa de entorno}
 
 \subsubsection{Objetivo del experimento}
 Sustituir el fondo sin modificar el modelo del cubo de entorno ni las imágenes que usan las demás prácticas.
@@ -141,7 +132,7 @@ Al copiar \texttt{mycube.fbx} a su propia carpeta junto con una carpeta \texttt{
 \subsection{Experimentos de las variaciones}
 
 \subsubsection{Objetivo del experimento}
-Comprobar que las técnicas de las cuatro actividades se generalizan a objetos distintos y que las texturas calculadas (la malla de la reja y el patrón del balón) son correctas.
+Comprobar que las técnicas de las cuatro actividades se generalizan a objetos distintos y que las texturas de las variaciones (la malla de la reja y el patrón del balón) son correctas.
 
 \subsubsection{Pruebas fallidas y análisis de errores}
 \textbf{Hexágonos desalineados.} La primera textura del balón tenía unos pentágonos deformes, rodeados por hexágonos enormes (Figura \ref{fig:balon_error}, izquierda). Para revisarla no bastaba con la imagen equirrectangular, que deforma los polos, así que dibujamos el patrón visto de frente en proyección ortográfica. El producto punto entre los centros vecinos dio la pista: entre pentágonos valía 0.4472, el valor correcto del icosaedro, pero los centros de hexágono de la forma $(0, \pm 1/\varphi, \pm\varphi)$ no formaban el dodecaedro dual de \emph{ese} icosaedro, sino uno girado. El dual correcto tiene los vértices en $(\pm 1/\varphi, 0, \pm\varphi)$ y sus permutaciones cíclicas; con ese cambio el patrón quedó como el de un balón real (Figura \ref{fig:balon_error}, derecha).
@@ -158,4 +149,4 @@ Comprobar que las técnicas de las cuatro actividades se generalizan a objetos d
 \textbf{Tinaco demasiado oscuro.} La foto \texttt{Plastic006} es casi negra, y en la primera versión las estrías del tinaco no se distinguían. Se aclaró la base ($0.07 + 1.8\,c$) y se cambió la modulación de las estrías por $\cos^8$, que deja franjas angostas y marcadas en lugar de una variación suave.
 
 \subsubsection{Pruebas exitosas}
-La reja se dibuja delante del edificio y, a través de sus rombos, se ve completa la fachada que está detrás. Esto depende del descarte de fragmentos del Listado \ref{lst:shader_alpha}: el orden de dibujo de las ocho mallas dentro del modelo lo decide el FBX y no el programa, así que dibujar «primero lo opaco» no se puede garantizar, y sin el descarte los píxeles transparentes de la reja escribirían su profundidad y ocultarían lo que se dibujara después detrás de ella. Por la misma razón, el edificio se ve a través de los huecos de la reja sin importar desde qué lado se mire.
+La reja se dibuja delante del edificio y, a través de sus rombos, se ve completa la fachada que está detrás. Esto depende del descarte de fragmentos en el \textit{shader} (\texttt{discard} si $\alpha < 0.1$): el orden de dibujo de las ocho mallas dentro del modelo lo decide el FBX y no el programa, así que dibujar «primero lo opaco» no se puede garantizar, y sin el descarte los píxeles transparentes de la reja escribirían su profundidad y ocultarían lo que se dibujara después detrás de ella. Por la misma razón, el edificio se ve a través de los huecos de la reja sin importar desde qué lado se mire.

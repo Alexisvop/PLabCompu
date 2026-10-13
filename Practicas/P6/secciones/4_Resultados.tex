@@ -104,25 +104,7 @@ La Tierra se ve correctamente en Blender y en OpenGL (Figura \ref{fig:planeta}):
 \end{itemize}
 
 % ------------------------------------------------------------------------------
-\subsection{Resultados de la Actividad 5: escena exportada a OpenGL}
-Las cuatro figuras del manual se exportan juntas y aparecen en OpenGL en la misma disposición que en Blender (Figura \ref{fig:escena_actividades}): el planeta, la hoja, la caja y el barril, de izquierda a derecha. El archivo \texttt{escena\_p6.fbx} con las ocho figuras pesa 209 KB, y las texturas que se copian a \texttt{bin/models} suman unos 16 MB.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.48\textwidth]{Imagenes/E5/01_blender_escena_actividades.png}
-    \includegraphics[width=0.48\textwidth]{Imagenes/E3/06_opengl_barril_forma.png}
-    \caption{Las cuatro figuras de las actividades en Blender (izquierda) y en OpenGL (derecha).}
-    \label{fig:escena_actividades}
-\end{figure}
-
-\subsubsection{Análisis de ventajas y desventajas}
-\begin{itemize}
-    \item \textbf{Ventajas:} Exportar copias con la transformación aplicada resuelve la limitación del cargador sin modificar el \texttt{.blend}, y las correcciones a \texttt{model.h} y al \textit{shader} quedaron como cambios pequeños y explicados.
-    \item \textbf{Desventajas:} Al ir todo en un solo modelo, las figuras comparten la matriz de modelo y no se pueden mover por separado desde el programa.
-\end{itemize}
-
-% ------------------------------------------------------------------------------
-\subsection{Resultados de la Actividad 6: nuevo mapa de entorno}
+\subsection{Resultados de la Actividad 5: nuevo mapa de entorno}
 La Figura \ref{fig:cambio_fondo} compara la misma escena con el mapa de entorno original del laboratorio y con el cubemap \textit{Footballfield}. El cambio no requirió tocar el modelo del cubo ni sus coordenadas de textura, solo las seis imágenes y una ruta en el código. Con la cancha de fondo, el pasto continúa visualmente el piso sobre el que están las figuras y la escena gana coherencia con el balón y la reja.
 
 \begin{figure}[H]
