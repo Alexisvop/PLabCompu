@@ -1,0 +1,184 @@
+% ==============================================================================
+% METODOLOGÍA
+% ==============================================================================
+% Instrucciones de la plantilla:
+% - Presentar de manera clara y estructurada el proceso seguido durante la práctica de laboratorio.
+% - Comenzar con la configuración del entorno de trabajo.
+% - Detallar los algoritmos gráficos implementados explicando su fundamento teórico y su adaptación práctica.
+% - Incluir imágenes con títulos y descripciones de los pasos ejecutados.
+% - Suficientemente detallado para que cualquier lector pueda replicar el programa.
+% - REGLA: "Una metodología por actividad".
+% ==============================================================================
+
+\section{Metodología}
+
+\subsection{Configuración del entorno de trabajo}
+En la Tabla \ref{tab:requerimientos} se resumen las herramientas empleadas. El proyecto de OpenGL es el \texttt{06\_Texturing} del repositorio del laboratorio, que ya incluye la clase \texttt{Model} (\texttt{model.h}) basada en Assimp, un \textit{shader} que dibuja únicamente el color de la textura y un cubo de entorno (\texttt{mycube.fbx}).
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|p{4.2cm}|p{10.5cm}|}
+\hline
+\textbf{Elemento} & \textbf{Especificación / Versión empleada} \\ \hline
+Sistema operativo & Windows 11 (64 bits) \\ \hline
+Entorno de desarrollo & Microsoft Visual Studio Community (conjunto de herramientas \texttt{v145}) \\ \hline
+Compilador y estándar & MSVC, \texttt{C++20}, configuración \texttt{Debug|x64} \\ \hline
+API gráfica & OpenGL 3.3 (perfil núcleo) \\ \hline
+Bibliotecas & GLFW, GLAD, GLM, Assimp (\texttt{assimp-vc143-mtd}) y \texttt{stb\_image} \\ \hline
+Edición de imágenes & GIMP 2.10 (recorte y generación del canal alfa) \\ \hline
+Modelado y texturas & Blender 5.2.2 LTS \\ \hline
+\end{tabular}
+\caption{Herramientas, bibliotecas y versiones utilizadas.}
+\label{tab:requerimientos}
+\end{table}
+
+\subsubsection{Creación del proyecto en Visual Studio}
+Como en las prácticas anteriores, dentro de la carpeta \texttt{06\_Texturing} se creó la carpeta del proyecto \texttt{Proyecto06} con la plantilla \textit{Proyecto vacío} de C++, se agregaron los archivos \texttt{06\_Texturing.cpp} y \texttt{stb\_image.cpp}, y se configuraron las propiedades de la Tabla \ref{tab:propiedades} para las configuraciones \texttt{Debug|x64} y \texttt{Release|x64}. Además de GLFW y GLAD, que indica el manual, fue necesario agregar Assimp, porque \texttt{model.h} incluye \texttt{<assimp/Importer.hpp>}: sin esa biblioteca el proyecto compila pero no enlaza.
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|p{5.2cm}|p{9.5cm}|}
+\hline
+\textbf{Propiedad} & \textbf{Valor} \\ \hline
+Directorio de salida y de trabajo & \texttt{\$(ProjectDir)..\textbackslash..\textbackslash bin\textbackslash} \\ \hline
+Directorio de inclusión adicionales & \texttt{deps\textbackslash glm}, \texttt{deps\textbackslash glad}, \texttt{deps\textbackslash glfw}, \texttt{deps\textbackslash assimp} e \texttt{include} del proyecto \\ \hline
+Directorios de bibliotecas adicionales & \texttt{deps\textbackslash glad}, \texttt{deps\textbackslash glfw} y \texttt{deps\textbackslash assimp} (\texttt{lib\textbackslash x64\textbackslash Debug}) \\ \hline
+Dependencias adicionales & \texttt{opengl32.lib; glad.lib; glfw3.lib; assimp-vc143-mtd.lib} \\ \hline
+Definiciones del preprocesador & \texttt{\_CRT\_SECURE\_NO\_WARNINGS} (por \texttt{stb\_image}) \\ \hline
+\end{tabular}
+\caption{Propiedades del proyecto \texttt{Proyecto06} en Visual Studio.}
+\label{tab:propiedades}
+\end{table}
+
+\subsubsection{Procedimiento común en Blender}
+El modelado de las primitivas, el desenvolvimiento de sus coordenadas UV y la configuración de los materiales se realizaron directamente en la interfaz interactiva de Blender (modo edición, editor de sombreado y editor UV), organizando todos los objetos dentro de la misma escena. A excepción de la textura de la hoja (cuyo canal alfa se preparó en GIMP), las texturas se prepararon a partir de fotografías y mapas libres, guardándose en formato PNG con dimensiones en potencias de dos. La Tabla \ref{tab:texturas} resume las imágenes empleadas en cada caso.
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{2.6cm}|p{2.3cm}|p{9.6cm}|}
+\hline
+\textbf{Textura} & \textbf{Tamaño} & \textbf{Imágenes que combina} \\ \hline
+Hoja & $1024^2$ RGBA & Foto de una hoja \cite{hoja_commons} + canal alfa generado en GIMP \\ \hline
+Caja & $2048^2$ & Cartón kraft \cite{carton_commons} + pestaña y cinta \\ \hline
+Barril & $2048^2$ & Duelas \texttt{Planks005} + aros \texttt{Metal021} + tapas \texttt{Planks012} \cite{ambientcg} \\ \hline
+Planeta & $2048 \times 1024$ & Mapa diurno de la Tierra \cite{solarsystemscope} \\ \hline
+Reja & $1024^2$ RGBA & \texttt{Metal011} \cite{ambientcg} + malla de rombos calculada como canal alfa \\ \hline
+Edificio & $2048^2$ & \texttt{Bricks005} + \texttt{Concrete006} + \texttt{Planks012} \cite{ambientcg} + cielo del cubemap \cite{humus} \\ \hline
+Tinaco & $1024^2$ & \texttt{Plastic006} \cite{ambientcg} + estrías y rosca \\ \hline
+Balón & $2048 \times 1024$ & \texttt{Leather012} \cite{ambientcg} + patrón del icosaedro truncado \\ \hline
+\end{tabular}
+\caption{Texturas de la práctica, su tamaño y las imágenes que se combinaron en cada una.}
+\label{tab:texturas}
+\end{table}
+
+% ------------------------------------------------------------------------------
+\subsection{Actividad 1: Textura en un plano}
+
+\subsubsection{Selección de la imagen}
+Para que el plano mostrara algo más que una imagen rectangular decidimos usar una textura con transparencia: una hoja recortada sobre un fondo transparente, que en OpenGL deja ver el escenario alrededor de su contorno. La fotografía que elegimos \cite{hoja_commons} (Figura \ref{fig:hoja_original}) mide $719 \times 717$ píxeles y, al revisar el encabezado del PNG, encontramos que su tipo de color es 2 (RGB), es decir, no trae canal alfa: había que generarlo nosotros.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.38\textwidth]{Imagenes/E1/01_hoja_original.png}
+    \caption{Fotografía original de la hoja ($719 \times 717$, RGB, sin canal alfa).}
+    \label{fig:hoja_original}
+\end{figure}
+
+\subsubsection{Generación del canal alfa en GIMP}
+Para dotar a la fotografía de transparencia y aislar con precisión la silueta de la hoja, se procesó la imagen original mediante la aplicación de edición gráfica GIMP a través de los siguientes pasos:
+\begin{enumerate}
+    \item \textbf{Adición del canal alfa a la capa.} Dado que la imagen original se encontraba en formato RGB estándar (tipo de color 2, sin soporte de opacidad), al abrirla en GIMP se añadió explícitamente un canal alfa a la capa activa desde el menú \textit{Capa $\rightarrow$ Transparencia $\rightarrow$ Añadir canal alfa}, habilitando la estructura de 4 canales (RGBA).
+    \item \textbf{Selección y delimitación de la silueta.} Se empleó la \textit{Herramienta de selección difusa} (varita mágica) junto con la \textit{Herramienta de rutas} para perfilar con fidelidad el contorno irregular de la hoja de arce y aislarla del fondo, delimitando y excluyendo la zona inferior donde aparecía el pulgar que sujetaba la hoja en la fotografía original.
+    \item \textbf{Eliminación del fondo.} Se invirtió la selección (\textit{Seleccionar $\rightarrow$ Invertir}) y se suprimió el contenido del fondo mediante la tecla \texttt{Supr}, asignando un valor de alfa nulo ($\alpha = 0$) a todos los píxeles externos a la hoja.
+    \item \textbf{Suavizado de bordes (\textit{antialiasing}).} Para evitar cortes abruptos y bordes dentados al momento de renderizar en OpenGL, se aplicó un calado ligero (\textit{Seleccionar $\rightarrow$ Difuminar...} con un radio de 2 a 3 píxeles), generando una transición suave en el perímetro de la hoja.
+    \item \textbf{Recorte y escalado a potencia de dos.} La imagen se recortó a proporción cuadrada y se reescaló a una resolución de $1024 \times 1024$ píxeles (\textit{Imagen $\rightarrow$ Escalar la imagen...}) para garantizar dimensiones en potencias de dos, facilitando el muestreo eficiente por parte del hardware gráfico.
+    \item \textbf{Exportación en formato PNG RGBA.} Finalmente, la textura se exportó como archivo PNG de 32 bits (\texttt{hoja\_rgba.png}) preservando íntegro el canal de opacidad.
+\end{enumerate}
+La Figura \ref{fig:hoja_rgba} muestra el resultado obtenido compuesto sobre un fondo magenta de contraste para hacer visible la transparencia: la hoja conserva su forma y textura opaca (33\,\% de los píxeles), mientras que el área circundante es completamente transparente.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.38\textwidth]{Imagenes/E1/02_hoja_rgba_magenta.png}
+    \caption{Textura \texttt{hoja\_rgba.png} ($1024 \times 1024$, RGBA) compuesta sobre magenta: lo magenta es la parte transparente.}
+    \label{fig:hoja_rgba}
+\end{figure}
+
+\subsubsection{Plano y material}
+La creación de la geometría, la configuración del material y la asignación de la textura se realizaron directamente dentro de la interfaz de Blender. Se creó una primitiva de plano (\textit{Plane}) de 2 unidades por lado centrada en el origen, cuyas coordenadas UV por defecto ya cubren en su totalidad el espacio $[0, 1]^2$. En el editor de sombreado (\textit{Shader Editor}), se configuró el material conectando un nodo \textit{Image Texture} con la imagen \texttt{hoja\_rgba.png} a las entradas \textit{Base Color} y \textit{Alpha} del nodo \textit{Principled BSDF}, asignando en los ajustes del material el modo de mezcla (\textit{Blend Mode}) a \textit{Alpha Blend} para que el visor 3D represente la transparencia en tiempo real. Finalmente, el plano se exportó desde Blender a \texttt{Blender/plano\_hoja.fbx}.
+
+% ------------------------------------------------------------------------------
+\subsection{Actividad 2: Cubo como caja de cartón}
+
+\subsubsection{Atlas de la caja}
+Partimos de una fotografía de cartón kraft liso \cite{carton_commons}, recortada a cuadrado y reducida a $512 \times 512$. Con ella se arma un atlas de $2048 \times 2048$ dividido en una cuadrícula de $4 \times 4$ celdas de 512 píxeles, de las que se usan seis, una por cara (Figura \ref{fig:atlas_caja}). A cada celda se le oscurecen las orillas un 25\,\% para marcar las aristas de la caja; la tapa y el fondo llevan la línea donde se juntan las pestañas y encima una cinta canela que ocupa el 20\,\% de la celda, y en las dos caras laterales $\pm X$ la cinta baja un 28\,\% de la altura, justo donde termina la de la tapa.
+
+\subsubsection{Modelado y coordenadas UV por cara}
+En Blender se creó una primitiva de cubo (\textit{Cube}) de 2 unidades por lado y se colocó sobre el plano en $(3, 0, 1)$. En modo edición, el mapeo de coordenadas UV se configuró manualmente utilizando el editor UV de Blender (\textit{UV Editor}). Cada una de las seis caras del cubo se proyectó y ajustó sobre su celda correspondiente del atlas, cuidando la orientación para que la parte superior de las caras laterales coincida con el eje $+Z$ y las cintas de la tapa continúen de manera uniforme hacia los costados. Se dejó un margen de 4 píxeles respecto a los bordes de cada celda para evitar artefactos en el filtrado bilineal en OpenGL. En el editor de sombreado (\textit{Shader Editor}), se configuró el material conectando la textura del atlas a la entrada \textit{Base Color} del nodo \textit{Principled BSDF}.
+
+% ------------------------------------------------------------------------------
+\subsection{Actividad 3: Cilindro como barril}
+
+\subsubsection{Atlas del barril}
+El atlas del barril mide $2048 \times 2048$ y combina tres imágenes de ambientCG \cite{ambientcg}. La mitad superior es el costado: la textura de tablas \texttt{Planks005}, girada $90^\circ$ para que las tablas queden verticales como duelas y llevada a un tono roble, con cuatro aros recortados de la foto de acero oxidado \texttt{Metal021} al 10, 31, 69 y 90\,\% de la altura. Cada aro tiene un sombreado en coseno que simula su volumen, una sombra sobre la madera y 16 remaches. La mitad inferior contiene las dos tapas: la madera más oscura \texttt{Planks012} dentro de un círculo, con un borde de acero del 10\,\% del radio. Escogimos \texttt{Planks005} entre tres candidatas porque sus tablas son largas y continuas; las otras dos son de piso y tienen juntas a tope que en un barril se verían como cortes en las duelas.
+
+\subsubsection{Cilindro y coordenadas UV}
+Se creó una primitiva de cilindro de 32 lados, radio 1 y altura 2.4, posicionada en $(6, 0, 1.2)$. En el modo edición de Blender, se marcó una costura vertical (\textit{Mark Seam}) a lo largo de una arista lateral para permitir el desenvolvimiento cilíndrico ordenado sin cruces de textura en la unión. En el editor UV de Blender, la malla rectangular del costado se ajustó sobre la mitad superior del atlas. Para las tapas, se aplicó una proyección planar ortogonal en planta, posicionando cada círculo en su respectiva región de la mitad inferior del atlas (invirtiendo horizontalmente la tapa inferior).
+
+\subsubsection{Forma de barril con edición proporcional}
+Para dar al cilindro la silueta curva característica de un barril, se emplearon las herramientas de modelado de Blender:
+\begin{enumerate}
+    \item En Modo Edición, se utilizó la herramienta de cortes en bucle (\textit{Loop Cut}) para subdividir las aristas verticales del costado en 9 cortes, creando anillos horizontales intermedios.
+    \item Se seleccionó el anillo central de 32 vértices en la altura media ($z = 0$).
+    \item Se escaló dicho anillo a un factor de 1.18 en los ejes $X$ e $Y$ con la \textit{edición proporcional} (\textit{Proportional Editing}) activada, utilizando caída \textit{Suave} (\textit{Smooth}) y un radio de influencia de 1.2 unidades (media altura del barril).
+\end{enumerate}
+Con esta configuración, la deformación alcanza su valor máximo en el centro y se desvanece suavemente hacia las tapas. Dado que la interpolación de coordenadas UV se gestiona de forma automática en Blender, las duelas y los aros de la textura acompañan la curvatura del barril sin distorsión.
+
+% ------------------------------------------------------------------------------
+\subsection{Actividad 4: Esfera como planeta}
+Para el planeta usamos el mapa diurno de la Tierra de Solar System Scope \cite{solarsystemscope}, de $2048 \times 1024$ píxeles en proyección equirrectangular (Figura \ref{fig:textura_tierra}). La esfera es una \textit{UV Sphere} de 64 segmentos y 32 anillos (1\,986 vértices y 2\,048 caras), radio 1, en $(-3, 0, 1)$ y con sombreado suave. Como Blender ya asigna a la esfera UV las coordenadas equirrectangulares (longitud en $u$, latitud en $v$), el planeta no necesitó ningún despliegue adicional: basta con poner la imagen en el material.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Imagenes/E4/01_textura_tierra.png}
+    \caption{Mapa diurno de la Tierra de Solar System Scope ($2048 \times 1024$, proyección equirrectangular).}
+    \label{fig:textura_tierra}
+\end{figure}
+
+% ------------------------------------------------------------------------------
+\subsection{Actividad 5: Cambio del mapa de entorno}
+El manual pide sustituir el fondo por imágenes de Humus \cite{humus}. Al momento de hacer la práctica el sitio \texttt{humus.name} no estaba disponible (el servidor respondía con una página de «sitio no disponible»), así que descargamos el archivo \texttt{Footballfield.zip} desde la copia que guarda el Internet Archive. Escogimos este mapa, una cancha de pasto con cielo nublado, porque combina con las variaciones de la práctica, en particular con el balón y la reja. Sus seis caras miden $2048 \times 2048$ y se distribuyen con licencia CC BY 3.0. La Figura \ref{fig:cruz_football} muestra las seis caras acomodadas en cruz.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Imagenes/E6/01_cruz_footballfield.png}
+    \caption{Las seis caras del cubemap \textit{Footballfield} de Humus en forma de cruz: \texttt{posy} arriba, \texttt{negy} abajo y, de izquierda a derecha, \texttt{negx}, \texttt{posz}, \texttt{posx} y \texttt{negz}.}
+    \label{fig:cruz_football}
+\end{figure}
+
+El cubo de entorno del laboratorio (\texttt{mycube.fbx}) tiene seis materiales que buscan sus imágenes con la ruta relativa \texttt{mycube.fbm\textbackslash posx.jpg} y equivalentes. En lugar de sobrescribir esas imágenes, que usan otras prácticas, creamos la carpeta \texttt{bin/models/cubemap\_football} con una copia de \texttt{mycube.fbx} y su propia carpeta \texttt{mycube.fbm} con las seis caras de Humus. Como los dos mapas siguen la misma convención de nombres, cada imagen cae en su cara sin modificar el modelo, y en el código solo cambia la ruta:
+
+\begin{lstlisting}[language=C++, caption={Carga del nuevo mapa de entorno en 06\_Texturing.cpp.}, label={lst:cubemap}]
+// Actividad 5: cubemap "Footballfield" de Humus (CC BY 3.0)
+cubeenv = new Model("models/cubemap_football/mycube.fbx");
+\end{lstlisting}
+
+% ------------------------------------------------------------------------------
+\subsection{Variaciones: una por cada primitiva}
+Además de las actividades del manual, realizamos una variación de cada primitiva geométrica, colocadas en una segunda fila detrás de las figuras base. Todo el modelado, despliegue de coordenadas UV, preparación de materiales y asignación de texturas de estas variantes se llevó a cabo íntegramente dentro de la interfaz interactiva de Blender.
+
+\subsubsection{Plano: reja de malla ciclónica}
+En Blender se creó un plano vertical de $6 \times 2$ unidades ubicado en $(2, 4.5, 1)$ para modelar un tramo de cerca perimetral. En el editor de sombreado (\textit{Shader Editor}), se configuró un material con el nodo \textit{Principled BSDF} utilizando una textura RGBA de $1024 \times 1024$ con patrón de rombos semitransparente, compuesta con el acabado metálico galvanizado \texttt{Metal011} \cite{ambientcg}. Se conectó el color a \textit{Base Color} y el mapa de opacidad a \textit{Alpha}, activando el modo \textit{Alpha Blend} para permitir ver a través de los orificios. En el editor UV de Blender, las coordenadas $u$ del plano se escalaron de $0$ a $3$, logrando que el patrón de malla ciclónica se repita tres veces a lo ancho gracias al modo \texttt{GL\_REPEAT}. Adicionalmente, se modelaron dentro de Blender dos primitivas de cilindro para incorporar el poste vertical de soporte y el travesaño horizontal superior con material metálico opaco.
+
+\subsubsection{Cubo: edificio de ladrillo}
+Se modeló a partir de una primitiva de cubo escalada a $3 \times 3 \times 6$ unidades en modo edición, conformando una estructura de tres plantas. El despliegue de sus coordenadas UV se realizó de forma interactiva en la vista de edición UV de Blender, vinculando sus caras a un atlas de texturas de $2048 \times 2048$: la mitad superior se repartió en cuatro cuadrantes para las fachadas (proporción $1{:}2$), integrando el ladrillo \texttt{Bricks005} con detalles de concreto \texttt{Concrete006} \cite{ambientcg} en zócalos, cornisas y molduras de ventanas, las cuales incorporan fragmentos del cielo del cubemap de Humus para simular reflejos en los vidrios. La mitad inferior del atlas se asignó a la azotea y la base, incorporando una puerta de madera \texttt{Planks012} en la planta baja y un pretil de concreto en el techo.
+
+\subsubsection{Cilindro: tinaco}
+Se creó una primitiva de cilindro de radio 0.55 y altura 1.1 colocada en la azotea del edificio. En Blender se aplicó un desenrollado UV cilíndrico en el cuerpo lateral y una proyección planar circular para las tapas. En el \textit{Shader Editor} se asignó una textura de $1024 \times 1024$ basada en el plástico negro \texttt{Plastic006} \cite{ambientcg}, configurando el material para reproducir las estrías horizontales a lo largo del cuerpo cilíndrico y la rosca concéntrica en la tapa superior. Se aplicó sombreado suave a las caras laterales para garantizar una silueta curva continua.
+
+\subsubsection{Esfera: balón de fútbol}
+El modelado, despliegue UV y la asignación de materiales del balón de fútbol se realizaron íntegramente en la interfaz interactiva de Blender. Para recrear la estructura geométrica clásica de un balón se partió de un icosaedro truncado (compuesto por 12 caras pentagonales y 20 hexagonales) proyectado a una forma esférica de radio 0.6 ubicada en $(-5.5, 3, 0.6)$.
+
+En el modo edición de Blender, se configuró el mapeo de coordenadas UV para cada uno de los parches. Se crearon dos materiales basados en la textura de cuero \texttt{Leather012} \cite{ambientcg}: un material de cuero claro asignado a las caras hexagonales y una variante de cuero oscuro (con base entintada al 12\,\%) asignada a las caras pentagonales. Las costuras entre los paneles se definieron marcando aristas biseladas para brindar relieve visual a las uniones. Finalmente, se aplicó sombreado suave (\textit{Shade Smooth}) para lograr una curvatura esférica continua y uniforme en la superficie del balón.
