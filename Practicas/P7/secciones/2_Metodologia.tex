@@ -35,32 +35,69 @@ Hardware de prueba & Tarjeta gráfica compatible con OpenGL 3.3 Core \\ \hline
 \label{tab:requerimientos}
 \end{table}
 
-\subsection{Actividad 1: [Nombre de la Actividad 1]}
-Describir detalladamente el procedimiento implementado para la primera actividad: arquitectura del programa, flujo de ejecución y algoritmos gráficos desarrollados.
+\subsection{Actividad 1: Modelos de iluminación integrados en una Escena}
+
+En esta actividad hicimos todo el trabajo dentro de Microsoft Visual Studio usando C++. La estructura del programa se divide en dos partes: la función \texttt{Start()}, donde cargamos todo lo necesario antes de iniciar, y la función \texttt{Update()}, que corre en un ciclo para dibujar cada fotograma de la escena.
+
+Para compilar el proyecto nos apoyamos en varias librerías. Usamos GLFW y GLAD para abrir la ventana y manejar los controles, GLM para las operaciones matemáticas y Assimp para cargar los modelos 3D (\texttt{House02.fbx} para la casa y \texttt{lightDummy.fbx} para representar el foquito de luz). También agregamos la librería \texttt{irrKlang} para poner música de fondo (\texttt{EternalGarden.mp3}) y la clase \texttt{CubeMap} para ponerle un mapa de entorno al fondo.
+
+Durante la práctica fuimos comentando y descomentando varias líneas de código para ver cómo cambiaba la escena. Por ejemplo, probamos cambiar el modo de dibujo a malla de alambre con las teclas, activamos las transparencias con \texttt{GL\_BLEND} y fuimos ajustando las variables de la luz y del material para ver en tiempo real cómo afectaban el aspecto visual de la casa.
 
 \subsubsection{Algoritmo y fundamento matemático}
-Explicar el fundamento teórico del algoritmo (por ejemplo, el algoritmo de rasterización de líneas de Bresenham o cálculo de transformaciones afines):
+
+El modelo de iluminación de Phong se encarga de calcular cómo se ve la luz al chocar contra la superficie de un objeto, combinando tres partes: ambiental (la luz básica del entorno), difusa (la luz directa que le da a las caras) y especular (el brillo que refleja). La fórmula matemática para calcular el color final $L_o$ suma estas tres componentes:
+
 \begin{equation}
-    P' = M_{proyecci\acute{o}n} \cdot M_{vista} \cdot M_{modelo} \cdot P
+    L_o = \left[ k_a + k_d (\mathbf{n} \cdot \mathbf{l}) + k_s (\mathbf{v} \cdot \mathbf{r})^q \right] \frac{L_i}{r^2}
+    \label{eq:phong}
+\end{equation}
+
+Donde $k_a$, $k_d$ y $k_s$ son los colores/propiedades del material, $\mathbf{n}$ es la normal de la cara, $\mathbf{l}$ apunta hacia la luz, $\mathbf{v}$ va hacia la cámara y $q$ determina qué tan concentrado se ve el brillo especular.
+
+Además, para acomodar los objetos en el espacio 3D y proyectarlos en la pantalla, multiplicamos la posición de cada punto $P$ por las matrices de Modelo ($M$), Vista ($V$) y Proyección ($P$):
+
+\begin{equation}
+    P' = M_{\text{proyección}} \cdot M_{\text{vista}} \cdot M_{\text{modelo}} \cdot P
     \label{eq:transformacion}
 \end{equation}
 
 \subsubsection{Implementación del código}
-A continuación se muestra el segmento clave de código que implementa la solución:
 
-\begin{lstlisting}[language=C++, caption={Configuración de buffers (VAO, VBO) y dibujo de geometrías.}, label={lst:actividad1}]
-// Generación y enlace del Vertex Array Object (VAO) y Vertex Buffer Object (VBO)
-unsigned int VAO, VBO;
-glGenVertexArrays(1, &VAO);
-glGenBuffers(1, &VBO);
+A continuación mostramos un fragmento del código principal dentro de la función \texttt{Update()}, donde activamos el shader de Phong, le pasamos la posición de la cámara y de la luz, ajustamos los colores del material y mandamos a dibujar la casa:
 
-glBindVertexArray(VAO);
-glBindBuffer(GL_ARRAY_BUFFER, VBO);
-glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+\begin{lstlisting}[language=C++, caption={Configuración de la luz, el material y dibujado del modelo en C++.}, label={lst:actividad1}]
+// Activamos el shader de Phong y habilitamos la mezcla de transparencias
+phongShader->use();
+glEnable(GL_BLEND);
+glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-// Definición de atributos de vértices (posición xyz)
-glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-glEnableVertexAttribArray(0);
+// Pasamos las matrices de Proyeccion y Vista
+phongShader->setMat4("projection", projection);
+phongShader->setMat4("view", view);
+
+// Acomodamos el modelo en el espacio (posicion, rotacion y escala)
+glm::mat4 model = glm::mat4(1.0f);
+model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+phongShader->setMat4("model", model);
+
+// Le enviamos al shader las propiedades de la luz y la camara
+phongShader->setVec4("LightColor", light.Color);
+phongShader->setVec4("LightPower", light.Power);
+phongShader->setInt("alphaIndex", light.alphaIndex);
+phongShader->setFloat("distance", light.distance);
+phongShader->setVec3("lightPosition", light.Position);
+phongShader->setVec3("eye", camera.Position);
+
+// Propiedades del material (ambiental, difusa, especular y transparencia)
+phongShader->setVec4("MaterialAmbientColor", material.ambient);
+phongShader->setVec4("MaterialDiffuseColor", material.diffuse);
+phongShader->setVec4("MaterialSpecularColor", material.specular);
+phongShader->setFloat("transparency", material.transparency);
+
+// Finalmente dibujamos el modelo 3D
+basemodel->Draw(*phongShader);
 \end{lstlisting}
 
 \subsection{Actividad 2: [Nombre de la Actividad 2]}
