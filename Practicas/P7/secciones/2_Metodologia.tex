@@ -1,0 +1,227 @@
+% ==============================================================================
+% METODOLOGÍA
+% ==============================================================================
+% Instrucciones de la plantilla:
+% - Presentar de manera clara y estructurada el proceso seguido durante la
+%   práctica de laboratorio.
+% - Comenzar con la configuración del entorno de trabajo (herramientas, lenguajes,
+%   bibliotecas: OpenGL, GLU, Assimp, GLEW, GLFW, GLM, etc.).
+% - Detallar los algoritmos gráficos implementados explicando su fundamento teórico
+%   y su adaptación práctica (dibujo de formas, transformaciones geométricas, etc.).
+% - Incluir imágenes con títulos y descripciones de los pasos ejecutados.
+% - Suficientemente detallado para que cualquier lector pueda replicar el programa.
+% - REGLA: "Una metodología por actividad".
+% ==============================================================================
+
+\section{Metodología}
+
+\subsection{Configuración del entorno de trabajo}
+En la Tabla \ref{tab:requerimientos} se resumen las herramientas empleadas. Partimos del proyecto \texttt{07\_IlluminationModels} del repositorio del laboratorio, que ya incluye las clases \texttt{Model}, \texttt{Light}, \texttt{Material} y \texttt{CubeMap}, el \textit{shader} de Phong (\texttt{11\_BasicPhongShader}) y los modelos de la carpeta \texttt{bin/models/IllumModels}. Durante el desarrollo se utilizó además un modelo de lenguaje para la redacción del texto, para complementar la explicación de la metodología y como apoyo en el código \cite{anthropic2026}.
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|p{4.2cm}|p{10.5cm}|}
+\hline
+\textbf{Elemento} & \textbf{Especificación / Versión empleada} \\ \hline
+Sistema operativo & Windows 11 (64 bits) \\ \hline
+Entorno de desarrollo & Microsoft Visual Studio Community (conjunto de herramientas \texttt{v145}) \\ \hline
+Compilador y estándar & MSVC, \texttt{C++20}, configuración \texttt{Debug|x64} \\ \hline
+API gráfica & OpenGL 3.3 (perfil núcleo) \\ \hline
+Bibliotecas & GLFW, GLAD, GLM, Assimp (\texttt{assimp-vc143-mtd}), \texttt{stb\_image} e irrKlang (audio) \\ \hline
+\end{tabular}
+\caption{Herramientas, bibliotecas y versiones utilizadas.}
+\label{tab:requerimientos}
+\end{table}
+
+\subsubsection{Creación del proyecto en Visual Studio}
+Como en las prácticas anteriores, dentro de la carpeta \texttt{07\_IlluminationModels} se creó la carpeta \texttt{Proyecto} y en ella el proyecto \texttt{Project1} con la plantilla \textit{Proyecto vacío} de C++. Se agregaron los archivos \texttt{07\_IllumModels.cpp} y \texttt{stb\_image.cpp} y se configuraron las propiedades de la Tabla \ref{tab:propiedades}. A diferencia de la práctica 6, esta vez también hay que enlazar irrKlang, porque el programa reproduce música de fondo; las bibliotecas dinámicas \texttt{irrKlang.dll} e \texttt{ikpMP3.dll} ya están en la carpeta \texttt{bin}.
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|p{5.2cm}|p{9.5cm}|}
+\hline
+\textbf{Propiedad} & \textbf{Valor} \\ \hline
+Directorio de salida y de trabajo & \texttt{..\textbackslash..\textbackslash..\textbackslash bin} \\ \hline
+Directorios de inclusión adicionales & \texttt{07\_IlluminationModels\textbackslash include}, \texttt{deps\textbackslash irrklang}, \texttt{deps\textbackslash glm}, \texttt{deps\textbackslash glfw}, \texttt{deps\textbackslash glad} y \texttt{deps\textbackslash assimp} \\ \hline
+Directorios de bibliotecas adicionales & \texttt{deps\textbackslash irrklang\textbackslash lib\textbackslash x64} y las carpetas \texttt{lib\textbackslash x64\textbackslash Debug} de GLFW, GLAD y Assimp \\ \hline
+Dependencias adicionales & \texttt{opengl32.lib; glad.lib; glfw3.lib; assimp-vc143-mtd.lib; irrKlang.lib} \\ \hline
+\end{tabular}
+\caption{Propiedades del proyecto \texttt{Project1} en Visual Studio.}
+\label{tab:propiedades}
+\end{table}
+
+% ------------------------------------------------------------------------------
+\subsection{Objeto 1: casa con el modelo de iluminación de Phong}
+
+\subsubsection{Escena}
+El Objeto 1 es el modelo \texttt{House02.fbx}: una casa de madera con techo de teja sobre un terreno rectangular y dos tramos de cerca. En \texttt{Start()} se cargan la casa, el mapa de entorno \texttt{textures/cubemap/01} (seis imágenes PNG de un campo con pinos) y \texttt{lightDummy.fbx}, un objeto pequeño que marca la posición de la fuente de luz. En cada cuadro, \texttt{Update()} dibuja primero el cubemap, luego la casa con el \textit{shader} de Phong (rotada $-90^\circ$ en $X$, porque el FBX viene con el eje $Z$ hacia arriba) y al final el indicador de la luz con el \textit{shader} simple, trasladado a \texttt{light.Position} y escalado a 0.1.
+
+\subsubsection{Fundamento: modelo de reflexión de Phong}
+El modelo de Phong calcula el color de cada fragmento como la suma de tres componentes, multiplicada por la potencia de la fuente $L_i$ y atenuada con el cuadrado de la distancia $r$:
+\begin{equation}
+    L_o = \left[ k_a + k_d\,(\mathbf{n} \cdot \mathbf{l}) + k_s\,(\mathbf{v} \cdot \mathbf{r})^q \right] \frac{L_i}{r^2}
+    \label{eq:phong}
+\end{equation}
+donde $k_a$, $k_d$ y $k_s$ son los productos del color del material por el color de la luz para cada componente, $\mathbf{n}$ es la normal de la superficie, $\mathbf{l}$ la dirección hacia la luz, $\mathbf{v}$ la dirección hacia el observador, $\mathbf{r}$ el reflejo de $\mathbf{l}$ respecto a $\mathbf{n}$ y $q$ el exponente especular. La componente ambiental es constante en toda la superficie; la difusa depende del ángulo entre la normal y la luz, y la especular del ángulo entre el reflejo y el ojo, por lo que es la única que cambia al mover la cámara. Mientras mayor es $q$, más angosto es el lóbulo especular y más pequeño el brillo.
+
+\subsubsection{Implementación en los \textit{shaders}}
+El \textit{vertex shader} (\texttt{11\_BasicPhongShader.vs}) lleva la posición del vértice, la normal y la posición de la luz al espacio de cámara, donde el ojo está en el origen. Así, la dirección al ojo es el negativo de la posición del vértice y la dirección a la luz es la diferencia entre la posición de la luz y la del vértice. El \textit{fragment shader} recibe esas tres direcciones interpoladas, las normaliza y aplica la Ecuación \ref{eq:phong} componente por componente. El Listado \ref{lst:phong_fs} muestra la versión final después de los experimentos de la sección siguiente.
+
+\begin{lstlisting}[language=C++, caption={Cálculo de Phong en 11\_BasicPhongShader.fs (versión final).}, label={lst:phong_fs}]
+// Cálculo de componente difusa
+vec3 n = normalize( Normal_cameraspace );
+vec3 l = normalize( LightDirection_cameraspace );
+
+// Cálculo de componente ambiental
+vec4 K_a = MaterialAmbientColor * LightColor;
+
+// Cálculo de la componente difusa
+float cosTheta = clamp( dot( n,l ), 0,1 );
+vec4 K_d = MaterialDiffuseColor * LightColor * cosTheta;
+
+// Cálculo de componente especular
+vec3 E = normalize(EyeDirection_cameraspace);
+vec3 R = reflect(-l,n);
+float cosAlpha = clamp( dot(E,R), 0, 1 );
+vec4 K_s = MaterialSpecularColor * LightColor * pow(cosAlpha,alphaIndex);
+
+// Cálculo de ilumimación de Phong
+vec4 ex_color = K_a  * LightPower / (distance*distance) +
+                K_d  * LightPower / (distance*distance) +
+                K_s  * LightPower / (distance*distance);
+
+ex_color.a = transparency;
+
+vec4 texel = texture(texture_diffuse1, TexCoords);
+
+FragColor = texel * ex_color;
+\end{lstlisting}
+
+Hay dos detalles del \textit{shader} que conviene tener en cuenta. Los \texttt{clamp} recortan a cero los cosenos negativos, de modo que las caras que no miran a la luz no reciben componente difusa ni especular. Además, $r$ no es la distancia real entre la luz y el fragmento: es el \textit{uniform} \texttt{distance}, fijo en 5, así que el factor de atenuación vale siempre $60/5^2 = 2.4$ y al mover la luz solo cambian las direcciones, no la atenuación.
+
+\subsubsection{Parámetros de la luz y del material}
+Los valores se asignan a los objetos \texttt{light} y \texttt{material} en \texttt{Start()} y se envían al \textit{shader} como \textit{uniforms} en cada cuadro. El Listado \ref{lst:parametros} muestra los valores finales. La luz es blanca y está a 5 unidades sobre el origen; el material tiene una componente ambiental gris, una difusa rojiza y una especular azul, y la transparencia es de 0.5.
+
+\begin{lstlisting}[language=C++, firstnumber=161, caption={Parámetros de iluminación y material en 07\_IllumModels.cpp.}, label={lst:parametros}]
+	// Parámetros de la Iluminación
+	light.Position = glm::vec3(0.0f, 5.0f, 0.0f);
+	light.Color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	light.Power = glm::vec4(60.0f, 60.0f, 60.0f, 1.0f);
+	light.alphaIndex = 10;
+	light.distance = 5.0f;
+
+	material.ambient = glm::vec4(0.3f, 0.3f, 0.3f, 1.0f);
+	material.diffuse = glm::vec4(0.4f, 0.1f, 0.1f, 1.0f);
+	material.specular = glm::vec4(0.1f, 0.1f, 0.8f, 1.0f);
+	material.transparency = 0.5;
+\end{lstlisting}
+
+Para que la transparencia tenga efecto, antes de dibujar la casa se activa la mezcla de colores con \texttt{glEnable(GL\_BLEND)} y \texttt{glBlendFunc(GL\_SRC\_ALPHA, GL\_ONE\_MINUS\_SRC\_ALPHA)}. El alfa que llega a la mezcla es el de la textura multiplicado por \texttt{transparency}.
+
+\subsubsection{Controles y música}
+La Tabla \ref{tab:controles} resume las teclas del programa. Las teclas Z, X, C y V mueven la fuente de luz, lo que permite ver cómo cambian la componente difusa y la especular según su posición.
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{3.2cm}|p{11.5cm}|}
+\hline
+\textbf{Entrada} & \textbf{Acción} \\ \hline
+W, A, S, D & Mover la cámara hacia adelante, a la izquierda, hacia atrás y a la derecha \\ \hline
+Ratón y rueda & Girar la cámara y cambiar el acercamiento \\ \hline
+Z / X & Mover la luz en $-X$ / $+X$ (0.1 unidades por cuadro) \\ \hline
+C / V & Subir / bajar la luz en $Y$ \\ \hline
+M, N, B & Dibujar en malla de alambre, relleno o puntos \\ \hline
+Esc & Cerrar el programa \\ \hline
+\end{tabular}
+\caption{Controles del programa del Objeto 1.}
+\label{tab:controles}
+\end{table}
+
+La música se reproduce con irrKlang. El motor de sonido es una variable global que se inicializa con la función \texttt{createIrrKlangDevice()}, y al final de \texttt{Start()} se inicia la pista en bucle. La pista es \textit{Carefree} de Kevin MacLeod \cite{macleod_carefree}, que se distribuye con licencia Creative Commons Atribución 4.0. Para usarla se creó la carpeta \texttt{sound} dentro de \texttt{bin}, se copió ahí el archivo \texttt{Carefree.mp3} y se descomentó la llamada:
+
+\begin{lstlisting}[language=C++, firstnumber=176, caption={Reproducción de la música de fondo en 07\_IllumModels.cpp.}, label={lst:musica}]
+	SoundEngine->play2D("sound/Carefree.mp3", true); // "Carefree", Kevin MacLeod (incompetech.com), CC BY 4.0
+\end{lstlisting}
+
+La Figura \ref{fig:objeto1} muestra la escena del Objeto 1 en ejecución: la casa con sus texturas de madera y teja, las dos cercas y el terreno, con el cubemap de fondo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{Imagenes/Objeto1/Objeto1.png}
+    \caption{Escena del Objeto 1 (\texttt{House02.fbx}) dibujada con el \textit{shader} de Phong sobre el cubemap del laboratorio.}
+    \label{fig:objeto1}
+\end{figure}
+
+% ------------------------------------------------------------------------------
+\subsection{Objeto 2: planeta de la práctica 6}
+
+\subsubsection{Selección del objeto}
+Para el segundo objeto tomamos el planeta de la práctica 6: la esfera UV de 64 segmentos y 32 anillos (1\,986 vértices y 2\,048 caras) con el mapa diurno de la Tierra \cite{solarsystemscope}. Lo elegimos porque es una superficie curva con sombreado suave, en la que el coseno de la componente difusa cambia de forma continua, y porque con la fuente de luz como si fuera el Sol el modelo de Phong reproduce el lado de día, el de noche y el reflejo del Sol sobre el mar. Las figuras planas de la práctica 6, como la caja o la reja, tienen una sola normal por cara y mostrarían cada cara de un solo tono.
+
+\subsubsection{Exportación desde Blender}
+En la práctica 6 todas las figuras se exportaron juntas en \texttt{escena\_p6.fbx}, con las transformaciones ya aplicadas a los vértices, y el planeta quedó con centro en $(-3, 0, 1)$. Para usarlo solo, escribimos el script \texttt{codigo/exportar\_planeta.py}, que se ejecuta con Blender 5.2 sin interfaz:
+\begin{enumerate}
+    \item Importa \texttt{bin/models/escena\_p6.fbx} y borra todos los objetos menos \texttt{Planeta\_export}.
+    \item Calcula el centro de la malla (el promedio de sus vértices) y la traslada para que quede en el origen.
+    \item Copia \texttt{planeta\_tierra.jpg} a \texttt{bin/models/IllumModels} y apunta la imagen del material a esa copia.
+    \item Exporta \texttt{planeta.fbx} a la misma carpeta con \texttt{path\_mode=\textquotedbl RELATIVE\textquotedbl}, de modo que el FBX guarda solo el nombre de la textura y \texttt{Model} la encuentra junto al modelo.
+\end{enumerate}
+
+\begin{lstlisting}[language=Python, caption={Centrado y exportación del planeta en exportar\_planeta.py.}, label={lst:exportar_planeta}]
+me = planeta.data
+me.transform(planeta.matrix_world)
+planeta.matrix_world = Matrix.Identity(4)
+centro = sum((v.co for v in me.vertices), Vector()) / len(me.vertices)
+me.transform(Matrix.Translation(-centro))
+
+bpy.ops.export_scene.fbx(filepath=os.path.join(DESTINO, "planeta.fbx"),
+                         path_mode="RELATIVE", object_types={"MESH"})
+\end{lstlisting}
+
+\subsubsection{Cambios en el código}
+Trabajamos sobre el mismo \texttt{07\_IllumModels.cpp} del Objeto 1; antes de modificarlo guardamos una copia en \texttt{codigo/Objeto1}, y la versión del Objeto 2 está en \texttt{codigo/Objeto2}. El \textit{shader} de Phong no cambió. Todos los cambios reemplazan líneas existentes, así que la numeración del archivo es la misma y la música sigue en la línea 176. La Tabla \ref{tab:cambios_objeto2} resume los cambios.
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|p{1.3cm}|p{4.6cm}|p{4.6cm}|p{3.8cm}|}
+\hline
+\textbf{Línea} & \textbf{Objeto 1} & \textbf{Objeto 2} & \textbf{Motivo} \\ \hline
+50 & cámara en $(0, 2, 10)$ & cámara en $(0, 0, 6)$ & Acercarse a una esfera de radio 1 \\ \hline
+146 & \texttt{House02.fbx} & \texttt{planeta.fbx} & Cargar el planeta \\ \hline
+162 & luz en $(0, 5, 0)$ & luz en $(4, 2, 3)$ & Iluminar de lado y por delante \\ \hline
+165 & \texttt{alphaIndex = 10} & \texttt{alphaIndex = 30} & Reflejo más concentrado \\ \hline
+168--170 & ambiental 0.3, difusa rojiza, especular azul & ambiental 0.05, difusa 0.4 y especular 0.3, grises & No teñir la textura \\ \hline
+171 & \texttt{transparency = 0.5} & \texttt{transparency = 1.0} & Planeta opaco \\ \hline
+\end{tabular}
+\caption{Líneas de \texttt{07\_IllumModels.cpp} que cambiaron para el Objeto 2.}
+\label{tab:cambios_objeto2}
+\end{table}
+
+\begin{lstlisting}[language=C++, firstnumber=161, caption={Parámetros de iluminación y material para el Objeto 2.}, label={lst:parametros_objeto2}]
+	// Parámetros de la Iluminación
+	light.Position = glm::vec3(4.0f, 2.0f, 3.0f);
+	light.Color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	light.Power = glm::vec4(60.0f, 60.0f, 60.0f, 1.0f);
+	light.alphaIndex = 30;
+	light.distance = 5.0f;
+
+	material.ambient = glm::vec4(0.05f, 0.05f, 0.05f, 1.0f);
+	material.diffuse = glm::vec4(0.4f, 0.4f, 0.4f, 1.0f);
+	material.specular = glm::vec4(0.3f, 0.3f, 0.3f, 1.0f);
+	material.transparency = 1.0;
+\end{lstlisting}
+
+La cámara mira hacia $-Z$, así que en $(0, 0, 6)$ tiene el planeta de frente y a una distancia en la que ocupa cerca del 40\,\% de la altura de la ventana. La luz queda a la derecha, arriba y entre el planeta y la cámara: desde ahí la cámara ve el lado de día, el de noche y la frontera entre los dos. Los colores del material son grises para que, al multiplicarlos por la textura, se conserven los colores de los continentes y del mar. La componente ambiental de 0.05 da $0.05 \times 2.4 = 0.12$, lo justo para que el lado de noche se vea muy oscuro sin quedar negro. La difusa de 0.4 llega a $0.96$ en la zona que mira directo a la luz, por debajo del límite de saturación que encontramos con el Objeto 1. La transformación del modelo en \texttt{Update()} es la misma que para la casa, rotación de $-90^\circ$ en $X$, que aquí deja el polo norte hacia arriba porque el FBX de Blender tiene el eje $Z$ vertical. Las teclas Z, X, C y V siguen moviendo la luz.
+
+La Figura \ref{fig:objeto2} muestra la primera ejecución con el planeta y estos parámetros, todavía con el exponente de 10.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{Imagenes/Objeto2/Objeto2.png}
+    \caption{Objeto 2: el planeta de la práctica 6 iluminado con el modelo de Phong, con la luz a la derecha y por delante.}
+    \label{fig:objeto2}
+\end{figure}
