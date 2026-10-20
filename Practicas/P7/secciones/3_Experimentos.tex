@@ -170,3 +170,51 @@ Cambiamos la luz blanca por una anaranjada, \texttt{glm::vec4(1.0f, 0.6f, 0.3f, 
 \end{figure}
 
 Después de esta prueba regresamos a la luz blanca y dejamos el exponente en 30, un punto intermedio entre la mancha de 10 y el punto de 100.
+
+% ------------------------------------------------------------------------------
+\subsection{Experimento 10 (Objeto 3): el barril con los parámetros del Objeto 2}
+ 
+\subsubsection{Objetivo del experimento}
+Comprobar que el barril exportado se carga con el \texttt{model.h} de esta práctica y ver cómo se ve con los parámetros que funcionaron para el planeta.
+ 
+\subsubsection{Pruebas exitosas}
+Ejecutamos el script de exportación y después cambiamos solo la ruta del modelo (línea 146), la cámara (línea 50) y la posición de la luz (línea 162). El programa abrió sin errores y el barril mostró un degradado de iluminación, lo que confirma que el FBX trae las normales, igual que el del planeta. %%% VERIFICAR: que abrió sin errores
+El costado del barril es más claro del lado que mira a la luz y se oscurece hacia el lado contrario, donde queda solo la componente ambiental. %%% VERIFICAR: que se ve así en tu captura
+La textura conserva sus colores porque el material es gris: se distinguen las duelas de madera y los aros de acero. %%% VERIFICAR
+ 
+% --------------------------------------------------------------
+\subsection{Experimento 11 (Objeto 3): costado curvo y tapa plana}
+ 
+\subsubsection{Objetivo del experimento}
+Comparar en un mismo objeto cómo se ve la componente difusa sobre una superficie curva (el costado) y sobre una plana (la tapa).
+ 
+\subsubsection{Pruebas exitosas}
+Con la cámara en $(0, 1, 6)$ solo se ve el costado, así que giramos y subimos la cámara con el ratón hasta ver también la tapa superior. %%% VERIFICAR: cómo moviste la cámara
+En el costado, la normal cambia alrededor del eje y el coseno de la componente difusa produce un degradado continuo de la zona iluminada a la oscura. En la tapa, la normal es la misma en toda la cara, así que la componente difusa tiene un solo valor y la tapa se ve de un tono casi uniforme, con la única variación de la textura de las tablas. %%% VERIFICAR: que la tapa se ve uniforme
+Al mover la luz con Z, X, C y V, el degradado del costado se desplaza alrededor del barril, mientras que la tapa solo cambia de brillo en conjunto, porque el ángulo entre su normal y la luz es el mismo en todos sus puntos (la dirección a la luz cambia ligeramente con la posición, pero muy poco comparado con la variación del costado).
+ 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.35\textwidth]{Imagenes/Objeto3/objeto3e2.png} %%% VERIFICAR: nombre de tu captura
+    \caption{Objeto 3: el costado del barril con degradado continuo y la tapa superior con un tono casi uniforme.}
+    \label{fig:o3_tapa}
+\end{figure}
+ 
+% --------------------------------------------------------------
+\subsection{Experimento 12 (Objeto 3): exponente especular}
+ 
+\subsubsection{Objetivo del experimento}
+Repetir la prueba del exponente especular con el barril y ver cómo se ve el brillo sobre un cilindro.
+ 
+\subsubsection{Pruebas exitosas}
+Compilamos el programa con \texttt{light.alphaIndex} igual a 1, 10 y 100, sin cambiar nada más. La Figura \ref{fig:o3_alpha} compara los tres resultados. Con 1, el brillo se reparte sobre una zona amplia del costado derecho. Con 10 se reduce a una franja, y con 100 queda como una línea delgada. %%% VERIFICAR: describe lo que ves en TUS tres capturas
+A diferencia de la esfera, donde el brillo era una mancha redonda, en el cilindro el brillo es alargado a lo largo del eje. La razón es que las normales del costado cambian solo alrededor del eje y no a lo largo de él, así que la condición en que el reflejo apunta al ojo se cumple en una franja vertical y no en un punto. El centro del brillo queda en el mismo lugar en las tres imágenes y el exponente solo cambia su ancho, como en el Experimento 8. En las tres imágenes el brillo sobre la madera toma el color de la textura y no se ve blanco, porque el \textit{shader} multiplica la componente especular por la textura.
+ 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.32\textwidth]{Imagenes/Objeto3/objeto3e3a.png} 
+    \includegraphics[width=0.32\textwidth]{Imagenes/Objeto3/objeto3e3b.png}
+    \includegraphics[width=0.32\textwidth]{Imagenes/Objeto3/objeto3e3c.png}
+    \caption{El barril con \texttt{alphaIndex} igual a 1 (izquierda), 10 (centro) y 100 (derecha).}
+    \label{fig:o3_alpha}
+\end{figure}
