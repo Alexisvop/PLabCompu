@@ -54,3 +54,24 @@ Comparado con el Objeto 1, el planeta muestra mejor el modelo porque su normal c
     \item \textbf{Ventajas:} Reutilizar el modelo de la práctica 6 solo requirió exportarlo de nuevo con un script y cambiar seis líneas del programa, sin tocar el \textit{shader}, y se conservó la numeración del archivo. Con un material gris, la iluminación de Phong se suma a la textura sin cambiar sus colores.
     \item \textbf{Desventajas:} El reflejo especular se multiplica por la textura y sobre el mar se ve azul en lugar de blanco; habría que sumar la componente especular después de aplicar la textura. La frontera entre el día y la noche es más brusca que en la Tierra real, porque el modelo no simula la atmósfera. La luz tampoco se debilita con la distancia, porque la atenuación usa el valor fijo de \texttt{distance}.
 \end{itemize}
+
+\subsection{Resultados del Objeto 3: barril de la práctica 6}
+La Figura \ref{fig:objeto3_final} muestra el barril con los parámetros finales: luz blanca de potencia 60 en $(4, 3, 3)$, exponente especular de 30 y material gris con ambiental de 0.05, difusa de 0.4 y especular de 0.3, sin transparencia. La música es la misma de los objetos anteriores.
+ 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{Imagenes/Objeto3/objeto3ef.png} %%% VERIFICAR: nombre de tu captura final
+    \caption{Resultado final del Objeto 3: el barril iluminado, con el degradado de la difusa en el costado y una franja de brillo especular.}
+    \label{fig:objeto3_final}
+\end{figure}
+ 
+La componente difusa ilumina el costado derecho y lo oscurece de forma gradual hacia la izquierda, hasta que el \texttt{clamp} la deja en cero y solo queda la ambiental, que apenas deja ver la textura del lado oscuro. La especular forma una franja estrecha a lo largo del eje del barril, en la zona donde el reflejo de la luz apunta hacia la cámara. %%% VERIFICAR contra tu captura final
+Como el material es gris, la madera y el metal conservan los colores del atlas de la práctica 6.
+ 
+Comparado con los objetos anteriores, el barril permite ver las dos situaciones en un solo modelo: el costado curvo muestra, igual que el planeta, un degradado continuo, y las tapas planas se comportan como las paredes de la casa, con un solo tono por cara. El brillo especular también es distinto: en la esfera es una mancha y en el cilindro es una franja, porque la curvatura es de un solo sentido.
+ 
+\subsubsection{Análisis de ventajas y desventajas}
+\begin{itemize}
+    \item \textbf{Ventajas:} Reutilizar el barril solo requirió generalizar el script de Blender y cambiar tres líneas del programa, sin tocar el \textit{shader}. El modelo combina superficie curva y plana, y dos materiales (madera y metal) en una sola textura, lo que muestra varios comportamientos del modelo de Phong en una misma imagen.
+    \item \textbf{Desventajas:} El reflejo especular se multiplica por la textura y el brillo toma el color de la madera, cuando en una superficie de metal pulido se vería más cercano al color de la luz. El modelo usa un solo material para todo el objeto, así que la madera y los aros de acero tienen los mismos coeficientes especulares. La luz tampoco se debilita con la distancia, porque la atenuación usa el valor fijo de \texttt{distance}.
+\end{itemize}
