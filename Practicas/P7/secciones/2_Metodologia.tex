@@ -225,3 +225,43 @@ La Figura \ref{fig:objeto2} muestra la primera ejecución con el planeta y estos
     \caption{Objeto 2: el planeta de la práctica 6 iluminado con el modelo de Phong, con la luz a la derecha y por delante.}
     \label{fig:objeto2}
 \end{figure}
+
+\subsection{Objeto 3: barril de la práctica 6}
+ 
+\subsubsection{Selección del objeto}
+Para el tercer objeto tomamos el barril de la práctica 6: un cilindro de radio 1, alto 2.4 y 32 lados, con un atlas de $2048 \times 2048$ que combina duelas de madera en el costado, aros de acero y tablas en las tapas. Lo elegimos porque reúne dos tipos de superficie en un solo modelo: un costado curvo, donde la normal cambia alrededor del eje, y dos tapas planas, donde la normal es constante. Así se puede comparar en una misma imagen cómo responde el modelo de Phong a una superficie curva y a una plana, algo que no se veía con la casa (solo caras planas) ni con el planeta (solo superficie curva). Además, el atlas tiene materiales distintos (madera y metal), lo que permite observar cómo la textura modifica el color de la componente especular.
+ 
+\subsubsection{Exportación desde Blender}
+Igual que con el planeta, el barril está dentro de \texttt{escena\_p6.fbx}, con las transformaciones ya aplicadas a los vértices y su centro en $(6, 0, 1.2)$. Para usarlo solo generalizamos el script del Objeto 2 en \texttt{codigo/exportar\_modelo.py}, que recibe como argumentos la carpeta \texttt{bin}, el nombre del objeto, la textura y el nombre del FBX de salida. Se ejecuta con Blender sin interfaz:
+ 
+\begin{lstlisting}[language=bash, caption={Comando para exportar el barril.}, label={lst:cmd_barril}]
+blender -b --factory-startup -P exportar_modelo.py -- <ruta de bin> Barril_export barril_atlas.png barril.fbx
+\end{lstlisting}
+ 
+El procedimiento es el mismo que en el Objeto 2: importa la escena, borra todos los objetos menos \texttt{Barril\_export}, aplica la transformación a los vértices, mueve el centro de la malla al origen, copia \texttt{barril\_atlas.png} a \texttt{bin/models/IllumModels} y exporta \texttt{barril.fbx} con \texttt{path\_mode=\textquotedbl RELATIVE\textquotedbl}. La diferencia es que el nombre del objeto y de la textura ya no están escritos dentro del script, de modo que el mismo archivo sirve para cualquier otra figura de la escena.
+ 
+\subsubsection{Cambios en el código}
+Partimos del \texttt{07\_IllumModels.cpp} del Objeto 2, cuya versión está en \texttt{codigo/Objeto2}, y guardamos la del barril en \texttt{codigo/Objeto3}. El \textit{shader} de Phong no cambió. Como el barril también es opaco y de colores grises, los parámetros de la luz y del material son los del Objeto 2; solo cambian tres líneas (Tabla \ref{tab:cambios_objeto3}).
+ 
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|p{1.3cm}|p{4.6cm}|p{4.6cm}|p{3.8cm}|}
+\hline
+\textbf{Línea} & \textbf{Objeto 2} & \textbf{Objeto 3} & \textbf{Motivo} \\ \hline
+50 & cámara en $(0, 0, 6)$ & cámara en $(0, 1, 6)$ & Ver el barril de pie, con un poco de altura \\ \hline
+146 & \texttt{planeta.fbx} & \texttt{barril.fbx} & Cargar el barril \\ \hline
+162 & luz en $(4, 2, 3)$ & luz en $(4, 3, 3)$ & Iluminar de lado, por delante y desde arriba \\ \hline
+\end{tabular}
+\caption{Líneas de \texttt{07\_IllumModels.cpp} que cambiaron para el Objeto 3.}
+\label{tab:cambios_objeto3}
+\end{table}
+ 
+La rotación de $-90^\circ$ en $X$ de \texttt{Update()} se mantiene, porque el FBX de Blender también tiene el eje $Z$ vertical; con ella el eje del barril queda a lo largo de $Y$ y las tapas miran hacia arriba y hacia abajo. Con el centro en el origen, la tapa superior queda en $y = 1.2$. La cámara en $(0, 1, 6)$ ve el barril de frente, ocupando cerca de la mitad de la altura de la ventana, y queda ligeramente por debajo del plano de la tapa superior, por lo que desde esa posición solo se ve el costado. Para ver la tapa hay que subir la cámara con el ratón y las teclas. La luz queda arriba, a la derecha y al frente, de modo que ilumina el costado derecho y la tapa superior. Los demás parámetros son los del Listado \ref{lst:parametros_objeto2}: ambiental de 0.05, difusa de 0.4 y especular de 0.3 en gris, exponente de 30 y transparencia de 1.0. Las teclas Z, X, C y V siguen moviendo la luz.
+ 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{Imagenes/Objeto3/Objeto3.png} %%% VERIFICAR: nombre de tu captura
+    \caption{Objeto 3: el barril de la práctica 6 iluminado con el modelo de Phong, con la luz a la derecha, arriba y por delante.}
+    \label{fig:objeto3}
+\end{figure}
