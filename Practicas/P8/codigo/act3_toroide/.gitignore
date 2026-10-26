@@ -1,0 +1,6 @@
+# Ignore folders in act3_toroide
+/build*/
+__pycache__/
+*.blend1
+*.txt
+/test*/
