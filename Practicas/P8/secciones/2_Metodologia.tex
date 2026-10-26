@@ -63,7 +63,26 @@ glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 glEnableVertexAttribArray(0);
 \end{lstlisting}
 
-\subsection{Actividad 2: [Nombre de la Actividad 2]}
-% Describir aquí la metodología correspondiente a la Actividad 2.
-% Recordar: "Una metodología por actividad".
-\textit{Describir aquí el proceso metodológico de la segunda actividad...}
+\subsection{Actividad 2: Aplicación de Modelo de Iluminación y Materiales}
+En esta primera actividad se desarrolló la configuración e integración de un modelo de iluminación de Phong utilizando varios objetos geométricos tridimensionales cargado mediante la librería Assimp. El programa establece una arquitectura basada en bucles de renderizado en tiempo real con GLFW y GLAD, gestionando la matriz de vista mediante una cámara interactiva y proyectando un entorno envolvente para contextualizar los reflejos y la iluminación ambiental de la escena.
+
+\subsubsection{Algoritmo y fundamento matemático}
+El pipeline gráfico implementa el modelo de iluminación local de Phong, el cual calcula la intensidad de luz reflejada sobre una superficie a partir de tres componentes: ambiental, difusa y especular. Para transformar las coordenadas locales de los vértices del modelo tridimensional al espacio de la pantalla, se aplica la siguiente transformación geométrica fundamental basada en el producto de matrices:
+\begin{equation}
+    P' = M_{proyecci\acute{o}n} \cdot M_{vista} \cdot M_{modelo} \cdot P
+    \label{eq:transformacion}
+\end{equation}
+
+Adicionalmente, para poner a los objetos de una apariencia física realista, se configuraron los vectores de coeficientes de material utilizando los valores normalizados de reflectancia obtenidos de la referencia disponible en \url{http://devernay.free.fr/cours/opengl/materials.html}.
+
+\subsubsection{Implementación del código}
+A continuación se muestra el segmento clave de código que implementa la solución para la asignación de las propiedades del material y la carga de los shaders de iluminación:
+
+\begin{lstlisting}[language=C++, caption={Configuración de propiedades materiales y renderizado del objeto.}]
+// Configuración de propiedades materiales
+// Tabla: http://devernay.free.fr/cours/opengl/materials.html
+material.ambient = glm::vec4(0.24725f, 0.1995f, 0.0745f, 1.0f);
+material.diffuse = glm::vec4(0.75164f, 0.60648f, 0.22648f, 1.0f);
+material.specular = glm::vec4(0.628281f, 0.555802f, 0.366065f, 1.0f);
+material.transparency = 1.0f;
+\end{lstlisting}
