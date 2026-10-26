@@ -20,7 +20,7 @@ El análisis de los experimentos realizados permitió identificar...
 
 \subsection*{\#321258173: Medel Piña Ángel de Jesús}
 % Redactar la conclusión individual del alumno aquí:
-La práctica permitió contrastar la teoría vista en clase con la implementación en OpenGL...
+En esta práctica entendí que, en el modelo de Phong, la luz de varias fuentes simplemente se suma. En el laboratorio lo vimos con cuatro fuentes de color, y en la actividad lo llevé a diez, que es el máximo que acepta el \textit{shader}. Con diez fuentes apareció un problema que con una sola no había notado: la componente ambiental se suma una vez por cada luz, así que con la potencia de 60 la escena se saturaba a blanco y tuve que bajarla a 30. No esperaba que, aunque los colores de las diez fuentes suman casi blanco, la casa siguiera viéndose de colores distintos según la zona; la razón es que la componente difusa y la especular dependen de dónde está cada fuente. Al dejar encendida solo la luz roja vi que el terreno detrás de la casa seguía iluminado, lo que me dejó claro que este modelo no calcula sombras. Con la tabla de materiales comprobé que cambiar unos cuantos coeficientes basta para pasar de una esfera gris a una esmeralda o un rubí, y con el efecto Fresnel, que para materiales como el vidrio o el diamante hace falta tomar en cuenta la refracción, algo que Phong no modela.
 
 \subsection*{\#321150503: Pérez Olvera Alexis Abraham}
 % Redactar la conclusión individual del alumno aquí:

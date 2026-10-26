@@ -2,7 +2,7 @@
 % METODOLOGÍA
 % ==============================================================================
 % Instrucciones de la plantilla:
-% - Presentar de manera clara y estructurada el proceso seguido durante la 
+% - Presentar de manera clara y estructurada el proceso seguido durante la
 %   práctica de laboratorio.
 % - Comenzar con la configuración del entorno de trabajo (herramientas, lenguajes,
 %   bibliotecas: OpenGL, GLU, Assimp, GLEW, GLFW, GLM, etc.).
@@ -16,7 +16,7 @@
 \section{Metodología}
 
 \subsection{Configuración del entorno de trabajo}
-Para el desarrollo de la práctica se utilizó un entorno de desarrollo estructurado en C++ configurado con soporte para OpenGL moderno. En la Tabla \ref{tab:requerimientos} se detallan las herramientas, bibliotecas y componentes del sistema empleados.
+En la Tabla \ref{tab:requerimientos} se resumen las herramientas empleadas. Partimos del proyecto \texttt{08\_IlluminationModelsII} del repositorio del laboratorio, que incluye las clases \texttt{Model}, \texttt{Light}, \texttt{Material} y \texttt{CubeMap}, el \textit{shader} de Phong para varias fuentes (\texttt{11\_PhongShaderMultLights}) y los modelos de la carpeta \texttt{bin/models/IllumModels}. Durante el desarrollo se utilizó además un modelo de lenguaje para la redacción del texto, para complementar la explicación de la metodología y como apoyo en el código \cite{anthropic2026}.
 
 \begin{table}[H]
 \centering
@@ -24,46 +24,175 @@ Para el desarrollo de la práctica se utilizó un entorno de desarrollo estructu
 \begin{tabular}{|p{4.2cm}|p{10.5cm}|}
 \hline
 \textbf{Elemento} & \textbf{Especificación / Versión empleada} \\ \hline
-Sistema operativo & Linux / Windows 11 (64 bits) \\ \hline
-Entorno de desarrollo & Visual Studio Code / Microsoft Visual Studio \\ \hline
-Compilador y estándar & GCC / MSVC (soporte para \texttt{C++20}) \\ \hline
-API gráfica & OpenGL 3.3 (Perfil Core) \\ \hline
-Bibliotecas principales & GLFW (manejo de ventanas y eventos), GLAD (cargador de funciones), GLM (matemáticas vectoriales y matriciales), Assimp (carga de modelos 3D) \\ \hline
-Hardware de prueba & Tarjeta gráfica compatible con OpenGL 3.3 Core \\ \hline
+Sistema operativo & Windows 11 (64 bits) \\ \hline
+Entorno de desarrollo & Microsoft Visual Studio (conjunto de herramientas \texttt{v145}) y MSBuild \\ \hline
+Compilador y estándar & MSVC, \texttt{C++20}, configuración \texttt{Debug|x64} \\ \hline
+API gráfica & OpenGL 3.3 (perfil núcleo) \\ \hline
+Bibliotecas & GLFW, GLAD, GLM, Assimp (\texttt{assimp-vc143-mtd}), \texttt{stb\_image} e irrKlang (audio) \\ \hline
 \end{tabular}
-\caption{Requerimientos de hardware, software y bibliotecas utilizadas.}
+\caption{Herramientas, bibliotecas y versiones utilizadas.}
 \label{tab:requerimientos}
 \end{table}
 
-\subsection{Actividad 1: [Nombre de la Actividad 1]}
-Describir detalladamente el procedimiento implementado para la primera actividad: arquitectura del programa, flujo de ejecución y algoritmos gráficos desarrollados.
+\subsubsection{Creación del proyecto en Visual Studio}
+La carpeta \texttt{08\_IlluminationModelsII} no trae proyecto de Visual Studio, así que lo creamos igual que en la práctica 7: dentro de ella se creó la carpeta \texttt{Proyecto\textbackslash Project8} con un proyecto vacío de C++ al que se agregaron \texttt{08\_IllumModels2.cpp} y \texttt{stb\_image.cpp}. Lo nombramos \texttt{Project8} para que el ejecutable se genere como \texttt{bin\textbackslash Project8.exe} y no sobrescriba el \texttt{Project1.exe} de la práctica anterior, que comparte la misma carpeta \texttt{bin}. Las propiedades de la Tabla \ref{tab:propiedades} se escribieron con rutas relativas a la carpeta del proyecto (macro \texttt{\$(ProjectDir)}), de modo que el proyecto compila aunque se mueva la carpeta \texttt{Configuración}.
 
-\subsubsection{Algoritmo y fundamento matemático}
-Explicar el fundamento teórico del algoritmo (por ejemplo, el algoritmo de rasterización de líneas de Bresenham o cálculo de transformaciones afines):
-\begin{equation}
-    P' = M_{proyecci\acute{o}n} \cdot M_{vista} \cdot M_{modelo} \cdot P
-    \label{eq:transformacion}
-\end{equation}
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|p{5.2cm}|p{9.5cm}|}
+\hline
+\textbf{Propiedad} & \textbf{Valor} \\ \hline
+Directorio de salida y de trabajo & \texttt{\$(ProjectDir)..\textbackslash..\textbackslash..\textbackslash bin} \\ \hline
+Directorios de inclusión adicionales & \texttt{08\_IlluminationModelsII\textbackslash include}, \texttt{deps\textbackslash irrklang}, \texttt{deps\textbackslash glm}, \texttt{deps\textbackslash glfw}, \texttt{deps\textbackslash glad} y \texttt{deps\textbackslash assimp} \\ \hline
+Directorios de bibliotecas adicionales & \texttt{deps\textbackslash irrklang\textbackslash lib\textbackslash x64} y las carpetas \texttt{lib\textbackslash x64\textbackslash Debug} de GLFW, GLAD y Assimp \\ \hline
+Dependencias adicionales & \texttt{opengl32.lib; glad.lib; glfw3.lib; assimp-vc143-mtd.lib; irrKlang.lib} \\ \hline
+\end{tabular}
+\caption{Propiedades del proyecto \texttt{Project8} en Visual Studio.}
+\label{tab:propiedades}
+\end{table}
 
-\subsubsection{Implementación del código}
-A continuación se muestra el segmento clave de código que implementa la solución:
+El programa debe ejecutarse con \texttt{bin} como directorio de trabajo, porque ahí están los \textit{shaders}, los modelos y el cubemap que se cargan con rutas relativas (\texttt{shaders/...}, \texttt{models/...}, \texttt{textures/...}).
 
-\begin{lstlisting}[language=C++, caption={Configuración de buffers (VAO, VBO) y dibujo de geometrías.}, label={lst:actividad1}]
-// Generación y enlace del Vertex Array Object (VAO) y Vertex Buffer Object (VBO)
-unsigned int VAO, VBO;
-glGenVertexArrays(1, &VAO);
-glGenBuffers(1, &VBO);
+% ------------------------------------------------------------------------------
+\subsection{Actividad: escena con diez fuentes de iluminación}
 
-glBindVertexArray(VAO);
-glBindBuffer(GL_ARRAY_BUFFER, VBO);
-glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+\subsubsection{Escena}
+La escena es la misma que se usó en el laboratorio: la casa \texttt{House02.fbx} sobre un terreno rectangular con dos tramos de cerca, dibujada con el \textit{shader} \texttt{11\_PhongShaderMultLights} y con el cubemap \texttt{textures/cubemap/01} de fondo. La casa mide unas 7 unidades de ancho en $X$, es más larga en $Z$ y las cercas están en $x \approx \pm 8$. Cada fuente se marca con el modelo \texttt{lightDummy.fbx}, escalado a 0.1 y dibujado con el \textit{shader} simple, que se ve como un punto amarillo. El material es el valor por defecto del código base: ambiental de 0.2, difusa de 0.5 y especular de 0.5 en cada canal, sin transparencia.
 
-// Definición de atributos de vértices (posición xyz)
-glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-glEnableVertexAttribArray(0);
+Para que se vean las fuentes alrededor de la casa, cambiamos la cámara inicial: en lugar de $(0, 2, 10)$ mirando de frente, la colocamos en $(0, 14, 22)$ con un ángulo de inclinación (\textit{pitch}) de $-32^\circ$, de modo que la escena se ve desde arriba y de frente.
+
+\begin{lstlisting}[language=C++, firstnumber=50, caption={Cámara inicial en 08\_IllumModels2.cpp.}, label={lst:camara}]
+// (elevada y mirando hacia abajo para ver el anillo de 10 luces)
+Camera camera(glm::vec3(0.0f, 14.0f, 22.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, -32.0f);
 \end{lstlisting}
 
-\subsection{Actividad 2: [Nombre de la Actividad 2]}
-% Describir aquí la metodología correspondiente a la Actividad 2.
-% Recordar: "Una metodología por actividad".
-\textit{Describir aquí el proceso metodológico de la segunda actividad...}
+\subsubsection{Fundamento: modelo de Phong con varias fuentes}
+Con una sola fuente, el modelo de Phong suma una componente ambiental, una difusa y una especular, escaladas por la potencia de la luz y atenuadas con el cuadrado de la distancia \cite{hearn_baker}. Con varias fuentes, la luz es aditiva: el color de cada fragmento es la suma de las contribuciones de todas las fuentes \cite{learnopengl}. Para $N$ fuentes,
+\begin{equation}
+    L_o = \sum_{i=1}^{N} \left[ k_{a,i} + k_{d,i}\,\max(0, \mathbf{n} \cdot \mathbf{l}_i) + k_{s,i}\,\max(0, \mathbf{v} \cdot \mathbf{r}_i)^{q_i} \right] \frac{P_i}{d_i^2}
+    \label{eq:phong_multi}
+\end{equation}
+donde $k_{a,i} = M_a \odot C_i$, $k_{d,i} = M_d \odot C_i$ y $k_{s,i} = M_s \odot C_i$ son los productos, canal por canal, del color del material por el color $C_i$ de la fuente; $\mathbf{l}_i$ es la dirección del fragmento hacia la fuente $i$, $\mathbf{r}_i$ su reflejo respecto a la normal $\mathbf{n}$, $\mathbf{v}$ la dirección hacia el observador, $q_i$ el exponente especular, $P_i$ la potencia y $d_i$ la distancia. La normal y la dirección al observador son las mismas para todas las fuentes; lo que cambia de una a otra es $\mathbf{l}_i$ y, con ella, $\mathbf{r}_i$.
+
+Dos consecuencias de la Ecuación \ref{eq:phong_multi} guiaron el diseño. La primera es que el término ambiental no depende de la geometría, así que crece con cada fuente que se agrega y se suma igual en toda la escena: con diez fuentes, la suma ambiental es diez veces mayor que con una. La segunda es que el resultado se recorta a 1 en cada canal al escribirse en el \textit{framebuffer}, por lo que hay que repartir la energía entre las fuentes para no saturar la imagen.
+
+\subsubsection{Implementación en el \textit{shader}}
+El \textit{fragment shader} \texttt{11\_PhongShaderMultLights.fs} ya implementa la Ecuación \ref{eq:phong_multi}. Declara un arreglo de estructuras \texttt{Light} con tamaño \texttt{MAX\_LIGHTS}, que vale 10, y un entero \texttt{numLights} con cuántas fuentes están en uso. En \texttt{main()} recorre las primeras \texttt{numLights} fuentes, calcula en espacio de cámara la dirección hacia cada una y acumula en \texttt{ex\_color} lo que devuelve \texttt{ApplyLight}, que evalúa las tres componentes de Phong para una fuente (Listado \ref{lst:shader_multi}). Al final multiplica el resultado por el texel de la textura difusa. Como el arreglo tiene exactamente 10 posiciones, diez es el máximo de fuentes que admite el \textit{shader} sin modificarlo; no fue necesario cambiar el \textit{shader}.
+
+\begin{lstlisting}[language=C++, caption={Acumulación de las fuentes en 11\_PhongShaderMultLights.fs.}, label={lst:shader_multi}]
+#define MAX_LIGHTS 10
+uniform int numLights;
+
+uniform struct Light {
+   vec3  Position;
+   vec3  Direction;
+   vec4  Color;
+   vec4  Power;
+   int   alphaIndex;
+   float distance;
+} allLights[MAX_LIGHTS];
+
+// ...
+
+for(int i = 0; i < numLights; ++i){
+    vec3 EyeDirection_cameraspace = vec3(0,0,0) - vertexPosition_cameraspace;
+    vec3 LightPosition_cameraspace = ( view * vec4(allLights[i].Position,1)).xyz;
+    vec3 LightDirection_cameraspace = LightPosition_cameraspace + EyeDirection_cameraspace;
+    vec3 e = normalize(EyeDirection_cameraspace);
+    vec3 l = normalize( LightDirection_cameraspace );
+    ex_color += ApplyLight(allLights[i], n, l, e);
+}
+\end{lstlisting}
+
+Igual que en la práctica 7, $d_i$ no es la distancia real a la fuente sino el \textit{uniform} \texttt{distance} de cada luz, fijo en 3. Por lo tanto, el factor $P_i/d_i^2$ es constante y las fuentes no se debilitan con la distancia: lo que cambia de un punto a otro son los cosenos de la componente difusa y de la especular.
+
+\subsubsection{Posición y color de las diez fuentes}
+Las fuentes se definen en \texttt{Start()} con dos arreglos: uno de posiciones y otro de colores. Las colocamos sobre un rectángulo alrededor de la casa, a 2 unidades de altura: dos al frente ($z = 8.3$), tres en el costado derecho ($x = 5.7$), dos atrás ($z = -8.3$) y tres en el costado izquierdo ($x = -5.7$). Así quedan entre las paredes y la cerca, sin caer dentro de la casa ni debajo del alero. A cada fuente le asignamos un color distinto, recorriendo el círculo cromático, para poder identificar en la imagen la contribución de cada una. La Tabla \ref{tab:luces} resume la configuración; el porqué de esta distribución y de la potencia se explica en los Experimentos 7 y 8.
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|c|c|c|c|l|}
+\hline
+\textbf{Luz} & \textbf{Tecla} & \textbf{Posición $(x, y, z)$} & \textbf{Color (R, G, B)} & \textbf{Ubicación} \\ \hline
+1  & 1 & $(-2.0, 2, 8.3)$  & $(0.20, 0.00, 0.00)$ rojo        & Frente, izquierda \\ \hline
+2  & 2 & $(2.0, 2, 8.3)$   & $(0.20, 0.10, 0.00)$ naranja     & Frente, derecha \\ \hline
+3  & 3 & $(5.7, 2, 5.0)$   & $(0.20, 0.20, 0.00)$ amarillo    & Costado derecho \\ \hline
+4  & 4 & $(5.7, 2, 0.0)$   & $(0.08, 0.20, 0.00)$ verde limón & Costado derecho \\ \hline
+5  & 5 & $(5.7, 2, -5.0)$  & $(0.00, 0.20, 0.00)$ verde       & Costado derecho \\ \hline
+6  & 6 & $(2.0, 2, -8.3)$  & $(0.00, 0.20, 0.20)$ cian        & Atrás, derecha \\ \hline
+7  & 7 & $(-2.0, 2, -8.3)$ & $(0.00, 0.08, 0.20)$ azul cielo  & Atrás, izquierda \\ \hline
+8  & 8 & $(-5.7, 2, -5.0)$ & $(0.00, 0.00, 0.20)$ azul        & Costado izquierdo \\ \hline
+9  & 9 & $(-5.7, 2, 0.0)$  & $(0.12, 0.00, 0.20)$ violeta     & Costado izquierdo \\ \hline
+10 & 0 & $(-5.7, 2, 5.0)$  & $(0.20, 0.00, 0.12)$ magenta     & Costado izquierdo \\ \hline
+\end{tabular}
+\caption{Configuración de las diez fuentes. Todas tienen potencia de 30, \texttt{alphaIndex} de 10 y \texttt{distance} de 3.}
+\label{tab:luces}
+\end{table}
+
+Con los arreglos definidos, un ciclo crea los diez objetos \texttt{Light} y los guarda en el vector \texttt{gLights} (Listado \ref{lst:luces}). Todas las fuentes comparten la potencia \texttt{LIGHT\_POWER}, de 30, el exponente especular de 10 y la distancia de 3, y empiezan encendidas.
+
+\begin{lstlisting}[language=C++, firstnumber=191, caption={Creación de las diez fuentes en Start() (08\_IllumModels2.cpp).}, label={lst:luces}]
+for (int i = 0; i < NUM_LIGHTS; ++i) {
+	Light light;
+	light.Position = lightPositions[i];
+	light.Color = lightColors[i];
+	light.Power = glm::vec4(LIGHT_POWER, LIGHT_POWER, LIGHT_POWER, 1.0f);
+	light.alphaIndex = 10;
+	light.distance = 3.0f;
+	gLights.push_back(light);
+	gLightEnabled[i] = true;
+}
+\end{lstlisting}
+
+\subsubsection{Envío de las fuentes al \textit{shader}}
+En cada cuadro, \texttt{Update()} pasa las fuentes al \textit{shader} como \textit{uniforms} con las funciones auxiliares \texttt{SetLightUniform*} del código base, que arman nombres como \texttt{allLights[3].Color}. El código original enviaba todas las fuentes del vector y ponía \texttt{numLights} igual a su tamaño. Lo modificamos para poder apagar fuentes: solo se envían las que están encendidas, compactadas al inicio del arreglo con un contador \texttt{activeLights}, y \texttt{numLights} recibe ese contador (Listado \ref{lst:uniforms}). Compactar es necesario porque el \textit{shader} recorre las posiciones $0$ a $\texttt{numLights}-1$: si solo se saltara una fuente apagada sin compactar, quedaría un hueco con los datos del cuadro anterior. Los marcadores de las fuentes apagadas tampoco se dibujan.
+
+\begin{lstlisting}[language=C++, firstnumber=287, caption={Envío de las fuentes encendidas en Update() (08\_IllumModels2.cpp).}, label={lst:uniforms}]
+// Configuramos propiedades de fuentes de luz
+// Solo se envían las luces encendidas, compactadas al inicio del arreglo
+size_t activeLights = 0;
+for (size_t i = 0; i < gLights.size(); ++i) {
+	if (!gLightEnabled[i])
+		continue;
+	SetLightUniformVec3(mLightsShader, "Position", activeLights, gLights[i].Position);
+	SetLightUniformVec3(mLightsShader, "Direction", activeLights, gLights[i].Direction);
+	SetLightUniformVec4(mLightsShader, "Color", activeLights, gLights[i].Color);
+	SetLightUniformVec4(mLightsShader, "Power", activeLights, gLights[i].Power);
+	SetLightUniformInt(mLightsShader, "alphaIndex", activeLights, gLights[i].alphaIndex);
+	SetLightUniformFloat(mLightsShader, "distance", activeLights, gLights[i].distance);
+	++activeLights;
+}
+mLightsShader->setInt("numLights", (int)activeLights);
+\end{lstlisting}
+
+\subsubsection{Controles}
+Para encender y apagar cada fuente usamos las teclas numéricas: de la 1 a la 9 para las fuentes 1 a 9, y el 0 para la fuente 10. Como \texttt{processInput} se ejecuta en cada cuadro, si solo se revisara que la tecla está presionada la fuente cambiaría de estado decenas de veces mientras se mantiene apretada. Por eso guardamos el estado anterior de cada tecla en \texttt{gLightKeyPressed} y solo cambiamos la fuente en el cuadro en que la tecla pasa de suelta a presionada, es decir, en el flanco de subida (Listado \ref{lst:teclas}). La Tabla \ref{tab:controles} resume los controles.
+
+\begin{lstlisting}[language=C++, firstnumber=369, caption={Encendido y apagado de las fuentes en processInput() (08\_IllumModels2.cpp).}, label={lst:teclas}]
+// Encender/apagar luces: teclas 1-9 para las luces 1-9 y 0 para la luz 10
+for (int i = 0; i < NUM_LIGHTS; ++i) {
+	int key = (i == 9) ? GLFW_KEY_0 : GLFW_KEY_1 + i;
+	bool pressed = glfwGetKey(window, key) == GLFW_PRESS;
+	if (pressed && !gLightKeyPressed[i])
+		gLightEnabled[i] = !gLightEnabled[i];
+	gLightKeyPressed[i] = pressed;
+}
+\end{lstlisting}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{3.2cm}|p{11.5cm}|}
+\hline
+\textbf{Entrada} & \textbf{Acción} \\ \hline
+W, A, S, D & Mover la cámara hacia adelante, a la izquierda, hacia atrás y a la derecha \\ \hline
+Ratón y rueda & Girar la cámara y cambiar el acercamiento \\ \hline
+1 a 9, 0 & Encender o apagar las fuentes 1 a 9 y la fuente 10 \\ \hline
+M, N, B & Dibujar en malla de alambre, relleno o puntos \\ \hline
+Esc & Cerrar el programa \\ \hline
+\end{tabular}
+\caption{Controles del programa.}
+\label{tab:controles}
+\end{table}
