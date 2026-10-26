@@ -35,7 +35,7 @@ Bibliotecas & GLFW, GLAD, GLM, Assimp (\texttt{assimp-vc143-mtd}), \texttt{stb\_
 \end{table}
 
 \subsubsection{Creación del proyecto en Visual Studio}
-La carpeta \texttt{08\_IlluminationModelsII} no trae proyecto de Visual Studio, así que lo creamos igual que en la práctica 7: dentro de ella se creó la carpeta \texttt{Proyecto\textbackslash Project8} con un proyecto vacío de C++ al que se agregaron \texttt{08\_IllumModels2.cpp} y \texttt{stb\_image.cpp}. Lo nombramos \texttt{Project8} para que el ejecutable se genere como \texttt{bin\textbackslash Project8.exe} y no sobrescriba el \texttt{Project1.exe} de la práctica anterior, que comparte la misma carpeta \texttt{bin}. Las propiedades de la Tabla \ref{tab:propiedades} se escribieron con rutas relativas a la carpeta del proyecto (macro \texttt{\$(ProjectDir)}), de modo que el proyecto compila aunque se mueva la carpeta \texttt{Configuración}.
+La carpeta \texttt{08\_IlluminationModelsII} no trae proyecto de Visual Studio, así que lo creamos igual que en la práctica 7: dentro de ella se creó la carpeta \texttt{Proyecto\symbol{92}Project8} con un proyecto vacío de C++ al que se agregaron \texttt{08\_IllumModels2.cpp} y \texttt{stb\_image.cpp}. Lo nombramos \texttt{Project8} para que el ejecutable se genere como \texttt{bin\symbol{92}Project8.exe} y no sobrescriba el \texttt{Project1.exe} de la práctica anterior, que comparte la misma carpeta \texttt{bin}. Las propiedades de la Tabla \ref{tab:propiedades} se escribieron con rutas relativas a la carpeta del proyecto (macro \texttt{\symbol{36}(ProjectDir)}), de modo que el proyecto compila aunque se mueva la carpeta \texttt{Configuración}.
 
 \begin{table}[H]
 \centering
@@ -43,9 +43,9 @@ La carpeta \texttt{08\_IlluminationModelsII} no trae proyecto de Visual Studio, 
 \begin{tabular}{|p{5.2cm}|p{9.5cm}|}
 \hline
 \textbf{Propiedad} & \textbf{Valor} \\ \hline
-Directorio de salida y de trabajo & \texttt{\$(ProjectDir)..\textbackslash..\textbackslash..\textbackslash bin} \\ \hline
-Directorios de inclusión adicionales & \texttt{08\_IlluminationModelsII\textbackslash include}, \texttt{deps\textbackslash irrklang}, \texttt{deps\textbackslash glm}, \texttt{deps\textbackslash glfw}, \texttt{deps\textbackslash glad} y \texttt{deps\textbackslash assimp} \\ \hline
-Directorios de bibliotecas adicionales & \texttt{deps\textbackslash irrklang\textbackslash lib\textbackslash x64} y las carpetas \texttt{lib\textbackslash x64\textbackslash Debug} de GLFW, GLAD y Assimp \\ \hline
+Directorio de salida y de trabajo & \texttt{\symbol{36}(ProjectDir)..\symbol{92}..\symbol{92}..\symbol{92}bin} \\ \hline
+Directorios de inclusión adicionales & \texttt{08\_IlluminationModelsII\symbol{92}include}, \texttt{deps\symbol{92}irrklang}, \texttt{deps\symbol{92}glm}, \texttt{deps\symbol{92}glfw}, \texttt{deps\symbol{92}glad} y \texttt{deps\symbol{92}assimp} \\ \hline
+Directorios de bibliotecas adicionales & \texttt{deps\symbol{92}irrklang\symbol{92}lib\symbol{92}x64} y las carpetas \texttt{lib\symbol{92}x64\symbol{92}Debug} de GLFW, GLAD y Assimp \\ \hline
 Dependencias adicionales & \texttt{opengl32.lib; glad.lib; glfw3.lib; assimp-vc143-mtd.lib; irrKlang.lib} \\ \hline
 \end{tabular}
 \caption{Propiedades del proyecto \texttt{Project8} en Visual Studio.}
