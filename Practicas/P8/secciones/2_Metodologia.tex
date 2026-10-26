@@ -296,13 +296,11 @@ El vertex shader transforma la posición mediante las matrices de modelo, vista 
 
 Configuramos una luz blanca en $(2.5,4.0,3.0)$ y un material con coeficientes ambiental de $0.18$, difuso de $0.85$, especular de $0.45$ y exponente de brillo de $64$. El shader combina la textura con las componentes ambiental y difusa, mientras que la componente especular produce el brillo de la superficie. En forma resumida, el cálculo en espacio lineal es:
 \begin{equation}
-    \mathbf{C}=\mathbf{k}_a\odot\mathbf{T}
-    +a(d)\,\mathbf{L}_c\odot
-    \left[\mathbf{k}_d\odot\mathbf{T}\max(\mathbf{n}\cdot\mathbf{l},0)
-    +\mathbf{k}_s\max(\mathbf{e}\cdot\mathbf{r},0)^s\right].
-    \label{eq:act3_phong}
+    L_o = \sum_{i=1}^{N} \left[ k_{a,i} + k_{d,i}\,\max(0, \mathbf{n} \cdot \mathbf{l}_i) + k_{s,i}\,\max(0, \mathbf{v} \cdot \mathbf{r}_i)^{q_i} \right] \frac{P_i}{d_i^2}
+    \label{eq:phong_multi}
 \end{equation}
-En esta expresión, $\mathbf{T}$ es el color de la textura; $\mathbf{n}$, la normal; $\mathbf{l}$, la dirección hacia la luz; $\mathbf{e}$, la dirección hacia la cámara; y $\mathbf{r}$, el vector reflejado. El símbolo $\odot$ indica una multiplicación por componente. El brillo especular se calcula solo cuando la superficie recibe luz, y la atenuación utilizada es $a(d)=1/(1+0.05d+0.01d^2)$. Finalmente se aplica la conversión de color para mostrar el resultado en pantalla.
+donde $k_{a,i} = M_a \odot C_i$, $k_{d,i} = M_d \odot C_i$ y $k_{s,i} = M_s \odot C_i$ son los productos, canal por canal, del color del material por el color $C_i$ de la fuente; $\mathbf{l}_i$ es la dirección del fragmento hacia la fuente $i$, $\mathbf{r}_i$ su reflejo respecto a la normal $\mathbf{n}$, $\mathbf{v}$ la dirección hacia el observador, $q_i$ el exponente especular, $P_i$ la potencia y $d_i$ la distancia. La normal y la dirección al observador son las mismas para todas las fuentes; lo que cambia de una a otra es $\mathbf{l}_i$ y, con ella, $\mathbf{r}_i$.
+
 
 \subsubsection{Controles básicos}
 
