@@ -11,17 +11,215 @@
 
 \section{Experimentos}
 
-En esta sección se presentan las pruebas experimentales desarrolladas para validar el comportamiento del sistema gráfico bajo distintas configuraciones y parámetros.
+Los experimentos 1 a 6 son las pruebas de la sesión de laboratorio, en el orden en que las hicimos. Los cinco primeros modifican \texttt{08\_IllumModels2.cpp} y su \textit{shader}; el sexto usa el programa de la práctica 14 (\texttt{14\_Fresnel.cpp}). Los experimentos 7 a 9 corresponden a la actividad de las diez fuentes. Los números de línea de los experimentos del laboratorio son los de la versión del archivo con la que trabajamos en la sesión.
 
-\subsection{Experimento 1: [Título o variación probada]}
+% ------------------------------------------------------------------------------
+\subsection{Experimento 1: fuentes de color sin textura}
+
 \subsubsection{Objetivo del experimento}
-Evaluar el comportamiento del renderizado al variar los parámetros de...
+Ver cómo se combinan varias fuentes de color sobre la casa sin que la textura altere el color de la luz.
 
 \subsubsection{Pruebas exitosas}
-% Describir casos en los que la prueba funcionó como se esperaba:
-Se observó que al configurar... la salida gráfica generó la geometría esperada con una tasa de cuadros estable.
+En el código base las cuatro luces (\texttt{light01} a \texttt{light04}) están comentadas. Quitamos el texel de la salida del \textit{fragment shader}, dejando \texttt{FragColor = ex\_color} en \texttt{11\_PhongShaderMultLights.fs}, y descomentamos las dos primeras luces: una roja en $(5, 2, 5)$ y una verde en $(-5, 2, 5)$, cada una con color de 0.2 y potencia de 60. La casa quedó de color verde olivo, la suma de rojo y verde a baja intensidad, y en el terreno aparecieron una mancha verde del lado de la luz verde y una naranja del lado de la roja (Figura \ref{fig:lab_sin_textura}, izquierda). Con la tercera luz, azul, en $(5, 2, -5)$, las paredes se volvieron grises porque los tres canales ya reciben luz en la misma proporción, y del lado derecho del terreno se agregaron un brillo azul y uno magenta.
+
+Después descomentamos la cuarta luz, en $(-5, 2, -5)$, y le probamos dos colores. Con \texttt{(0.0, 0.0, 0.2)}, una segunda luz azul, la casa y el terreno se volvieron azules, con una mancha cian donde la luz azul se suma a la verde y una magenta donde se suma a la roja (Figura \ref{fig:lab_sin_textura}, derecha). Con \texttt{(0.1, 0.1, 0.0)}, un amarillo tenue, la casa regresó al verde olivo y en el terreno se distinguían manchas amarilla, verde, naranja y azul.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.48\textwidth]{Imagenes/Lab/02_dos_luces_sin_textura.jpg}
+    \hfill
+    \includegraphics[width=0.48\textwidth]{Imagenes/Lab/04_cuarta_luz_azul.jpg}
+    \caption{Casa sin textura. Izquierda: luces roja y verde. Derecha: cuatro luces, con la cuarta de color azul.}
+    \label{fig:lab_sin_textura}
+\end{figure}
+
+% ------------------------------------------------------------------------------
+\subsection{Experimento 2: textura y cambio de modelo}
+
+\subsubsection{Objetivo del experimento}
+Comparar las fuentes de color con y sin textura, y sobre una superficie curva en lugar de las caras planas de la casa.
+
+\subsubsection{Pruebas exitosas}
+Regresamos la línea 73 del \textit{shader} a \texttt{FragColor = texel * ex\_color}. La casa recuperó la madera y la teja, y la luz de las fuentes quedó como un tinte sobre la textura: en el pasto se ven una mancha verde a la izquierda y una roja a la derecha (Figura \ref{fig:lab_textura}, izquierda).
+
+Luego, en la línea 288 del \texttt{main}, cambiamos \texttt{house->Draw} por \texttt{sphere->Draw} para dibujar \texttt{Sphere.fbx}. En la esfera la normal cambia en cada punto, así que cada lado recibe sobre todo la luz que tiene enfrente: quedó verde a la izquierda, roja y naranja a la derecha y con un borde magenta (Figura \ref{fig:lab_textura}, derecha).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.48\textwidth]{Imagenes/Lab/06_con_textura.jpg}
+    \hfill
+    \includegraphics[width=0.48\textwidth]{Imagenes/Lab/07_esfera.jpg}
+    \caption{Izquierda: casa con textura y cuatro fuentes de color. Derecha: la misma iluminación sobre \texttt{Sphere.fbx}.}
+    \label{fig:lab_textura}
+\end{figure}
+
+% ------------------------------------------------------------------------------
+\subsection{Experimento 3: potencia y color de las fuentes}
+
+\subsubsection{Objetivo del experimento}
+Ver cómo cambia la esfera al reducir la potencia y al usar fuentes blancas.
+
+\subsubsection{Pruebas exitosas}
+Bajamos la potencia de 60 a 30 en las líneas 163, 169 y 175 (\texttt{light01.Power = glm::vec4(30.0f, 30.0f, 30.0f, 1.0f)} y sus equivalentes). El factor $P/d^2$ pasó de $60/9 = 6.67$ a $30/9 = 3.33$; la esfera se oscureció y los brillos de la luz verde y de la roja se separaron en dos manchas.
+
+Después cambiamos el color de las fuentes a gris: 0.2 en los tres canales para las fuentes 1 y 2, y 0.1 para las demás. Con fuentes blancas la esfera toma el gris claro del material y muestra dos brillos blancos, uno por cada fuente de 0.2 (Figura \ref{fig:lab_alpha}, izquierda).
+
+% ------------------------------------------------------------------------------
+\subsection{Experimento 4: exponente especular}
+
+\subsubsection{Objetivo del experimento}
+Observar cómo cambia el tamaño del brillo con el exponente especular.
+
+\subsubsection{Pruebas exitosas}
+Agregamos \texttt{light01.alphaIndex = 30;} y lo mismo para la fuente 2; el valor por defecto es 10. Con el exponente más alto el lóbulo especular se angosta, y los dos brillos blancos se hicieron más pequeños y de borde más definido (Figura \ref{fig:lab_alpha}, derecha).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.48\textwidth]{Imagenes/Lab/09_luces_blancas.jpg}
+    \hfill
+    \includegraphics[width=0.48\textwidth]{Imagenes/Lab/10_alpha30.jpg}
+    \caption{Esfera con fuentes blancas. Izquierda: \texttt{alphaIndex} de 10. Derecha: \texttt{alphaIndex} de 30 en las fuentes 1 y 2.}
+    \label{fig:lab_alpha}
+\end{figure}
+
+% ------------------------------------------------------------------------------
+\subsection{Experimento 5: materiales de la tabla y transparencia}
+
+\subsubsection{Objetivo del experimento}
+Reproducir materiales reales con los coeficientes ambiental, difuso y especular de la tabla de materiales de OpenGL \cite{devernay_materials}, y aplicarles transparencia.
+
+\subsubsection{Pruebas exitosas}
+En las líneas 190 a 193 del \texttt{main} pusimos el material de la esmeralda (Listado \ref{lst:esmeralda}). La esfera se volvió verde, porque la componente ambiental y la difusa tienen el verde muy por encima del rojo y del azul. La especular es casi blanca, y por eso el brillo se ve claro sobre el verde (Figura \ref{fig:lab_materiales}, izquierda).
+
+\begin{lstlisting}[language=C++, caption={Material de esmeralda tomado de la tabla de materiales.}, label={lst:esmeralda}]
+material.ambient = glm::vec4(0.0215f, 0.1745f, 0.0215f, 1.0f);
+material.diffuse = glm::vec4(0.07568f, 0.61424f, 0.07568f, 1.0f);
+material.specular = glm::vec4(0.633f, 0.727811f, 0.633f, 1.0f);
+material.transparency = 1.0f;
+\end{lstlisting}
+
+Con los valores del rubí (ambiental \texttt{(0.1745, 0.01175, 0.01175)}, difusa \texttt{(0.61424, 0.04136, 0.04136)} y especular \texttt{(0.727811, 0.626959, 0.626959)}) la esfera se volvió roja, con un brillo rosado (Figura \ref{fig:lab_materiales}, centro). Al final bajamos la transparencia de la línea 193 a 0.5. Antes de dibujar se activa \texttt{GL\_BLEND} con \texttt{GL\_SRC\_ALPHA, GL\_ONE\_MINUS\_SRC\_ALPHA}, así que el rubí se mezcló a la mitad con el fondo y a través de él se ve la arena (Figura \ref{fig:lab_materiales}, derecha). Las dos mitades de la esfera transparente se ven distintas; creemos que es el mismo problema de orden de dibujo que observamos en la práctica 7, porque las caras no se ordenan por profundidad antes de mezclarse.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.32\textwidth]{Imagenes/Lab/11_esmeralda.jpg}
+    \hfill
+    \includegraphics[width=0.32\textwidth]{Imagenes/Lab/12_rubi.jpg}
+    \hfill
+    \includegraphics[width=0.32\textwidth]{Imagenes/Lab/13_rubi_transparente.jpg}
+    \caption{Materiales de la tabla: esmeralda (izquierda), rubí (centro) y rubí con transparencia de 0.5 (derecha).}
+    \label{fig:lab_materiales}
+\end{figure}
+
+% ------------------------------------------------------------------------------
+\subsection{Experimento 6: efecto Fresnel (código de la práctica 14)}
+
+\subsubsection{Objetivo del experimento}
+Ver cómo cambian la reflexión y la refracción con el índice de refracción y con los parámetros de la aproximación de Schlick.
+
+\subsubsection{Pruebas exitosas}
+El programa \texttt{14\_Fresnel.cpp} dibuja tres esferas con el \textit{shader} \texttt{11\_Fresnel}, que mezcla un color reflejado y uno refractado del cubemap. La proporción la da un coeficiente de reflexión calculado con la aproximación de Schlick \cite{nvidia_cg}:
+\begin{equation}
+    R = \max\left(0, \min\left(1,\; \texttt{\_Bias} + \texttt{\_Scale}\,(1 + \mathbf{I} \cdot \mathbf{n})^{\texttt{\_Power}}\right)\right)
+    \label{eq:schlick}
+\end{equation}
+donde $\mathbf{I}$ es la dirección del ojo al punto y $\mathbf{n}$ la normal. El color final es $R$ veces el reflejado más $1-R$ veces el refractado. La refracción se calcula por separado para cada canal con razones ligeramente distintas, lo que produce dispersión cromática.
+
+Las esferas usan las razones de refracción del aire, del agua y una tercera de 1/1.7. En la línea 210 cambiamos la tercera a \texttt{1.0f / 2.417f}, el índice del diamante, y la esfera de la derecha mostró el fondo invertido y más comprimido que las otras dos, porque un índice mayor desvía más los rayos (Figura \ref{fig:lab_fresnel}, izquierda). En la línea 187 subimos el \texttt{\_Bias} de la esfera izquierda de 0.1 a 1. Con $R = 1$ la esfera solo refleja y se ve como un espejo, que es lo que indica el comentario del código para una inclinación de 1, la de un material metálico (Figura \ref{fig:lab_fresnel}, centro). Con un \texttt{\_Bias} de 0.5 la misma esfera quedó a la mitad entre reflejo y refracción. Por último, en la línea 127 cambiamos la esfera por la mesa \texttt{Table02.fbx}. Las tres mesas se ven como de vidrio, con el fondo refractado en las patas y en la cubierta, y la de la izquierda, que conserva el \texttt{\_Bias} alto, refleja más (Figura \ref{fig:lab_fresnel}, derecha).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.32\textwidth]{Imagenes/Lab/14_fresnel_diamante.jpg}
+    \hfill
+    \includegraphics[width=0.32\textwidth]{Imagenes/Lab/15_fresnel_bias1.jpg}
+    \hfill
+    \includegraphics[width=0.32\textwidth]{Imagenes/Lab/17_fresnel_mesas.jpg}
+    \caption{Efecto Fresnel. Izquierda: tercera esfera con el índice del diamante. Centro: primera esfera con \texttt{\_Bias} de 1. Derecha: las tres razones de refracción aplicadas a \texttt{Table02.fbx}.}
+    \label{fig:lab_fresnel}
+\end{figure}
+
+% ------------------------------------------------------------------------------
+\subsection{Experimento 7: distribución de las diez fuentes}
+
+\subsubsection{Objetivo del experimento}
+Encontrar posiciones en las que las diez fuentes queden alrededor de la casa, fuera de ella y a la vista.
 
 \subsubsection{Pruebas fallidas y análisis de errores}
+La primera versión repartía las fuentes en un círculo de radio 5, a 2 unidades de altura y separadas $36^\circ$. Con la cámara en $(0, 8, 14)$ la casa llenaba la pantalla, así que la alejamos a su posición final. En la Figura \ref{fig:exp_circulo} se ven solo cuatro marcadores: la casa mide unas 7 unidades de ancho y es más larga en $Z$, de modo que las fuentes de enfrente y de atrás quedaban dentro de ella.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth]{Imagenes/Luces10/07_circulo_r5.png}
+    \caption{Fuentes en un círculo de radio 5: varias quedan dentro de la casa y solo se ven cuatro marcadores.}
+    \label{fig:exp_circulo}
+\end{figure}
+
+Para rodear una planta alargada cambiamos el círculo por una elipse con semiejes de 6 en $X$ y 8.5 en $Z$. Desde la cámara en perspectiva se veían nueve marcadores, pero en la vista superior solo había seis (Figura \ref{fig:exp_elipse}). Las fuentes a $36^\circ$ de los ejes quedaban en $x = \pm 3.5$, en las esquinas de la casa y debajo del alero.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth]{Imagenes/Luces10/08_elipse_vista_superior.png}
+    \caption{Vista superior con las fuentes en una elipse: cuatro fuentes quedan en las esquinas de la casa, debajo del alero.}
+    \label{fig:exp_elipse}
+\end{figure}
+
+\subsubsection{Pruebas exitosas}
+Como la planta de la casa es rectangular, escribimos las posiciones a mano sobre un rectángulo (Tabla \ref{tab:luces}): tres fuentes en cada costado largo, en $x = \pm 5.7$, y dos en cada lado corto, en $z = \pm 8.3$. En la vista superior de la Figura \ref{fig:res_superior} se ven los diez marcadores entre las paredes y la cerca.
+
+% ------------------------------------------------------------------------------
+\subsection{Experimento 8: potencia de las fuentes}
+
+\subsubsection{Objetivo del experimento}
+Elegir una potencia con la que la suma de diez fuentes no sature la imagen.
+
+\subsubsection{Pruebas fallidas y análisis de errores}
+Con la potencia de 60 que usamos en el laboratorio, el terreno se vio casi blanco y la casa anaranjada y sobreexpuesta (Figura \ref{fig:exp_potencia60}). Si se suman los colores de la Tabla \ref{tab:luces} canal por canal, dan 1.00 en rojo, 0.98 en verde y 0.92 en azul. Con el material ambiental de 0.2 y el factor $60/3^2 = 6.67$, solo la componente ambiental en rojo vale $0.2 \times 1.00 \times 6.67 = 1.33$, más de 1 antes de sumar la difusa y la especular. En el laboratorio, con cuatro fuentes de 0.2 y la misma potencia, esa suma era de $0.2 \times 0.4 \times 6.67 = 0.53$.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth]{Imagenes/Luces10/06_potencia60.png}
+    \caption{Diez fuentes con potencia de 60: la suma de las contribuciones satura el terreno.}
+    \label{fig:exp_potencia60}
+\end{figure}
+
+\subsubsection{Pruebas exitosas}
+Con una potencia de 20 la escena se veía oscura y casi no se distinguían las manchas de color. Con 30, el valor final, la suma ambiental queda en $0.2 \times 1.00 \times 3.33 = 0.67$ en rojo, 0.65 en verde y 0.61 en azul, y queda margen para la componente difusa y la especular. La potencia total de las diez fuentes es de 300, cerca de los 240 de las cuatro fuentes del laboratorio.
+
+% ------------------------------------------------------------------------------
+\subsection{Experimento 9: encendido y apagado de fuentes}
+
+\subsubsection{Objetivo del experimento}
+Aislar la contribución de cada fuente y comprobar que el arreglo de \textit{uniforms} se compacta bien al apagar fuentes.
+
+\subsubsection{Pruebas exitosas}
+Apagamos las fuentes 2 a 10 para dejar solo la roja del frente izquierdo (Figura \ref{fig:exp_una}). La escena quedó en rojo y negro, porque la fuente no tiene verde ni azul y esos canales se anulan al multiplicarse por el color del material. En la pared frontal hay una mancha especular frente a la fuente, y el terreno detrás de la casa también está iluminado aunque la casa se interpone. El modelo de Phong es local: cada fragmento usa su normal y la dirección a la fuente sin revisar si otro objeto la bloquea, así que no hay sombras.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth]{Imagenes/Luces10/02_solo_luz1.png}
+    \caption{Solo la fuente 1 (roja) encendida: la escena se ve en rojo y el terreno detrás de la casa se ilumina, porque el modelo no calcula sombras.}
+    \label{fig:exp_una}
+\end{figure}
+
+Con las fuentes pares apagadas (teclas 2, 4, 6, 8 y 0) quedaron la roja, la amarilla, la verde, la azul cielo y la violeta (Figura \ref{fig:exp_impares}). La suma ambiental bajó a la mitad y la escena se oscureció, pero se distingue la mancha de cada fuente: la roja en la pared frontal, la amarilla y la verde en el costado derecho y la violeta en el izquierdo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth]{Imagenes/Luces10/03_luces_impares.png}
+    \caption{Solo las fuentes impares encendidas: cada fuente deja una mancha de su color.}
+    \label{fig:exp_impares}
+\end{figure}
+
+Al apagar las fuentes 1 a 5 quedaron las de atrás y las del costado izquierdo, que son las de colores fríos: cian, azul cielo, azul, violeta y magenta (Figura \ref{fig:exp_frias}). La escena tomó un tono azul violeta, la madera de la casa se ve morada y los brillos del terreno solo aparecen del lado izquierdo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth]{Imagenes/Luces10/04_solo_frias.png}
+    \caption{Solo las fuentes 6 a 10 (colores fríos) encendidas.}
+    \label{fig:exp_frias}
+\end{figure}
+
+En las tres pruebas desaparecieron los marcadores de las fuentes apagadas y el color de la escena correspondió solo a las encendidas. Si la compactación del Listado \ref{lst:uniforms} fallara, alguna posición del arreglo conservaría los datos de una fuente apagada y su color seguiría en la imagen.
 % Describir fallos encontrados durante el desarrollo, errores de compilación/enlace/shaders:
 Durante la primera ejecución ocurrió un fallo debido a una discrepancia en el formato de los atributos del vértice (layout del shader), provocando una pantalla en negro (\textit{black screen}). Dicho error se corrigió ajustando el paso (\textit{stride}) en \texttt{glVertexAttribPointer}.
 

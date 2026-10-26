@@ -2,7 +2,7 @@
 % RESULTADOS
 % ==============================================================================
 % Instrucciones de la plantilla:
-% - Por cada una de las actividades, describir detalladamente los resultados 
+% - Por cada una de las actividades, describir detalladamente los resultados
 %   alcanzados, tanto de las solicitadas, como de los experimentos.
 % - Incluir capturas de pantalla debidamente tituladas y referenciadas en el texto.
 % - REGLA: No se aceptarán solo capturas de pantalla; deben estar explicadas.
@@ -11,29 +11,41 @@
 
 \section{Resultados}
 
-A continuación se exponen y analizan los resultados obtenidos en cada una de las actividades prácticas y pruebas experimentales.
+Las capturas de OpenGL de esta sección se tomaron del programa compilado con la configuración \texttt{Debug|x64}, a $1024 \times 768$.
 
-\subsection{Resultados de la Actividad 1}
-En la Actividad 1 se logró la representación gráfica correcta de la escena interactiva. Como se observa en la Figura \ref{fig:resultado_act1}, el cauce de renderizado procesó satisfactoriamente las primitivas geométricas...
+% ------------------------------------------------------------------------------
+\subsection{Resultados de la actividad: escena con diez fuentes de iluminación}
+La Figura \ref{fig:res_diez} muestra la escena final con las diez fuentes encendidas, con la configuración de la Tabla \ref{tab:luces} y potencia de 30. Desde la cámara inicial se ven ocho marcadores, porque el techo tapa las dos fuentes de atrás. La casa y las cercas conservan sus texturas y nada se satura: la suma ambiental queda entre 0.61 y 0.67 en cada canal (Experimento 8).
 
-% Ejemplo de inserción de figura con título y referencia en el texto:
 \begin{figure}[H]
     \centering
-    % Coloca tu imagen en la carpeta Imagenes/ y descomenta la siguiente línea:
-    % \includegraphics[width=0.75\textwidth]{Imagenes/resultado_actividad1.png}
-    % Mientras tanto, un marco de demostración:
-    \setlength{\fboxrule}{1pt}
-    \framebox[0.75\textwidth]{\rule{0pt}{4cm}\large Captura de pantalla de la Actividad 1}
-    \caption{Resultado visual obtenido al ejecutar la escena interactiva de la Actividad 1.}
-    \label{fig:resultado_act1}
+    \includegraphics[width=0.75\textwidth]{Imagenes/Luces10/01_diez_luces.png}
+    \caption{Resultado final: la casa iluminada por las diez fuentes de color.}
+    \label{fig:res_diez}
 \end{figure}
+
+Los colores de las diez fuentes suman casi blanco (1.00, 0.98 y 0.92), pero la escena no queda de un solo color. La componente difusa y la especular dependen de la dirección a cada fuente, así que en cada zona pesan más las fuentes cercanas. El costado derecho del terreno se ve verde y amarillo por las fuentes 3, 4 y 5, el izquierdo se ve rosado y violeta por las fuentes 9 y 10, y la pared frontal tiene una mancha roja de la fuente 1. Las manchas brillantes del terreno son reflejos especulares: están donde el reflejo de cada fuente apunta a la cámara y se mueven al girarla, mientras que el resto del color se queda igual.
+
+Para la Figura \ref{fig:res_superior} colocamos la cámara en $(0, 30, 0)$ mirando hacia abajo. Se ven los diez marcadores (dos al frente, abajo en la imagen, tres en cada costado y dos atrás), cada uno con un brillo de su color sobre el pasto. Los brillos de las fuentes de atrás se notan menos que los de los costados porque el reflejo especular depende de la posición de la cámara.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{Imagenes/Luces10/05_vista_superior.png}
+    \caption{Vista superior de la escena: los diez marcadores de luz rodean la casa entre las paredes y la cerca.}
+    \label{fig:res_superior}
+\end{figure}
+
+Las teclas numéricas apagan cualquier combinación de fuentes mientras corre el programa (Figuras \ref{fig:exp_una} a \ref{fig:exp_frias}). En el laboratorio, para ver el efecto de una fuente sola había que comentar líneas y volver a compilar.
 
 \subsubsection{Análisis de ventajas y desventajas}
 \begin{itemize}
-    \item \textbf{Ventajas:} El enfoque utilizado mediante VAO/VBO optimiza la transferencia de memoria hacia la GPU, reduciendo la sobrecarga de la CPU por llamada de dibujo.
-    \item \textbf{Desventajas:} Requiere un manejo explícito del ciclo de vida de los identificadores de recursos en memoria gráfica para prevenir fugas de memoria.
+    \item \textbf{Ventajas:} El \textit{shader} ya recibía un arreglo de fuentes, así que pasar de cuatro a diez solo requirió cambios en el \texttt{main}. Con las posiciones y los colores en dos arreglos, la configuración se cambia editando una tabla, y el teclado permite estudiar cada fuente sin recompilar. Como cada fuente tiene su propio color, en la imagen se distingue qué aporta cada una.
+    \item \textbf{Desventajas:} Cada fragmento evalúa las diez fuentes aunque la mayoría aporte poco, así que el costo del \textit{fragment shader} crece con cada fuente. El límite de 10 está fijo en \texttt{MAX\_LIGHTS} y una fuente más exigiría modificar el \textit{shader}. Como la atenuación usa una distancia fija, todas las fuentes iluminan toda la escena con la misma intensidad, y la suma ambiental obliga a bajar la potencia conforme se agregan fuentes. El modelo tampoco calcula sombras, y la luz atraviesa la casa (Figura \ref{fig:exp_una}).
 \end{itemize}
 
+% ------------------------------------------------------------------------------
+\subsection{Resultados de las pruebas del laboratorio}
+En el laboratorio comprobamos que las fuentes de color se suman canal por canal: con una luz roja, una verde y una azul en la misma proporción, la casa se ve gris (Experimento 1). Con la textura, la luz solo tiñe la madera y el pasto. En la esfera, cada lado toma el color de la fuente que tiene enfrente, y al bajar la potencia o subir el exponente especular los brillos se separan y se hacen más pequeños. Los coeficientes de la tabla de materiales bastaron para reproducir la esmeralda y el rubí. En el programa de Fresnel, el índice de refracción determinó cuánto se deforma el fondo y \texttt{\_Bias} la proporción entre reflejo y refracción; con un valor de 1 la esfera se volvió un espejo.
 \subsection{Resultados de la Actividad 2}
 % Describir resultados y capturas para la Actividad 2:
 \textit{Describir detalladamente los resultados obtenidos en la segunda actividad y referenciar sus figuras correspondientes...}
