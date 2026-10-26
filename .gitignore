@@ -333,5 +333,9 @@ TSWLatexianTemp*
 #Configuraciones locales del editor
 .vscode/
 
-#Ignore Markdown files
+#Ignore Markdown files and python files
 *.md
+#*.py
+
+#Exclude build folder
+Practicas/P8/build/*

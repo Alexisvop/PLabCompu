@@ -16,22 +16,23 @@
 \section{Metodología}
 
 \subsection{Configuración del entorno de trabajo}
-Para el desarrollo de la práctica se utilizó un entorno de desarrollo estructurado en C++ configurado con soporte para OpenGL moderno. En la Tabla \ref{tab:requerimientos} se detallan las herramientas, bibliotecas y componentes del sistema empleados.
+El entorno de entrega acordado para el equipo es Windows con Visual Studio 2026. Para el programa de la Actividad 3 trabajamos con C++17 y OpenGL 3.3 Core. En la Tabla \ref{tab:requerimientos} se distingue el entorno previsto para la entrega de las herramientas utilizadas en el desarrollo del toroide.
 
 \begin{table}[H]
 \centering
 \renewcommand{\arraystretch}{1.25}
 \begin{tabular}{|p{4.2cm}|p{10.5cm}|}
 \hline
-\textbf{Elemento} & \textbf{Especificación / Versión empleada} \\ \hline
-Sistema operativo & Linux / Windows 11 (64 bits) \\ \hline
-Entorno de desarrollo & Visual Studio Code / Microsoft Visual Studio \\ \hline
-Compilador y estándar & GCC / MSVC (soporte para \texttt{C++20}) \\ \hline
-API gráfica & OpenGL 3.3 (Perfil Core) \\ \hline
-Bibliotecas principales & GLFW (manejo de ventanas y eventos), GLAD (cargador de funciones), GLM (matemáticas vectoriales y matriciales), Assimp (carga de modelos 3D) \\ \hline
-Hardware de prueba & Tarjeta gráfica compatible con OpenGL 3.3 Core \\ \hline
+\textbf{Elemento} & \textbf{Configuración} \\ \hline
+Sistema operativo de entrega & Windows \\ \hline
+Entorno de desarrollo para la entrega & Visual Studio 2026 \\ \hline
+Lenguaje del programa del toroide & C++17 \\ \hline
+API gráfica del programa & OpenGL 3.3 (perfil Core) \\ \hline
+Modelado & Blender 5.2: geometría, normales y coordenadas UV \\ \hline
+Bibliotecas utilizadas & GLFW (ventana y entrada), GLAD (funciones OpenGL), GLM (operaciones matemáticas), Assimp (lectura de FBX) y \texttt{stb\_image} (lectura de imágenes) \\ \hline
+Requisito gráfico & Tarjeta gráfica y controlador compatibles con OpenGL 3.3 Core \\ \hline
 \end{tabular}
-\caption{Requerimientos de hardware, software y bibliotecas utilizadas.}
+\caption{Entorno previsto de entrega y herramientas utilizadas en la Actividad 3.}
 \label{tab:requerimientos}
 \end{table}
 
@@ -86,3 +87,89 @@ material.diffuse = glm::vec4(0.75164f, 0.60648f, 0.22648f, 1.0f);
 material.specular = glm::vec4(0.628281f, 0.555802f, 0.366065f, 1.0f);
 material.transparency = 1.0f;
 \end{lstlisting}
+
+\subsection{Actividad 3: Toroide texturizado con iluminación Phong}
+\label{sec:act3_metodologia}
+
+En esta actividad desarrollamos un segundo programa, independiente de la escena anterior, para mostrar un toroide con una textura y comprobar cómo cambia su apariencia al aplicar iluminación Phong. Utilizamos un tablero de ajedrez porque sus cuadros permiten reconocer con facilidad la orientación y la repetición de la textura. El alcance del programa documentado es la carga del toroide, el mapeo de textura y la iluminación; no incluye todavía las seis variantes de material indicadas en el manual.
+
+\subsubsection{Modelado y preparación de las coordenadas UV}
+
+Primero creamos el toroide en Blender con un radio mayor de $1.0$ y un radio menor de $0.35$. Usamos 64 segmentos alrededor del anillo y 32 alrededor del tubo. Con esta configuración obtuvimos 2048 vértices y, después de triangular la malla, 4096 triángulos. Aplicamos sombreado suave y comprobamos que las normales apuntaran hacia afuera y que la superficie estuviera cerrada.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.58\textwidth]{Imagenes/act3_modelo_blender.png}
+    \caption{Vista del toroide texturizado en Blender antes de utilizarlo en el programa OpenGL. La iluminación de esta vista corresponde a la escena de Blender.}
+    \label{fig:act3_modelo_blender}
+\end{figure}
+
+La forma del toroide, antes del cambio de ejes de la exportación, puede describirse mediante la siguiente parametrización:
+\begin{equation}
+    \mathbf{p}(\theta,\varphi)=
+    \begin{pmatrix}
+        (R+r\cos\varphi)\cos\theta \\
+        (R+r\cos\varphi)\sin\theta \\
+        r\sin\varphi
+    \end{pmatrix},
+    \qquad 0\leq\theta,\varphi<2\pi.
+    \label{eq:act3_toroide}
+\end{equation}
+Aquí $R$ representa el radio del anillo y $r$ el radio del tubo. Esta expresión explica la geometría utilizada; el modelo se creó en Blender, no mediante un generador de vértices en C++.
+
+La Figura \ref{fig:act3_modelo_blender} muestra el modelo preparado en Blender. Después revisamos las coordenadas UV, que relacionan cada punto de la superficie con una posición dentro de la imagen. El mapa ocupa el intervalo de 0 a 1 en ambas direcciones y no presenta triángulos UV de área nula. Asignamos una imagen PNG de $512\times512$ píxeles con 16 cuadros en una dirección y 8 en la otra. El mapa y la imagen se presentan en la Figura \ref{fig:act3_textura}. La diferencia de tamaño aparente entre los cuadros del interior y del exterior del toroide es esperable por la forma de la superficie; no implica, por sí sola, un error en las UV.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[t]{0.38\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Imagenes/act3_mapa_uv.png}
+        \par\small (a) Mapa UV de la malla triangulada.
+    \end{minipage}\hspace{0.04\textwidth}
+    \begin{minipage}[t]{0.38\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Imagenes/act3_tablero_uv.png}
+        \par\small (b) Textura PNG de tablero.
+    \end{minipage}
+    \caption{Distribución UV exportada desde Blender y textura utilizada para comprobar su aplicación sobre el toroide.}
+    \label{fig:act3_textura}
+\end{figure}
+
+Guardamos la escena en formato \texttt{.blend} y exportamos únicamente la malla del toroide a \texttt{.fbx}, con sus normales y coordenadas UV. La textura se conservó como un archivo PNG externo, referenciado mediante una ruta relativa. De esta manera, el programa no depende de los nodos de material de Blender para reconstruir la apariencia.
+
+\subsubsection{Carga del modelo y de la textura}
+
+En el programa utilizamos Assimp para leer el FBX, triangular sus caras y aplicar las transformaciones de sus nodos. Comprobamos que la malla incluyera posiciones, normales y UV antes de enviarla a la tarjeta gráfica. También ajustamos la escala de importación para conservar las dimensiones del modelo: $2.7\times0.7\times2.7$ unidades, ya con el eje vertical utilizado por el programa.
+
+Organizamos cada vértice con tres atributos: posición, normal y coordenada de textura. Los almacenamos en un VBO, configuramos sus ubicaciones 0, 1 y 2 en el VAO y guardamos los índices de los triángulos en un EBO. Así pudimos dibujar la malla mediante \texttt{glDrawElements}, sin enviar nuevamente toda la geometría en cada cuadro.
+
+La imagen se leyó con \texttt{stb\_image}. El programa distingue imágenes RGB y RGBA y configura la alineación de lectura antes de subir sus píxeles. Usamos repetición en las dos direcciones y filtrado con mipmaps para reducir las variaciones bruscas cuando los cuadros se ven pequeños. El siguiente fragmento muestra la configuración principal:
+
+\begin{lstlisting}[language=C++, caption={Repetición, filtrado y asociación del sampler con la unidad de textura 0.}, label={lst:act3_textura}]
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                GL_LINEAR_MIPMAP_LINEAR);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+glUniform1i(program.uniform("texture_diffuse1"), 0);
+\end{lstlisting}
+
+Antes de dibujar, activamos la unidad de textura 0 y enlazamos la imagen correspondiente. En el fragment shader, el uniform \texttt{texture\_diffuse1}, de tipo \texttt{sampler2D}, permite obtener el color de la imagen a partir de las UV interpoladas.
+
+\subsubsection{Transformaciones e iluminación}
+
+El vertex shader transforma la posición mediante las matrices de modelo, vista y proyección. Para las normales utilizamos la matriz $N=(M^{-1})^{T}$, considerando la parte $3\times3$ de la matriz de modelo. Las posiciones, las normales, la fuente de luz y la cámara se expresan en coordenadas de mundo para que el cálculo de iluminación sea consistente.
+
+Configuramos una luz blanca en $(2.5,4.0,3.0)$ y un material con coeficientes ambiental de $0.18$, difuso de $0.85$, especular de $0.45$ y exponente de brillo de $64$. El shader combina la textura con las componentes ambiental y difusa, mientras que la componente especular produce el brillo de la superficie. En forma resumida, el cálculo en espacio lineal es:
+\begin{equation}
+    \mathbf{C}=\mathbf{k}_a\odot\mathbf{T}
+    +a(d)\,\mathbf{L}_c\odot
+    \left[\mathbf{k}_d\odot\mathbf{T}\max(\mathbf{n}\cdot\mathbf{l},0)
+    +\mathbf{k}_s\max(\mathbf{e}\cdot\mathbf{r},0)^s\right].
+    \label{eq:act3_phong}
+\end{equation}
+En esta expresión, $\mathbf{T}$ es el color de la textura; $\mathbf{n}$, la normal; $\mathbf{l}$, la dirección hacia la luz; $\mathbf{e}$, la dirección hacia la cámara; y $\mathbf{r}$, el vector reflejado. El símbolo $\odot$ indica una multiplicación por componente. El brillo especular se calcula solo cuando la superficie recibe luz, y la atenuación utilizada es $a(d)=1/(1+0.05d+0.01d^2)$. Finalmente se aplica la conversión de color para mostrar el resultado en pantalla.
+
+\subsubsection{Controles básicos}
+
+Para realizar las comparaciones utilizamos la tecla \texttt{1} para mostrar la textura sin iluminación, \texttt{2} para activar Phong y \texttt{T} para alternar entre repetición $1\times1$ y $4\times4$. La cámara se desplaza con \texttt{WASD} y se orienta manteniendo presionado el botón derecho del ratón. La tecla \texttt{Esc} cierra el programa.

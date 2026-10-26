@@ -35,3 +35,36 @@ Durante la primera ejecución ocurrió un fallo debido a una discrepancia en el 
 \subsection{Experimento 2: [Título o variación probada]}
 % Detallar los experimentos para la siguiente actividad o variante explorada.
 \textit{Describir aquí el segundo experimento realizado, sus variaciones y contrastes...}
+
+\subsection{Actividad 3: Variaciones de textura e iluminación del toroide}
+\label{sec:act3_experimentos}
+
+\subsubsection{Objetivo y condiciones de comparación}
+
+El objetivo fue comprobar por separado el efecto de repetir una textura y el efecto de iluminar la superficie. Para evitar que el cambio de cámara influyera en la comparación, mantuvimos el toroide en la misma posición y utilizamos una vista fija. Conservamos también la misma imagen, geometría, fuente de luz y parámetros del material. Las capturas finales tienen una resolución de $1024\times768$ píxeles.
+
+\subsubsection{Variación principal: repetición de la textura}
+
+Primero mostramos el toroide con iluminación Phong y repetición $1\times1$. Después cambiamos únicamente el valor del uniform \texttt{uvRepeat} a 4. El fragment shader multiplica las UV por este valor antes de consultar la imagen:
+
+\begin{lstlisting}[language=C, caption={Muestreo de la textura con un factor de repetición.}, label={lst:act3_repeticion}]
+vec4 texel = texture(texture_diffuse1, texCoords * uvRepeat);
+\end{lstlisting}
+
+Con \texttt{GL\_REPEAT}, los valores que salen del intervalo de 0 a 1 vuelven a recorrer la imagen. El valor 4 repite la textura cuatro veces en cada dirección, es decir, 16 veces en el dominio UV completo. Comparamos el tamaño aparente de los cuadros y revisamos si el patrón se mantenía sobre toda la superficie. Los resultados se presentan en la Figura \ref{fig:act3_comparacion_uv}.
+
+\subsubsection{Comparación adicional: textura sin iluminación y con Phong}
+
+Para esta prueba dejamos la repetición en $1\times1$. Primero desactivamos el cálculo de iluminación y mostramos solamente el color muestreado de la imagen. Luego activamos Phong sin modificar la cámara ni la textura. Observamos las zonas claras y oscuras, así como la aparición del brillo especular. Esta comparación permite distinguir el patrón dibujado en la imagen del sombreado producido por la luz. Las dos vistas aparecen en la Figura \ref{fig:act3_comparacion_luz}.
+
+\subsubsection{Pruebas exitosas}
+
+Además de las comparaciones visuales, verificamos la lectura del FBX, la presencia de normales y UV y la validez de los índices de la malla. Probamos imágenes RGB y RGBA de $7\times5$ píxeles para comprobar la transferencia de datos cuando la anchura de una fila RGB no es múltiplo de cuatro. Ambas versiones, con el mismo contenido de color, produjeron capturas RGB iguales. Esta prueba comprueba la carga de los canales, pero no evalúa transparencia ni materiales de cristal.
+
+También ejecutamos una copia del programa con sus recursos desde una ubicación distinta. El modelo y la textura se cargaron correctamente. Como pruebas de error controlado, proporcionamos rutas inexistentes y un shader con sintaxis inválida; el programa informó el problema en lugar de continuar con una imagen incorrecta. Estos errores fueron provocados para revisar el manejo de fallos, no corresponden a las capturas finales.
+
+\subsubsection{Pruebas fallidas y correcciones realizadas}
+
+En la primera importación, las dimensiones leídas fueron $270\times70\times270$, cien veces mayores que las esperadas. Esto provocó que la cámara quedara demasiado cerca de la superficie y no se apreciara el toroide completo. Corregimos la conversión de centímetros a metros con un factor de $0.01$ aplicado a las posiciones importadas. Después del ajuste, las dimensiones fueron $2.7\times0.7\times2.7$ y el modelo quedó dentro del encuadre.
+
+Otra dificultad apareció al tomar las capturas: el cambio de tamaño de la ventana produjo imágenes con dimensiones distintas, lo que impedía compararlas directamente. Para resolverlo, dibujamos las vistas de prueba en un framebuffer de tamaño fijo antes de guardar sus píxeles. Así obtuvimos las cuatro combinaciones de iluminación y repetición con la misma resolución, sin cambiar la geometría ni los parámetros del material.

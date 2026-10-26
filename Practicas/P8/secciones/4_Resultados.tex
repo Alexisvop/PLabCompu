@@ -37,3 +37,70 @@ En la Actividad 1 se logró la representación gráfica correcta de la escena in
 \subsection{Resultados de la Actividad 2}
 % Describir resultados y capturas para la Actividad 2:
 \textit{Describir detalladamente los resultados obtenidos en la segunda actividad y referenciar sus figuras correspondientes...}
+
+\subsection{Resultados de la Actividad 3}
+\label{sec:act3_resultados}
+
+Logramos visualizar el toroide exportado desde Blender en un programa independiente, con su textura de tablero y una fuente de luz blanca. El resultado permite cambiar la repetición de la imagen sin modificar la malla y activar o desactivar el cálculo de Phong. La superficie se muestra cerrada y el patrón recorre tanto la parte exterior como la interior del anillo.
+
+\subsubsection{Efecto de la repetición UV}
+
+En la Figura \ref{fig:act3_comparacion_uv} se observa que la repetición $1\times1$ produce cuadros grandes, mientras que $4\times4$ genera un patrón más denso. La silueta y la posición del toroide permanecen iguales, por lo que la diferencia corresponde al muestreo de la textura y no a un aumento de polígonos. Cerca de la parte interior los cuadros se ven más pequeños por la parametrización y la perspectiva de la superficie.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Imagenes/act3_phong_1x1.png}
+        \par\small (a) Repetición $1\times1$.
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Imagenes/act3_phong_4x4.png}
+        \par\small (b) Repetición $4\times4$.
+    \end{minipage}
+    \caption{Comparación de la repetición de textura con la misma geometría, cámara e iluminación Phong.}
+    \label{fig:act3_comparacion_uv}
+\end{figure}
+
+\subsubsection{Efecto de la iluminación Phong}
+
+La Figura \ref{fig:act3_comparacion_luz} muestra que, sin iluminación, los cuadros conservan un color prácticamente uniforme y la sensación de volumen depende principalmente de la silueta y de la perspectiva del patrón. Al activar Phong aparecen transiciones de intensidad y pequeños brillos que hacen más evidente la curvatura del tubo. La textura sigue siendo la misma; lo que cambia es la respuesta de la superficie frente a la luz y a la posición de la cámara.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Imagenes/act3_sin_luz_1x1.png}
+        \par\small (a) Textura sin iluminación.
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Imagenes/act3_phong_1x1.png}
+        \par\small (b) Textura con Phong.
+    \end{minipage}
+    \caption{Cambio de apariencia al activar Phong, manteniendo la repetición de textura en $1\times1$.}
+    \label{fig:act3_comparacion_luz}
+\end{figure}
+
+También se obtuvo la vista sin iluminación con repetición $4\times4$, mostrada en la Figura \ref{fig:act3_sin_luz_4x4}. Esta imagen confirma que el aumento en la cantidad de cuadros no depende de Phong: el patrón cambia incluso cuando se desactiva la iluminación.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.48\textwidth]{Imagenes/act3_sin_luz_4x4.png}
+    \caption{Textura repetida $4\times4$ sin cálculo de iluminación.}
+    \label{fig:act3_sin_luz_4x4}
+\end{figure}
+
+\subsubsection{Verificación del modelo y del programa}
+
+La malla de Blender contiene 2048 vértices, mientras que la importada utiliza 2145. Esta diferencia se debe a que algunos puntos de la costura necesitan registros separados para conservar sus coordenadas UV, aunque compartan posición. En ambos casos se mantienen 4096 triángulos, por lo que no se agregó detalle geométrico durante la carga.
+
+Las cuatro pruebas automatizadas principales terminaron correctamente: verificación de recursos, lectura desde otro directorio, rechazo de argumentos inválidos y prueba del pipeline OpenGL. Esta última incluyó las capturas, las imágenes RGB y RGBA y los errores controlados descritos en la sección de experimentos.
+
+\subsubsection{Ventajas y limitaciones}
+
+\begin{itemize}
+    \item \textbf{Ventajas:} el modelo y la textura son recursos separados que pueden reutilizarse; el tablero facilita revisar las UV; y la comparación con la misma cámara permite identificar el efecto de la iluminación sin confundirlo con un cambio de geometría.
+    \item \textbf{Limitaciones:} Phong proporciona iluminación local, pero el programa no calcula sombras proyectadas, reflejos del entorno ni refracción. La distribución de cuadros no tiene el mismo tamaño físico en todo el toroide. Además, la textura utilizada es una prueba del pipeline y no representa todavía los materiales de mármol, madera, oro, bronce, cobre y cristal solicitados para completar la actividad del manual.
+\end{itemize}
