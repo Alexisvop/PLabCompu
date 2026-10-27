@@ -46,9 +46,51 @@ Las teclas numéricas apagan cualquier combinación de fuentes mientras corre el
 % ------------------------------------------------------------------------------
 \subsection{Resultados de las pruebas del laboratorio}
 En el laboratorio comprobamos que las fuentes de color se suman canal por canal: con una luz roja, una verde y una azul en la misma proporción, la casa se ve gris (Experimento 1). Con la textura, la luz solo tiñe la madera y el pasto. En la esfera, cada lado toma el color de la fuente que tiene enfrente, y al bajar la potencia o subir el exponente especular los brillos se separan y se hacen más pequeños. Los coeficientes de la tabla de materiales bastaron para reproducir la esmeralda y el rubí. En el programa de Fresnel, el índice de refracción determinó cuánto se deforma el fondo y \texttt{\_Bias} la proporción entre reflejo y refracción; con un valor de 1 la esfera se volvió un espejo.
+
+
 \subsection{Resultados de la Actividad 2}
-% Describir resultados y capturas para la Actividad 2:
-\textit{Describir detalladamente los resultados obtenidos en la segunda actividad y referenciar sus figuras correspondientes...}
+\label{sec:act2_resultados}
+
+En esta actividad aplicamos a tres objetos de la escena un material de la tabla de OpenGL \cite{devernay_materials}: oro a la esfera, esmeralda a la casa y hule rojo a la barda. En los tres casos el cambio fue en los coeficientes ambiental, difuso y especular de \texttt{material} (Tabla \ref{tab:act2_materiales}). En la casa y en la barda también tuvimos que quitar la textura del \textit{fragment shader}, como se explica en los experimentos de la Sección \ref{sec:act2_experimentos}. Con eso, cada objeto tomó el color de su material.
+
+\subsubsection{Esfera con material de oro}
+La Figura \ref{fig:res_esfera_oro} muestra la esfera con los valores del Listado \ref{lst:act2_oro}. Se ve de un amarillo dorado, con el lado iluminado más claro y el inferior un poco más oscuro, y con dos brillos de amarillo pálido sobre la parte frontal. El color sale de la componente difusa, donde el rojo (0.75) es mayor que el verde (0.61) y el azul casi no está (0.23). Los brillos no son blancos porque la componente especular también tiene más rojo y verde que azul. Al corregir el orden de los canales, la esfera dejó de verse violeta, que fue el error de la primera prueba.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth]{Imagenes/E2/05_esfera_oro.png}
+    \caption{Resultado final de la esfera con el material de oro.}
+    \label{fig:res_esfera_oro}
+\end{figure}
+
+\subsubsection{Casa con material de esmeralda}
+En la Figura \ref{fig:res_casa_esmeralda} la casa ya no muestra la madera. Después de quitar la textura y guardar los coeficientes del Listado \ref{lst:act2_esmeralda_casa}, sus caras se ven de color verde esmeralda. Esto se debe a que en la componente difusa el verde (0.61424) es mucho mayor que el rojo y el azul (0.07568), así que la casa refleja casi solo la parte verde de la luz. Como la especular es casi blanca, los reflejos se ven más claros que el resto de la superficie. A diferencia de la esfera, la casa tiene caras planas: cada cara recibe la luz con un solo ángulo, y por eso su color es más parejo que el de una superficie curva.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Imagenes/E2/03_casa_esmeralda.png}
+    \caption{Resultado final de la casa con el material de esmeralda y sin textura.}
+    \label{fig:res_casa_esmeralda}
+\end{figure}
+
+\subsubsection{Barda con material de hule rojo}
+La Figura \ref{fig:res_barda_hule} muestra la barda con el hule rojo del Listado \ref{lst:act2_hule_rojo}. Sin la textura, las tablas y los travesaños se ven de un rojo uniforme y mate, y ya no se notan las vetas de la madera. El rojo domina en los tres coeficientes: la ambiental solo tiene rojo (0.05, 0.0, 0.0), la difusa tiene el rojo apenas por encima del verde y el azul (0.5, 0.4, 0.4) y la especular es casi puramente roja (0.7, 0.04, 0.04). Por eso los reflejos de este material salen rojizos y no blancos, y la superficie tiene un aspecto más apagado que el oro o la esmeralda.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.42\textwidth]{Imagenes/E2/06_barda_hule_rojo.png}
+    \caption{Resultado final de la barda con el material de hule rojo y sin textura.}
+    \label{fig:res_barda_hule}
+\end{figure}
+
+\subsubsection{Comparación de los tres objetos}
+Los tres materiales usan el mismo modelo y las mismas cuatro propiedades, pero se ven distintos por la proporción entre sus canales. El oro y el hule rojo tienen un canal dominante en el rojo, pero el oro suma verde y por eso se ve amarillo; en el hule el verde y el azul son casi iguales, así que el color se queda en rojo. La esmeralda es verde porque ahí es el canal verde el que domina. En los tres casos los brillos tomaron el tono de la componente especular: amarillo pálido en el oro, casi blanco en la esmeralda y rojizo en el hule. Esto confirma que el aspecto de un material depende de los números de sus coeficientes y no solo de la luz que le llega.
+
+\subsubsection{Análisis de ventajas y desventajas}
+\begin{itemize}
+    \item \textbf{Ventajas:} Cambiar un material solo requirió escribir cuatro líneas en el \texttt{main}, sin tocar la geometría de los objetos. La tabla de materiales da valores listos, así que no hubo que ajustar colores a ojo. Además, al comparar los coeficientes con la imagen resultante se entiende qué aporta cada componente al color final.
+    \item \textbf{Desventajas:} Si un objeto tiene textura, su color multiplica al del material y puede ocultarlo, como pasó en la casa y la barda; por eso hubo que quitarla. El programa no usa el \textit{shininess} de la tabla, porque \texttt{material} no tiene ese campo y el tamaño del brillo lo da el \texttt{alphaIndex} de las fuentes. Entonces el hule rojo, que en la tabla casi no brilla, y la esmeralda se ven con un brillo parecido. Un error al capturar los valores, como el de la primera prueba de la esfera, cambia el color por completo y no se detecta al compilar, solo al ver la imagen. Por último, el modelo de Phong no calcula sombras ni reflejos del entorno, así que los materiales se ven de forma local, sin reflejar los objetos que los rodean.
+\end{itemize}
 
 \subsection{Resultados de la Actividad 3}
 \label{sec:act3_resultados}
