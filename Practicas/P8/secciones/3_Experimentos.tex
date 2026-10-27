@@ -230,9 +230,120 @@ Durante la primera ejecución ocurrió un fallo debido a una discrepancia en el 
 %    \label{fig:error_exp1}
 %\end{figure}
 
-\subsection{Experimento 2: [Título o variación probada]}
-% Detallar los experimentos para la siguiente actividad o variante explorada.
-\textit{Describir aquí el segundo experimento realizado, sus variaciones y contrastes...}
+\subsection{Actividad 2: Objetos con meteriales}
+\label{sec:act2_experimentos}
+
+\subsubsection{Objetivo y condiciones de comparación}
+Comprobar cómo cambia la apariencia de un objeto al modificar los coeficientes ambiental, difuso y especular de \texttt{material}, usando los valores de la tabla de materiales de OpenGL. Probamos tres objetos de la escena: la esfera (\texttt{Sphere.fbx}) con el material de oro, la casa con el de esmeralda y la barda con el de hule rojo. Para cada objeto cambiamos únicamente las líneas de la configuración de propiedades materiales y, cuando fue necesario, la salida del \textit{fragment shader} para quitar la textura. La Tabla \ref{tab:act2_materiales} resume los materiales.
+
+\begin{table}[H]
+    \centering
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{|l|l|c|c|c|c|}
+        \hline
+        \textbf{Objeto} & \textbf{Material} & \textbf{Ambiental} & \textbf{Difusa} & \textbf{Especular} & \textbf{Shininess} \\
+        \hline
+        Esfera & oro & (0.24725, 0.1995, 0.0745) & (0.75164, 0.60648, 0.22648) & (0.628281, 0.555802, 0.366065) & 0.4 \\
+        \hline
+        Casa & esmeralda & (0.0215, 0.1745, 0.0215) & (0.07568, 0.61424, 0.07568) & (0.633, 0.727811, 0.633) & 0.6 \\
+        \hline
+        Barda & hule rojo (\textit{red rubber}) & (0.05, 0.0, 0.0) & (0.5, 0.4, 0.4) & (0.7, 0.04, 0.04) & 0.078125 \\
+        \hline
+    \end{tabular}}
+    \caption{Materiales aplicados a los tres objetos, tomados de la tabla de materiales de OpenGL.}
+    \label{tab:act2_materiales}
+\end{table}
+
+La tabla trae también un \textit{shininess} para cada material, pero la estructura \texttt{material} de nuestro programa solo tiene los coeficientes ambiental, difuso y especular y la transparencia. El tamaño del brillo lo controla el \texttt{alphaIndex} de cada fuente, como vimos en el experimento 4, por lo que en los tres objetos copiamos solo los coeficientes de color.
+
+% ------------------------------------------------------------------------------
+\subsubsection{Experimento del Objeto 1: esfera (\texttt{Sphere.fbx}), material de oro}
+
+\paragraph{Objetivo.}
+Reproducir el material de oro sobre la esfera y comprobar que el color final depende de la proporción entre los canales rojo, verde y azul de cada coeficiente.
+
+\paragraph{Pruebas fallidas y análisis de errores.}
+En el primer intento escribimos mal los valores RGB del material: los canales no quedaron en la proporción de la tabla. La esfera salió de color violeta azulado en lugar de dorado, con dos brillos claros casi blancos (Figura \ref{fig:act2_esfera_fallida}).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth]{Imagenes/E2/01_esfera_morada.png}
+    \caption{Esfera con el material de oro mal capturado: domina el canal azul y el resultado es violeta en lugar de dorado.}
+    \label{fig:act2_esfera_fallida}
+\end{figure}
+
+El color de cada punto de la esfera es el producto, canal por canal, entre el color de la luz y el coeficiente del material. Por eso el matiz lo decide la proporción entre los tres canales y no el valor de uno solo. El oro necesita el rojo mayor que el verde y el azul muy por debajo (0.75, 0.61 y 0.23 en la difusa). Al colocar mal los valores, el azul quedó como canal dominante y la esfera se vio azul violeta. Los brillos, que dependen del coeficiente especular, también perdieron su tono cálido. El error no estaba en el \textit{shader} ni en las luces, sino en los datos del material. Lo corregimos copiando los tres coeficientes en el orden (R, G, B) de la tabla.
+
+\paragraph{Pruebas exitosas.}
+Con los valores del oro de la tabla (Listado \ref{lst:act2_oro}) la esfera se vio amarillo dorado, con dos brillos amarillo claro. El color sale de la proporción rojo $>$ verde $\gg$ azul de la componente difusa, que da un amarillo anaranjado. La especular (0.63, 0.56, 0.37) tiene la misma tendencia, y por eso los brillos son de un amarillo pálido y no blancos, como en la esmeralda del experimento 5.
+
+\begin{lstlisting}[language=C++, caption={Material de oro tomado de la tabla de materiales.}, label={lst:act2_oro}]
+material.ambient = glm::vec4(0.24725f, 0.1995f, 0.0745f, 1.0f);
+material.diffuse = glm::vec4(0.75164f, 0.60648f, 0.22648f, 1.0f);
+material.specular = glm::vec4(0.628281f, 0.555802f, 0.366065f, 1.0f);
+material.transparency = 1.0f;
+\end{lstlisting}
+
+% ------------------------------------------------------------------------------
+\subsubsection{Experimento del Objeto 2: casa, material de esmeralda}
+
+\paragraph{Objetivo.}
+Aplicar el material de esmeralda de la tabla a la casa y comprobar que, sin la textura, el color de la superficie sale de los coeficientes del material y de las fuentes de luz.
+
+\paragraph{Pruebas fallidas y análisis de errores.}
+En el primer intento cambiamos los valores de \texttt{material} y compilamos, pero no quitamos la textura de la casa y los valores del material no quedaron guardados correctamente en el código. La casa siguió con su madera, con el mismo aspecto que en el experimento 2: el color de las fuentes aparece solo como un tinte sobre la textura, magenta en la pared derecha y verde en el terreno, y la cerca conserva su madera rojiza (Figura \ref{fig:act2_casa_fallida}). No se vio nada verde esmeralda ni el brillo claro del material.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth]{Imagenes/E2/02_casa_con_textura.png}
+    \caption{Casa con el material mal aplicado: conserva la textura de madera y solo se nota el tinte de las fuentes de color.}
+    \label{fig:act2_casa_fallida}
+\end{figure}
+
+La causa está en cómo el \textit{fragment shader} combina textura y color. Mientras la salida sea \texttt{FragColor = texel * ex\_color}, el color de la iluminación se multiplica canal por canal por el color de la imagen. Como la madera es marrón oscura, con el rojo mayor que el verde y el azul, esa multiplicación domina sobre el material. Aunque los coeficientes de la esmeralda se hubieran aplicado bien, el verde de \texttt{material.diffuse} se multiplicaría por un marrón y quedaría oscuro. Además, como los valores no se guardaron, el programa siguió usando el material anterior y la escena no cambió respecto al experimento 2.
+
+\paragraph{Pruebas exitosas.}
+Corregimos las dos cosas. Quitamos el texel de la salida del \textit{shader}, como en el experimento 1 (\texttt{FragColor = ex\_color}), y guardamos en el \texttt{main} los coeficientes de la esmeralda de la tabla (Listado \ref{lst:act2_esmeralda_casa}). Con eso la casa tomó el material de esmeralda, con un tono verde en lugar de la madera.
+
+\begin{lstlisting}[language=C++, caption={Material de esmeralda aplicado a la casa, tomado de la tabla de materiales.}, label={lst:act2_esmeralda_casa}]
+// Configuracion de propiedades materiales
+// Tabla: http://devernay.free.fr/cours/opengl/materials.html
+material.ambient = glm::vec4(0.0215f, 0.1745f, 0.0215f, 1.0f);
+material.diffuse = glm::vec4(0.07568f, 0.61424f, 0.07568f, 1.0f);
+material.specular = glm::vec4(0.633f, 0.727811f, 0.633f, 1.0f);
+material.transparency = 1.0f;
+\end{lstlisting}
+
+El verde se debe a la proporción entre canales: en la componente difusa el verde (0.61424) es unas ocho veces mayor que el rojo y el azul (0.07568). La especular (0.633, 0.727811, 0.633) es casi blanca con un poco de verde, así que los brillos se ven más claros que el cuerpo de la casa. Como el material refleja sobre todo el canal verde, una fuente roja o azul aporta poco a la casa, porque su luz se multiplica por 0.07568 en la difusa, mientras que una fuente verde o blanca sí se refleja con fuerza.
+
+% ------------------------------------------------------------------------------
+\subsubsection{Experimento del Objeto 3: barda, material de hule rojo}
+\paragraph{Objetivo.}
+Aplicar a la barda el material de hule rojo (\textit{red rubber}) de la tabla \cite{devernay_materials} y comprobar que un material opaco y mate cambia el color de la barda al quitarle la textura.
+
+\paragraph{Pruebas fallidas y análisis de errores.}
+En el primer intento seleccionamos la barda y cambiamos el material, pero no quitamos la textura. La barda se vio en tonos rojos oscuros, con el sombreado de la imagen de madera, y el terreno quedó rojo oscuro por la fuente roja (Figura \ref{fig:act2_barda_fallida}). No se distingue el color uniforme del hule ni su brillo especular rojizo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.40\textwidth]{Imagenes/E2/04_barda_con_textura.png}
+    \caption{Barda con el material de hule rojo sin quitar la textura: el color de la imagen sigue multiplicando al del material.}
+    \label{fig:act2_barda_fallida}
+\end{figure}
+
+La explicación es la misma que en la casa. Mientras la salida del \textit{fragment shader} sea \texttt{FragColor = texel * ex\_color}, el color de la imagen multiplica canal por canal al de la iluminación y el material. La madera es oscura, con el verde y el azul bajos, y reduce el aporte de los coeficientes del hule rojo, que son casi iguales en verde y azul (0.4, 0.4). El material sí estaba definido, pero la textura impedía verlo bien.
+
+\paragraph{Pruebas exitosas.}
+Quitamos la textura de la salida del \textit{shader} (\texttt{FragColor = ex\_color}) e importamos correctamente el material de hule rojo con los valores de la tabla (Listado \ref{lst:act2_hule_rojo}). La barda dejó de depender de la textura y tomó el color rojo del material. Esto se explica con los coeficientes: la ambiental (0.05, 0.0, 0.0) solo tiene rojo, la difusa (0.5, 0.4, 0.4) tiene el rojo apenas por encima del verde y el azul, y la especular (0.7, 0.04, 0.04) es casi puramente roja. Por eso los brillos de este material también salen rojizos y no blancos, a diferencia del plástico o de la esmeralda, cuyos brillos son claros.
+
+\begin{lstlisting}[language=C++, caption={Material de hule rojo aplicado a la barda, tomado de la tabla de materiales.}, label={lst:act2_hule_rojo}]
+// Configuracion de propiedades materiales
+// Tabla: http://devernay.free.fr/cours/opengl/materials.html
+material.ambient = glm::vec4(0.05f, 0.0f, 0.0f, 1.0f);
+material.diffuse = glm::vec4(0.5f, 0.4f, 0.4f, 1.0f);
+material.specular = glm::vec4(0.7f, 0.04f, 0.04f, 1.0f);
+material.transparency = 1.0f;
+\end{lstlisting}
 
 \subsection{Actividad 3: Variaciones de textura e iluminación del toroide}
 \label{sec:act3_experimentos}
