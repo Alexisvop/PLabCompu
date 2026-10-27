@@ -1,0 +1,23 @@
+% ==============================================================================
+% INTRODUCCIÓN
+% ==============================================================================
+% Instrucciones de la plantilla:
+% - Proporcionar un contexto claro sobre los objetivos, fundamentos teóricos y
+%   relevancia de la práctica realizada.
+% - Incluir explicación de los conceptos gráficos abordados en la práctica
+%   (ej: rasterización, transformaciones geométricas, algoritmos de dibujo,
+%   OpenGL/WebGL, shaders, etc.). Se recomienda usar la información investigada
+%   en los previos para elaborar esta sección.
+% - ES OBLIGATORIO incluir citas a fuentes bibliográficas en formato APA.
+%   Ejemplo: "De acuerdo con \cite{teodoro_vite}, el cómputo gráfico..."
+% ==============================================================================
+
+\section{Introducción}
+
+Un modelo de iluminación calcula el color de un punto de una superficie a partir de las propiedades del material, la posición del observador y las fuentes de luz de la escena \cite{hearn_baker}. En la práctica anterior trabajamos con el modelo de Phong para una sola fuente, que aproxima la luz reflejada como la suma de tres componentes: una ambiental, constante, que representa la luz que llega de manera indirecta; una difusa, que depende del ángulo entre la normal y la dirección a la luz, y una especular, que depende del ángulo entre la dirección del reflejo y la del observador y produce los brillos \cite{foley}.
+
+Las escenas reales casi nunca tienen una sola fuente. Como la luz es aditiva, el modelo de Phong se extiende a varias fuentes sumando la contribución de cada una \cite{learnopengl}. En un \textit{shader} esto se implementa con un arreglo de estructuras que describen cada fuente (posición, color, potencia y exponente especular) y un ciclo que acumula sus contribuciones en cada fragmento. El costo crece linealmente con el número de fuentes, y como la componente ambiental se suma una vez por fuente, hay que ajustar la potencia para que el resultado no se sature \cite{teodoro_vite}.
+
+El aspecto de un objeto depende tanto de la luz como del material. Los coeficientes ambiental, difuso y especular de materiales reales, como metales, plásticos y piedras preciosas, se han tabulado para el modelo de Phong de OpenGL \cite{devernay_materials}; con ellos se puede reproducir, por ejemplo, el verde de una esmeralda o el rojo de un rubí. Para materiales transparentes o reflejantes, como el vidrio, el agua o el diamante, el modelo de Phong no es suficiente: la ecuación de Fresnel describe qué fracción de la luz se refleja y qué fracción se refracta según el ángulo de incidencia. En tiempo real se usa la aproximación de Schlick, que con un mapa de entorno (cubemap) permite simular estos materiales \cite{nvidia_cg}.
+
+En esta práctica combinamos fuentes de color sobre una casa y una esfera, variamos su potencia, color y exponente especular, aplicamos materiales de la tabla y exploramos el efecto Fresnel. Como actividad, construimos una escena con diez fuentes de luz, el máximo que admite el \textit{shader} del laboratorio, y analizamos cómo se combinan sus contribuciones.

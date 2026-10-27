@@ -1,0 +1,29 @@
+% ==============================================================================
+% RESUMEN / ABSTRACT
+% ==============================================================================
+% Instrucciones de la plantilla:
+% - Redactar en español e inglés (exactamente 1 párrafo para cada idioma).
+% - Contenido sugerido:
+%   * Objetivo principal de la práctica de laboratorio.
+%   * Metodología empleada y herramientas/bibliotecas utilizadas.
+%   * Principales resultados alcanzados y aprendizajes obtenidos.
+% ==============================================================================
+
+\begin{abstract}
+En esta práctica extendimos el modelo de iluminación de Phong a varias fuentes de luz con OpenGL 3.3. En el laboratorio combinamos hasta cuatro fuentes de color sobre una casa y una esfera, variamos la potencia, el color y el exponente especular, aplicamos materiales de la tabla de materiales de OpenGL (esmeralda y rubí) con transparencia y exploramos el efecto Fresnel con distintos índices de refracción. Como actividad, construimos una escena con diez fuentes puntuales de distinto color alrededor de la casa, el máximo que admite el \textit{shader}, y agregamos controles para encender y apagar cada una en tiempo de ejecución. Para evitar que la suma de las diez contribuciones saturara la imagen, redujimos la potencia de cada fuente a la mitad. El resultado muestra el carácter aditivo de la luz en el modelo de Phong y sus limitaciones: el costo crece con cada fuente y, al ser un modelo local, no produce sombras.
+
+\vspace{0.3cm}
+\noindent\textbf{Palabras clave:} Modelos de iluminación, Phong, múltiples fuentes de luz, materiales, Fresnel, shaders, OpenGL.
+\end{abstract}
+
+\vspace{0.5cm}
+
+\renewcommand{\abstractname}{Abstract}
+\begin{abstract}
+In this lab we extended the Phong illumination model to multiple light sources using OpenGL 3.3. During the session we combined up to four colored lights on a house and a sphere, varied the power, color, and specular exponent, applied materials from the OpenGL materials table (emerald and ruby) with transparency, and explored the Fresnel effect with different refractive indices. As the assigned activity, we built a scene with ten differently colored point lights around the house, the maximum the shader supports, and added controls to switch each one on and off at run time. To keep the sum of the ten contributions from saturating the image, we halved the power of each light. The result shows the additive nature of light in the Phong model and its limitations: the cost grows with each light and, being a local model, it produces no shadows.
+
+\vspace{0.3cm}
+\noindent\textbf{Keywords:} Illumination models, Phong, multiple light sources, materials, Fresnel, shaders, OpenGL.
+\end{abstract}
+
+\vspace{0.6cm}
