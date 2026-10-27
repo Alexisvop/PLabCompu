@@ -267,8 +267,38 @@ En la primera importación, las dimensiones leídas fueron $270\times70\times270
 
 Otra dificultad apareció al tomar las capturas: el cambio de tamaño de la ventana produjo imágenes con dimensiones distintas, lo que impedía compararlas directamente. Para resolverlo, dibujamos las vistas de prueba en un framebuffer de tamaño fijo antes de guardar sus píxeles. Así obtuvimos las cuatro combinaciones de iluminación y repetición con la misma resolución, sin cambiar la geometría ni los parámetros del material.
 
-\subsection{Actividad 4}
-ada
+\subsection{Actividad 4: ajuste de los materiales}
+\label{sec:act4_experimentos}
+
+\subsubsection{Objetivo del experimento}
+
+Conseguir que cada toroide se reconozca como su material a simple vista, con la misma cámara, las mismas dos fuentes y el mismo entorno para los seis.
+
+\subsubsection{Pruebas fallidas y análisis de errores}
+
+La primera versión cargaba \texttt{toroide.fbx} y se cerraba con una violación de segmento antes de abrir la ventana. Con mensajes de depuración vimos que el fallo ocurría dentro del constructor de \texttt{Model}. Al ejecutar el programa de la actividad 3 con la misma versión de Assimp, este sí avisó: ``El modelo no contiene normales o UV''. La clase del laboratorio lee \texttt{mNormals} sin revisar que exista, así que con un arreglo nulo el programa truena. Lo resolvimos exportando el toroide a OBJ desde Blender (Sección \ref{sec:act4_metodologia}).
+
+
+Con el coeficiente de reflejo del oro en 0.45 el toroide se veía casi blanco en la parte de arriba, porque el cielo del cubemap es muy claro y se sumaba encima del difuso y del especular. Lo bajamos a 0.30 y el amarillo se recuperó. En la primera versión de la textura de mármol el exponente de las vetas era 0.35 y salían manchas grises anchas que parecían nubes; con 0.18 las vetas quedaron delgadas.
+
+\subsubsection{Pruebas exitosas}
+
+Con los valores finales de la Tabla \ref{tab:act4_materiales}, el mármol y la madera se distinguen por su textura, y los tres metales por su color y por qué tan concentrado es el brillo. El cristal deja ver el fondo deformado a través del tubo. Los resultados están en la Sección \ref{sec:act4_resultados}.
 
 \subsection{Variaciones}
-ada
+\label{sec:var_experimentos}
+
+\subsubsection{Variación de la actividad 1: fuentes en órbita}
+
+Con las diez fuentes encendidas presionamos \texttt{O}, dejamos girar las luces unos tres segundos y volvimos a presionar \texttt{O} para detenerlas. Comparamos la escena con la posición inicial (Figura \ref{fig:var1}).
+\subsubsection{Variación de la actividad 2}
+
+Pusimos la esfera y la mesa delante de la casa para que hubiera algo detrás de cada plástico. Tomamos una captura con los plásticos opacos y presionamos \texttt{P} sin mover la cámara (Figura \ref{fig:var2}). El orden de dibujo importa: con mezcla alfa el color de un objeto translúcido se combina con lo que ya hay en el buffer, así que si los plásticos se dibujaran antes que la casa, la casa no se vería a través de ellos.
+
+\subsubsection{Variación de la actividad 3: filtrado de textura}
+
+Con la repetición en $4\times4$ casi no hubo diferencia entre los dos filtros, porque cada cuadro del tablero ocupa muchos píxeles en pantalla. Subimos la repetición a $16\times16$ y bajamos la cámara para ver el toroide de lado. Así cada cuadro queda más chico que un píxel en la parte de atrás del anillo, que es donde se nota el filtrado. Tomamos una captura con mipmaps y otra con \texttt{GL\_NEAREST} desde la misma posición (Figura \ref{fig:var3}).
+
+\subsubsection{Variación de la actividad 4: materiales sin textura}
+
+Con los seis toroides en pantalla pausamos el giro con \texttt{Espacio} y presionamos \texttt{T}. Los parámetros de Phong, el reflejo y la cámara no cambian; solo deja de multiplicarse el color de la textura (Figura \ref{fig:var4}).

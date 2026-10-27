@@ -118,6 +118,93 @@ Las cuatro pruebas automatizadas principales terminaron correctamente: verificac
 \end{itemize}
 
 \subsection{Resultados de la Actividad 4}
-ada
+\label{sec:act4_resultados}
+
+La Figura \ref{fig:act4_resultado} muestra los seis materiales con la misma iluminación. Arriba están el mármol, la madera y el oro; abajo, el bronce, el cobre y el cristal.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{Imagenes/E4/materiales_con_textura.png}
+    \caption{Toroides de mármol, madera y oro (arriba) y de bronce, cobre y cristal (abajo).}
+    \label{fig:act4_resultado}
+\end{figure}
+
+El mármol es el más claro y tiene el brillo más pequeño y definido ($q = 96$); las vetas siguen la curvatura del tubo y se ven bien en la parte interior. En la madera los anillos corren a lo largo del tubo y el brillo casi no aparece, que es lo que se espera de una madera sin barniz. Los metales se reconocen sobre todo por el color del reflejo. En el oro el brillo es más angosto que en el bronce y en el cobre, como corresponde a su exponente mayor (51.2 contra 25.6 y 12.8), y el rayado del metal cepillado solo se nota de cerca. El cristal es el único que no depende de Phong para verse: a través del tubo se ve el pasto deformado por la refracción, y en los bordes aparece el cielo reflejado, como predice la Ecuación \ref{eq:schlick}.
+
+\subsubsection{Ventajas y limitaciones}
+
+Con un solo shader y seis juegos de parámetros salen materiales muy distintos, y agregar otro es solo agregar una fila a la tabla. Pero el reflejo viene de un cubemap fijo: los toroides no se reflejan entre sí, y el cristal no muestra a los otros toroides detrás de él. Tampoco hay sombras. Los valores de mármol y madera los ajustamos a ojo y no salen de una medición.
+
 \subsection{Resultados de las variaciones}
-adaa
+\label{sec:var_resultados}
+
+\subsubsection{Actividad 1: fuentes en órbita}
+
+Después de girar, las manchas de color cambiaron de lugar en el terreno y en la casa (Figura \ref{fig:var1}). Al inicio el rojo y el naranja quedaban al frente, a la izquierda, y el verde a la derecha. Después de la órbita el verde pasó al lado izquierdo y el rojo al derecho. La casa no se movió: el cambio de color viene solo de la nueva posición de cada fuente, porque $\mathbf{l}_i$ en la Ecuación \ref{eq:phong_multi} depende de ella.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Imagenes/Variaciones/v1_inicial.png}
+        \par\small (a) Posición inicial.
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Imagenes/Variaciones/v1_girada.png}
+        \par\small (b) Después de la órbita.
+    \end{minipage}
+    \caption{Variación de la actividad 1: las diez fuentes antes y después de girar alrededor de la casa.}
+    \label{fig:var1}
+\end{figure}
+
+\subsubsection{Actividad 2}
+
+Con los plásticos opacos, la esfera roja tiene dos brillos blancos pequeños, uno por cada fuente, y la casa no tiene ninguno porque su especular es casi cero. Esa diferencia es lo que separa un plástico de un material mate. Con transparencia de 0.45 se ven la pared de la casa y el pasto a través de la esfera y de la mesa (Figura \ref{fig:var2}). En la esfera también se alcanza a ver su cara trasera, más clara, porque el programa no ordena los triángulos del mismo objeto.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Imagenes/Variaciones/v2_opacos.png}
+        \par\small (a) Plásticos opacos.
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Imagenes/Variaciones/v2_translucidos.png}
+        \par\small (b) Transparencia 0.45.
+    \end{minipage}
+    \caption{Variación de la actividad 2: casa opaca, esfera de plástico rojo y mesa de plástico verde.}
+    \label{fig:var2}
+\end{figure}
+
+\subsubsection{Actividad 3: filtrado de textura}
+
+Con \texttt{GL\_NEAREST} cada píxel toma el color de un solo texel. En la parte de atrás del anillo los cuadros miden menos de un píxel y aparecen patrones de moiré y bordes dentados en la silueta del tablero. Con mipmaps esa zona se ve gris parejo, porque OpenGL usa una versión reducida de la imagen que ya promedia el blanco y el negro (Figura \ref{fig:var3}). Al frente, donde los cuadros son grandes, los dos filtros se ven casi iguales. El costo de los mipmaps es la memoria extra (alrededor de un tercio más) y que de lejos la imagen pierde nitidez.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Imagenes/Variaciones/v3_mipmaps.png}
+        \par\small (a) Mipmaps, filtrado trilineal.
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Imagenes/Variaciones/v3_nearest.png}
+        \par\small (b) \texttt{GL\_NEAREST}.
+    \end{minipage}
+    \caption{Variación de la actividad 3: el tablero repetido $16\times16$ con los dos filtros.}
+    \label{fig:var3}
+\end{figure}
+
+\subsubsection{Actividad 4: materiales sin textura}
+
+Sin textura, el mármol y la madera quedaron como dos toroides blancos casi iguales (Figura \ref{fig:var4}); solo se diferencian en el brillo, que en la madera casi no existe. Los metales cambiaron poco porque su color viene de los coeficientes de la tabla y del reflejo; solo perdieron el rayado. El cristal quedó igual porque no usa textura. Con esto se ve qué parte de cada material sale de la imagen y qué parte de los parámetros de iluminación.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{Imagenes/E4/materiales_sin_textura.png}
+    \caption{Variación de la actividad 4: los mismos materiales sin la información de textura.}
+    \label{fig:var4}
+\end{figure}
