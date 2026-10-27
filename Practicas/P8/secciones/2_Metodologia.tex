@@ -306,8 +306,101 @@ donde $k_{a,i} = M_a \odot C_i$, $k_{d,i} = M_d \odot C_i$ y $k_{s,i} = M_s \odo
 
 Para realizar las comparaciones utilizamos la tecla \texttt{1} para mostrar la textura sin iluminación, \texttt{2} para activar Phong y \texttt{T} para alternar entre repetición $1\times1$ y $4\times4$. La cámara se desplaza con \texttt{WASD} y se orienta manteniendo presionado el botón derecho del ratón. La tecla \texttt{Esc} cierra el programa.
 
-\subsection{Actividad 4}
-ada
+\subsection{Actividad 4: seis materiales sobre el toroide}
+\label{sec:act4_metodologia}
+
+El manual pide un segundo programa que combine el modelo de iluminación con información de textura para crear seis materiales: mármol, madera, oro, bronce, cobre y cristal, usando un toroide como geometría. Partimos del toroide que Alexis modeló en Blender para la actividad 3 y escribimos el programa \texttt{08\_Materiales.cpp} sobre la base del laboratorio (clases \texttt{Shader}, \texttt{Model}, \texttt{Camera} y \texttt{CubeMap}), para poder compilarlo con el mismo proyecto de Visual Studio de la práctica.
+
+\subsubsection{Modelo}
+
+Al cargar \texttt{toroide.fbx} con la clase \texttt{Model} el programa se cerraba sin mensaje. La versión de Assimp del laboratorio no leía las normales del FBX exportado con Blender 5, y la clase \texttt{Model} las usa sin revisar si existen. Abrimos \texttt{toroide.blend} en Blender 5.2 y exportamos la misma malla a OBJ con normales y coordenadas UV. El archivo tiene los mismos 2048 vértices; solo cambió el formato.
+
+\subsubsection{Texturas}
+
+Para el mármol, la madera y los metales generamos tres imágenes de $512\times512$ por procedimiento, con ruido de valor periódico, de modo que las imágenes se repiten sin costura alrededor del toroide (Figura \ref{fig:act4_texturas}):
+
+\begin{itemize}
+    \item Mármol: vetas grises sobre fondo blanco. Las vetas salen de $|\sin(2\pi(2u+v) + 6\,t(u,v))|^{0.18}$, donde $t$ es una turbulencia de cinco octavas que deforma las líneas.
+    \item Madera: anillos claros y oscuros a lo largo de $v$, desplazados con turbulencia, más fibras finas en la otra dirección.
+    \item Metal cepillado: rayas finas casi blancas (entre 0.78 y 1.0). No da color; se multiplica por el color del metal y solo agrega el rayado.
+\end{itemize}
+
+El cristal no usa imagen: su apariencia sale del entorno.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[t]{0.31\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Imagenes/E4/marmol.png}
+        \par\small (a) Mármol.
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.31\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Imagenes/E4/madera.png}
+        \par\small (b) Madera.
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.31\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Imagenes/E4/metal_cepillado.png}
+        \par\small (c) Metal cepillado.
+    \end{minipage}
+    \caption{Texturas generadas para la actividad 4.}
+    \label{fig:act4_texturas}
+\end{figure}
+
+\subsubsection{Shader}
+
+El fragment shader \texttt{08\_materiales.fs} calcula Phong con dos fuentes blancas, una principal y una de relleno más tenue. El color de la textura multiplica las componentes ambiental y difusa, y la especular se queda con el color del material, porque el brillo de una superficie barnizada o pulida no toma el color de la veta. Además se consulta el cubemap en la dirección reflejada $\mathbf{r} = \text{reflect}(-\mathbf{v}, \mathbf{n})$. En los materiales opacos ese reflejo se suma escalado por un coeficiente \texttt{reflectivity} y teñido con el color especular; así el oro refleja el cielo en amarillo y el cobre en rojizo.
+
+Para el cristal usamos la aproximación de Schlick del efecto Fresnel, la misma idea que en la práctica 14:
+\begin{equation}
+    F = F_0 + (1 - F_0)(1 - \mathbf{n}\cdot\mathbf{v})^5, \qquad F_0 = \left(\frac{1 - \eta}{1 + \eta}\right)^2
+    \label{eq:schlick}
+\end{equation}
+con $\eta = 1.5$. El color final mezcla el entorno refractado y el reflejado según $F$: de frente domina la refracción (se ve lo que hay detrás) y en los bordes domina el reflejo.
+
+\begin{lstlisting}[language=C, caption={Mezcla de reflexión y refracción para el cristal.}, label={lst:act4_cristal}]
+float f0 = pow((1.0 - ior) / (1.0 + ior), 2.0);
+float fresnel = f0 + (1.0 - f0) * pow(1.0 - max(dot(N, E), 0.0), 5.0);
+vec3 refracted = texture(cubetex, refract(-E, N, 1.0 / ior)).rgb;
+color = mix(refracted * material.diffuse, reflected, fresnel) + specular;
+\end{lstlisting}
+
+\subsubsection{Parámetros de cada material}
+
+Para los tres metales tomamos los coeficientes de la tabla de Devernay \cite{devernay_materials}; el exponente especular es el valor de la tabla multiplicado por 128. El mármol y la madera los ajustamos a mano: el mármol pulido tiene un brillo concentrado y algo de reflejo, y la madera casi no tiene especular (Tabla \ref{tab:act4_materiales}).
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|l|c|c|c|c|l|}
+\hline
+\textbf{Material} & \textbf{$M_d$} & \textbf{$M_s$} & \textbf{$q$} & \textbf{Reflejo} & \textbf{Textura} \\ \hline
+Mármol & (0.80, 0.80, 0.80) & (0.60, 0.60, 0.60) & 96 & 0.12 & mármol \\ \hline
+Madera & (0.90, 0.90, 0.90) & (0.08, 0.08, 0.08) & 8 & 0 & madera \\ \hline
+Oro & (0.752, 0.606, 0.226) & (0.628, 0.556, 0.366) & 51.2 & 0.30 & metal $2\times2$ \\ \hline
+Bronce & (0.714, 0.428, 0.181) & (0.394, 0.272, 0.167) & 25.6 & 0.35 & metal $2\times2$ \\ \hline
+Cobre & (0.704, 0.270, 0.083) & (0.257, 0.138, 0.086) & 12.8 & 0.35 & metal $2\times2$ \\ \hline
+Cristal & (0.90, 0.97, 1.00) & (1, 1, 1) & 128 & Fresnel & ninguna \\ \hline
+\end{tabular}
+\caption{Parámetros de los seis materiales. $M_d$ y $M_s$ son los colores difuso y especular, $q$ el exponente especular.}
+\label{tab:act4_materiales}
+\end{table}
+
+Los seis toroides se dibujan en una cuadrícula de $3\times2$, inclinados $60^\circ$ para que se vea el hueco y girando sobre su eje para que los brillos recorran la superficie. Antes de dibujar cada uno se envían sus parámetros como uniforms y se enlaza su textura en la unidad 1. La unidad 0 queda para la textura que la clase \texttt{Model} enlaza por su cuenta y el cubemap va en la unidad 2.
+
+\subsubsection{Controles}
+
+\texttt{T} activa o quita la textura (Sección \ref{sec:var_experimentos}), \texttt{Espacio} pausa el giro, \texttt{WASD} y el botón derecho del ratón mueven la cámara, \texttt{M}/\texttt{N} cambian entre malla y sólido y \texttt{Esc} cierra el programa.
 
 \subsection{Variaciones}
-adaa
+\label{sec:var_metodologia}
+
+El manual pide una variación por cada actividad. Cada una cambia un solo aspecto del programa original para ver su efecto:
+
+\begin{itemize}
+    \item Actividad 1: las diez fuentes giran alrededor de la casa con la tecla \texttt{O} (\texttt{variaciones/v1\_luces\_orbita}). En cada cuadro se rota la posición original de cada fuente con una matriz de rotación en $Y$ que avanza $30^\circ$ por segundo.
+    \item Actividad 2: plásticos translúcidos (\texttt{variaciones/v2\_translucidos}). La escena tiene tres objetos: la casa con un material opaco (especular casi nulo, exponente 4) y la esfera y la mesa con plástico rojo y plástico verde de la tabla de Devernay (exponente 32). La tecla \texttt{P} cambia la transparencia de los dos plásticos de 1.0 a 0.45. La casa se dibuja primero para que los plásticos se mezclen con lo que ya está en pantalla.
+    \item Actividad 3: filtrado de la textura del toroide (\texttt{variaciones/v3\_filtrado}). La tecla \texttt{F} cambia entre \texttt{GL\_NEAREST} y mipmaps con filtrado trilineal (\texttt{GL\_LINEAR\_MIPMAP\_LINEAR}); \texttt{T} cambia la repetición entre $1\times1$, $4\times4$ y $16\times16$. Usa los shaders \texttt{torus.vs} y \texttt{torus.fs} de la actividad 3 sin cambios.
+    \item Actividad 4: la tecla \texttt{T} del mismo programa apaga la información de textura y deja solo los parámetros de Phong.
+\end{itemize}
